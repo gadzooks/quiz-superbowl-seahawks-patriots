@@ -1,20 +1,28 @@
 # Netlify Configuration for Super Bowl Prediction App
 
 [build]
-  # No build command needed - this is a static HTML file
-  command = ""
-  # Publish the root directory containing index.html
-  publish = "."
+  # Build command injects environment variables into index.html
+  command = "node build.js"
+  # Publish the dist directory created by build script
+  publish = "dist"
 
 # Production deployment from prod branch
 [context.production]
-  command = ""
-  publish = "."
+  command = "node build.js"
+  publish = "dist"
 
 # Branch deploys (e.g., master → QA)
 [context.branch-deploy]
-  command = ""
-  publish = "."
+  command = "node build.js"
+  publish = "dist"
+
+# Environment variables (can also be set in Netlify dashboard)
+# Uncomment and set your InstantDB App IDs for each environment
+# [context.production.environment]
+#   INSTANTDB_APP_ID = "your-production-app-id"
+#
+# [context.branch-deploy.environment]
+#   INSTANTDB_APP_ID = "your-qa-app-id"
 
 # Security headers
 [[headers]]

@@ -1,0 +1,16 @@
+{
+  "name": "superbowl-predictions",
+  "version": "1.0.0",
+  "description": "Super Bowl prediction game with real-time leaderboard",
+  "scripts": {
+    "dev": "node dev.js",
+    "build": "node build.js",
+    "test": "echo 'Open the app and go to Admin tab → Test Scoring Logic'"
+  },
+  "keywords": ["superbowl", "predictions", "game", "instantdb"],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

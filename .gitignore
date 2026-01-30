@@ -1,0 +1,23 @@
+# Build output
+dist/
+
+# Environment variables
+.env
+.env.local
+
+# Node modules (if needed in future)
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Netlify
+.netlify/
