@@ -122,6 +122,41 @@
             border: 1px solid #9DA2A3;
         }
 
+        /* Closed submissions styling */
+        .closed-banner {
+            background: linear-gradient(135deg, #1a1520 0%, #2d1f2d 100%);
+            border: 2px solid #9DA2A3;
+            border-radius: 12px;
+            padding: 16px 20px;
+            color: #C4C4C4;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .submissions-closed {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .submissions-closed .question-card {
+            background: #001a30;
+            border-color: #5a5a5a;
+        }
+
+        .submissions-closed .radio-option {
+            background-color: #001a30;
+            border-color: #5a5a5a;
+            cursor: default;
+        }
+
+        .submissions-closed input[type="number"] {
+            background: #001a30 !important;
+            border-color: #5a5a5a !important;
+            cursor: default;
+        }
+
         .question-card label {
             display: block;
             font-size: 18px;
@@ -869,8 +904,6 @@
 
             <div class="card bg-base-200 shadow-xl">
                 <div class="card-body">
-                    <h2 class="card-title text-2xl text-primary">Submit Your Predictions</h2>
-                    <p id="teamNameDisplay" class="text-success font-bold"></p>
                     <p id="autoSaveStatus" class="text-sm text-success text-center font-semibold"></p>
 
                     <form id="predictionsForm" class="space-y-4 mt-4">
@@ -1852,16 +1885,25 @@
         function renderPredictionsForm() {
             document.getElementById('predictionsSection').classList.remove('hidden');
 
-            // Show status
+            // Show status only when closed
             const statusDiv = document.getElementById('submissionsStatus');
-            statusDiv.innerHTML = `
-                <div class="badge ${currentLeague.isOpen ? 'badge-success' : 'badge-error'} badge-lg">
-                    ${currentLeague.isOpen ? '✓ Submissions Open' : '✗ Submissions Closed'}
-                </div>
-            `;
+            if (currentLeague.isOpen) {
+                statusDiv.innerHTML = '';
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="closed-banner">
+                        🔒 Submissions Closed - Your predictions are locked in!
+                    </div>
+                `;
+            }
 
-            // Show team name
-            document.getElementById('teamNameDisplay').textContent = `Team: ${currentTeamName}`;
+            // Add/remove readonly class on predictions section
+            const predictionsSection = document.getElementById('predictionsSection');
+            if (!currentLeague.isOpen) {
+                predictionsSection.classList.add('submissions-closed');
+            } else {
+                predictionsSection.classList.remove('submissions-closed');
+            }
 
             const form = document.getElementById('predictionsForm');
             let html = '';
@@ -1898,8 +1940,6 @@
 
             if (currentLeague.isOpen) {
                 html += `<div class="alert alert-info mt-6"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span>Your answers are saved automatically as you select them.</span></div>`;
-            } else {
-                html += `<div class="alert mt-6"><span>Submissions are closed. View the leaderboard!</span></div>`;
             }
 
             form.innerHTML = html;
