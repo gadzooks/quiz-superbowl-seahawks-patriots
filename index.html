@@ -1,10 +1,11 @@
 <!-- index.html -->
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="seahawks">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark only">
     <title>Super Bowl Prediction Game</title>
 
     <!-- Favicon - Seahawks themed -->
@@ -66,6 +67,12 @@
     <style>
         /* Seattle Seahawks Dark Theme - Optimized for Elderly Users */
         /* Colors: Navy #00203B, Green #33F200, Grey #9DA2A3, White #FFFFFF */
+
+        /* Force dark color scheme for all browsers (including Android) - ignore user preferences */
+        :root,
+        html {
+            color-scheme: dark only;
+        }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -524,6 +531,21 @@
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
             filter: brightness(0.5);
+        }
+
+        /* Desktop: constrain intro image to narrow centered column */
+        @media (min-width: 768px) {
+            .intro-image {
+                left: 50%;
+                transform: translateX(-50%);
+                width: 480px;
+                max-width: 100%;
+                border-radius: 16px;
+                top: 120px;
+                height: calc(100% - 140px);
+                object-fit: contain;
+                box-shadow: 0 0 60px rgba(51, 242, 0, 0.2);
+            }
         }
 
         .intro-content {
@@ -999,12 +1021,12 @@
         <div id="leaderboardSection" class="hidden">
             <h2 class="text-3xl font-bold mb-6 text-primary">🏆 Leaderboard</h2>
             <div id="leaderboard" class="space-y-3"></div>
-        </div>
 
-        <!-- All Predictions Table -->
-        <div id="allPredictionsSection" class="hidden">
-            <h2 class="text-3xl font-bold mb-6 text-primary">All Predictions</h2>
-            <div class="overflow-x-auto" id="allPredictionsTable"></div>
+            <!-- All Predictions Table (only visible in Scores tab when enabled by admin) -->
+            <div id="allPredictionsSection" class="hidden mt-8">
+                <h2 class="text-3xl font-bold mb-6 text-primary">All Predictions</h2>
+                <div class="overflow-x-auto" id="allPredictionsTable"></div>
+            </div>
         </div>
     </div>
 
