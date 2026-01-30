@@ -231,6 +231,51 @@
             border-radius: 8px;
             margin-bottom: 24px;
         }
+
+        .collapsible-answers {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            margin-top: 12px;
+        }
+
+        .collapsible-answers.active {
+            max-height: 1000px;
+            transition: max-height 0.5s ease-in;
+        }
+
+        .answer-item {
+            padding: 8px 12px;
+            margin: 4px 0;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .answer-item.correct {
+            background-color: rgba(105, 190, 40, 0.2);
+            border-left: 3px solid var(--seahawks-green);
+        }
+
+        .answer-item.incorrect {
+            background-color: rgba(220, 38, 38, 0.1);
+            border-left: 3px solid #dc2626;
+        }
+
+        .toggle-answers {
+            cursor: pointer;
+            color: var(--seahawks-green);
+            font-size: 14px;
+            margin-top: 8px;
+            text-decoration: underline;
+        }
+
+        .toggle-answers:hover {
+            color: #5aa823;
+        }
     </style>
 </head>
 <body>
@@ -649,14 +694,14 @@
                         const checked = currentLeague.actualResults?.[q.id] === value ? 'checked' : '';
                         html += `
                             <div class="radio-option">
-                                <input type="radio" name="result-${q.id}" value="${value}" ${checked} id="result-${q.id}-${value}">
+                                <input type="radio" name="result-${q.id}" value="${value}" ${checked} required id="result-${q.id}-${value}">
                                 <span>${option}</span>
                             </div>
                         `;
                     });
                 } else {
                     const value = currentLeague.actualResults?.[q.id] || '';
-                    html += `<input type="number" name="result-${q.id}" value="${value}" min="0">`;
+                    html += `<input type="number" name="result-${q.id}" value="${value}" min="0" required>`;
                 }
 
                 html += `</div>`;
@@ -672,46 +717,57 @@
         async function handleResultsSubmit(e) {
             e.preventDefault();
 
-            const formData = new FormData(e.target);
-            const actualResults = {};
+            try {
+                const formData = new FormData(e.target);
+                const actualResults = {};
 
-            questions.forEach(q => {
-                const value = formData.get(`result-${q.id}`);
-                if (q.type === 'number') {
-                    actualResults[q.id] = parseInt(value) || 0;
-                } else {
-                    actualResults[q.id] = value;
-                }
-            });
+                questions.forEach(q => {
+                    const value = formData.get(`result-${q.id}`);
+                    if (q.type === 'number') {
+                        actualResults[q.id] = parseInt(value) || 0;
+                    } else {
+                        actualResults[q.id] = value;
+                    }
+                });
 
-            // Calculate scores for all predictions
-            const updates = [];
+                console.log('Actual results:', actualResults);
 
-            allPredictions.forEach(pred => {
-                if (pred.predictions) {
-                    const score = calculateScore(pred.predictions, actualResults);
-                    const tiebreakDiff = Math.abs((pred.predictions?.totalPoints || 0) - (actualResults.totalPoints || 0));
+                // Calculate scores for all predictions
+                const updates = [];
 
-                    updates.push(
-                        db.tx.predictions[pred.id].update({
-                            score,
-                            tiebreakDiff
-                        })
-                    );
-                }
-            });
+                allPredictions.forEach(pred => {
+                    if (pred.predictions) {
+                        const score = calculateScore(pred.predictions, actualResults);
+                        const tiebreakDiff = Math.abs((pred.predictions?.totalPoints || 0) - (actualResults.totalPoints || 0));
 
-            // Update league with actual results
-            updates.push(
-                db.tx.leagues[currentLeague.id].update({ actualResults })
-            );
+                        console.log(`${pred.teamName}: score=${score}, tiebreak=${tiebreakDiff}`);
 
-            await db.transact(updates);
+                        updates.push(
+                            db.tx.predictions[pred.id].update({
+                                score,
+                                tiebreakDiff
+                            })
+                        );
+                    }
+                });
 
-            // Update leaderboard immediately
-            renderLeaderboard();
+                // Update league with actual results
+                updates.push(
+                    db.tx.leagues[currentLeague.id].update({ actualResults })
+                );
 
-            alert('Results saved and scores calculated! Check the Scores tab to see the leaderboard.');
+                console.log('Saving updates...', updates.length);
+                await db.transact(updates);
+                console.log('Updates saved successfully');
+
+                // Update leaderboard immediately
+                renderLeaderboard();
+
+                alert('Results saved and scores calculated! Check the Scores tab to see the leaderboard.');
+            } catch (error) {
+                console.error('Error saving results:', error);
+                alert('Error saving results: ' + error.message);
+            }
         }
 
         // Calculate score
@@ -899,18 +955,87 @@
 
             sorted.forEach((pred, index) => {
                 const isFirst = index === 0 && pred.score > 0 && hasScores;
+                const uniqueId = `answers-${pred.id}`;
+
                 html += `
-                    <div class="leaderboard-row ${isFirst ? 'first' : ''}">
-                        <div>
-                            <strong>${index + 1}. ${pred.teamName}</strong>
-                            ${pred.tiebreakDiff > 0 && hasScores ? `<div style="font-size: 14px; color: var(--seahawks-grey);">Tiebreaker diff: ${pred.tiebreakDiff}</div>` : ''}
+                    <div class="leaderboard-row ${isFirst ? 'first' : ''}" style="flex-direction: column; align-items: stretch;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>${index + 1}. ${pred.teamName}</strong>
+                                ${pred.tiebreakDiff > 0 && hasScores ? `<div style="font-size: 14px; color: var(--seahawks-grey);">Tiebreaker diff: ${pred.tiebreakDiff}</div>` : ''}
+                            </div>
+                            <div style="font-size: 24px; font-weight: bold;">${hasScores ? pred.score : 0} pts</div>
                         </div>
-                        <div style="font-size: 24px; font-weight: bold;">${hasScores ? pred.score : 0} pts</div>
+                        <div class="toggle-answers" onclick="toggleAnswers('${uniqueId}')">
+                            Show answers ▼
+                        </div>
+                        <div id="${uniqueId}" class="collapsible-answers">
+                            ${renderAnswerDetails(pred, currentLeague.actualResults)}
+                        </div>
                     </div>
                 `;
             });
 
             leaderboardDiv.innerHTML = html;
+        }
+
+        // Toggle answers visibility
+        function toggleAnswers(id) {
+            const element = document.getElementById(id);
+            const toggleBtn = element.previousElementSibling;
+
+            if (element.classList.contains('active')) {
+                element.classList.remove('active');
+                toggleBtn.innerHTML = 'Show answers ▼';
+            } else {
+                element.classList.add('active');
+                toggleBtn.innerHTML = 'Hide answers ▲';
+            }
+        }
+
+        // Render answer details for a prediction
+        function renderAnswerDetails(pred, actualResults) {
+            if (!pred.predictions) {
+                return '<div style="padding: 12px; color: var(--seahawks-grey); text-align: center;">No predictions submitted</div>';
+            }
+
+            let html = '';
+            questions.forEach(q => {
+                const userAnswer = pred.predictions[q.id];
+                const correctAnswer = actualResults?.[q.id];
+
+                // Format the answer for display
+                let displayAnswer = userAnswer;
+                if (q.type === 'radio' && userAnswer) {
+                    // Convert from slug format back to readable format
+                    displayAnswer = userAnswer.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                }
+
+                // Determine if answer is correct
+                let answerClass = '';
+                let statusIcon = '';
+                if (correctAnswer !== undefined && correctAnswer !== null) {
+                    if (userAnswer === correctAnswer || (q.type === 'number' && parseInt(userAnswer) === parseInt(correctAnswer))) {
+                        answerClass = 'correct';
+                        statusIcon = '✓';
+                    } else {
+                        answerClass = 'incorrect';
+                        statusIcon = '✗';
+                    }
+                }
+
+                html += `
+                    <div class="answer-item ${answerClass}">
+                        <span>${q.label}</span>
+                        <span>
+                            ${displayAnswer || '-'}
+                            ${statusIcon ? `<strong style="margin-left: 8px;">${statusIcon}</strong>` : ''}
+                        </span>
+                    </div>
+                `;
+            });
+
+            return html;
         }
 
         // Render participants
