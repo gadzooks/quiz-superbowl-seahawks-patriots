@@ -13,14 +13,16 @@
         window.InstantDBInit = init;
     </script>
     <script>
-        // Configure Tailwind with Seahawks theme colors
+        // Configure Tailwind with official Seattle Seahawks theme colors
+        // Navy: #00203B, Neon Green: #33F200, Grey: #9DA2A3, White: #FFFFFF
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        'seahawks-navy': '#002244',
-                        'seahawks-green': '#69BE28',
-                        'seahawks-grey': '#A5ACAF',
+                        'seahawks-navy': '#00203B',
+                        'seahawks-green': '#33F200',
+                        'seahawks-grey': '#9DA2A3',
+                        'seahawks-light': '#C4C4C4',
                     }
                 }
             },
@@ -28,21 +30,26 @@
                 themes: [
                     {
                         seahawks: {
-                            "primary": "#002244",
-                            "primary-content": "#ffffff",
-                            "secondary": "#69BE28",
-                            "secondary-content": "#ffffff",
-                            "accent": "#69BE28",
-                            "accent-content": "#002244",
-                            "neutral": "#1f2937",
+                            "primary": "#33F200",
+                            "primary-content": "#00203B",
+                            "secondary": "#9DA2A3",
+                            "secondary-content": "#00203B",
+                            "accent": "#33F200",
+                            "accent-content": "#00203B",
+                            "neutral": "#002a4a",
                             "neutral-content": "#ffffff",
-                            "base-100": "#ffffff",
-                            "base-200": "#f3f4f6",
-                            "base-300": "#e5e7eb",
-                            "base-content": "#1f2937",
-                            "success": "#22c55e",
-                            "error": "#ef4444",
-                            "info": "#3b82f6",
+                            "base-100": "#00203B",
+                            "base-200": "#001a30",
+                            "base-300": "#001525",
+                            "base-content": "#ffffff",
+                            "success": "#33F200",
+                            "success-content": "#00203B",
+                            "error": "#ff6b6b",
+                            "error-content": "#ffffff",
+                            "info": "#60a5fa",
+                            "info-content": "#00203B",
+                            "warning": "#fbbf24",
+                            "warning-content": "#00203B",
                         },
                     },
                 ],
@@ -50,67 +57,74 @@
         }
     </script>
     <style>
-        /* Custom styles for mobile-optimized prediction game */
+        /* Seattle Seahawks Dark Theme - Optimized for Elderly Users */
+        /* Colors: Navy #00203B, Green #33F200, Grey #9DA2A3, White #FFFFFF */
 
-        /* Radio option styling - clean and tappable */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        /* Radio option styling - large and tappable */
         .radio-option {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 16px;
-            margin: 8px 0;
-            background-color: #f9fafb;
-            border: 2px solid #e5e7eb;
+            gap: 16px;
+            padding: 18px 20px;
+            margin: 10px 0;
+            background-color: #002a4a;
+            border: 2px solid #9DA2A3;
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.2s ease;
-            min-height: 56px;
+            min-height: 60px;
         }
 
         .radio-option:hover {
-            background-color: #f0fdf4;
-            border-color: #69BE28;
+            background-color: #003355;
+            border-color: #33F200;
         }
 
         .radio-option:has(input:checked) {
-            background-color: #f0fdf4;
-            border-color: #69BE28;
-            box-shadow: 0 0 0 3px rgba(105, 190, 40, 0.2);
+            background-color: #003355;
+            border-color: #33F200;
+            box-shadow: 0 0 0 3px rgba(51, 242, 0, 0.3);
         }
 
         .radio-option input[type="radio"] {
-            width: 24px;
-            height: 24px;
-            accent-color: #69BE28;
+            width: 28px;
+            height: 28px;
+            accent-color: #33F200;
             cursor: pointer;
             flex-shrink: 0;
         }
 
         .radio-option span {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 500;
-            color: #1f2937;
+            color: #FFFFFF;
         }
 
-        /* Question card styling */
+        /* Question card styling - dark theme */
         .question-card {
-            background: white;
+            background: #002a4a;
             border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e5e7eb;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid #9DA2A3;
         }
 
         .question-card label {
             display: block;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
-            color: #002244;
-            margin-bottom: 16px;
+            color: #FFFFFF;
+            margin-bottom: 20px;
+            line-height: 1.4;
         }
 
-        /* Collapsible answers */
+        /* Collapsible answers - improved readability */
         .collapsible-answers {
             max-height: 0;
             overflow: hidden;
@@ -118,29 +132,33 @@
         }
 
         .collapsible-answers.active {
-            max-height: 2000px;
+            max-height: 3000px;
             transition: max-height 0.5s ease-in;
         }
 
         .answer-item {
-            padding: 12px 16px;
-            margin: 6px 0;
-            background-color: #f3f4f6;
-            border-radius: 8px;
-            font-size: 14px;
+            padding: 16px 20px;
+            margin: 8px 0;
+            background-color: #002a4a;
+            border-radius: 10px;
+            font-size: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            color: #FFFFFF;
+            border: 1px solid #9DA2A3;
         }
 
         .answer-item.correct {
-            background-color: #dcfce7;
-            border-left: 4px solid #22c55e;
+            background-color: rgba(51, 242, 0, 0.15);
+            border-left: 5px solid #33F200;
+            border-color: #33F200;
         }
 
         .answer-item.incorrect {
-            background-color: #fee2e2;
-            border-left: 4px solid #ef4444;
+            background-color: rgba(255, 107, 107, 0.15);
+            border-left: 5px solid #ff6b6b;
+            border-color: #ff6b6b;
         }
 
         /* Hidden utility */
@@ -148,59 +166,206 @@
             display: none !important;
         }
 
-        /* Number input styling */
+        /* Number input styling - dark theme */
         input[type="number"] {
             width: 100%;
-            padding: 14px 16px;
-            font-size: 18px;
-            border: 2px solid #e5e7eb;
+            padding: 16px 20px;
+            font-size: 20px;
+            border: 2px solid #9DA2A3;
             border-radius: 12px;
-            background: #f9fafb;
-            color: #1f2937;
+            background: #002a4a;
+            color: #FFFFFF;
             transition: all 0.2s ease;
         }
 
         input[type="number"]:focus {
             outline: none;
-            border-color: #69BE28;
-            box-shadow: 0 0 0 3px rgba(105, 190, 40, 0.2);
-            background: white;
+            border-color: #33F200;
+            box-shadow: 0 0 0 3px rgba(51, 242, 0, 0.3);
+            background: #003355;
         }
 
-        /* Better header */
+        input[type="number"]::placeholder {
+            color: #9DA2A3;
+        }
+
+        /* Text inputs - dark theme */
+        input[type="text"] {
+            background: #002a4a !important;
+            color: #FFFFFF !important;
+            border-color: #9DA2A3 !important;
+        }
+
+        input[type="text"]:focus {
+            border-color: #33F200 !important;
+            box-shadow: 0 0 0 3px rgba(51, 242, 0, 0.3) !important;
+        }
+
+        /* App header - Seahawks gradient */
         .app-header {
-            background: linear-gradient(135deg, #002244 0%, #003366 100%);
-            color: white;
-            padding: 16px;
+            background: linear-gradient(135deg, #00203B 0%, #002a4a 50%, #00203B 100%);
+            color: #FFFFFF;
+            padding: 20px 16px;
             text-align: center;
+            border-bottom: 3px solid #33F200;
         }
 
         .app-header h1 {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: bold;
             margin: 0;
+            color: #33F200;
         }
 
         .app-header h2 {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 500;
-            opacity: 0.9;
-            margin-top: 4px;
+            color: #C4C4C4;
+            margin-top: 6px;
+        }
+
+        /* Cards - better contrast */
+        .card {
+            background: #002a4a !important;
+            border: 1px solid #9DA2A3 !important;
+        }
+
+        .card-title {
+            color: #33F200 !important;
+            font-size: 22px !important;
+        }
+
+        .card-body p {
+            color: #C4C4C4 !important;
+            font-size: 16px !important;
+        }
+
+        /* Badges - high contrast */
+        .badge-primary {
+            background-color: #33F200 !important;
+            color: #00203B !important;
+            font-weight: 600 !important;
+        }
+
+        .badge-success {
+            background-color: #33F200 !important;
+            color: #00203B !important;
+        }
+
+        .badge-error {
+            background-color: #ff6b6b !important;
+            color: #FFFFFF !important;
+        }
+
+        /* Buttons - large and readable */
+        .btn {
+            font-size: 18px !important;
+            font-weight: 600 !important;
+            min-height: 56px !important;
+        }
+
+        .btn-primary {
+            background-color: #33F200 !important;
+            color: #00203B !important;
+            border: none !important;
+        }
+
+        .btn-primary:hover {
+            background-color: #2ad600 !important;
+        }
+
+        /* Tabs - high contrast */
+        .tabs {
+            background: #001a30 !important;
+        }
+
+        .tab {
+            color: #C4C4C4 !important;
+            font-size: 16px !important;
+            font-weight: 500 !important;
+        }
+
+        .tab-active, .tab.tab-active {
+            background-color: #33F200 !important;
+            color: #00203B !important;
+            font-weight: 700 !important;
+        }
+
+        /* Alerts - better visibility */
+        .alert {
+            font-size: 16px !important;
+            padding: 16px 20px !important;
+        }
+
+        .alert-info {
+            background-color: rgba(96, 165, 250, 0.2) !important;
+            border: 1px solid #60a5fa !important;
+            color: #FFFFFF !important;
+        }
+
+        .alert-success {
+            background-color: rgba(51, 242, 0, 0.15) !important;
+            border: 1px solid #33F200 !important;
+            color: #FFFFFF !important;
+        }
+
+        /* Progress bars */
+        .progress-primary {
+            background-color: #002a4a;
+        }
+
+        .progress-primary::-webkit-progress-value {
+            background-color: #33F200;
+        }
+
+        /* Table styling for All Predictions */
+        table {
+            font-size: 14px;
+        }
+
+        table th {
+            background-color: #33F200 !important;
+            color: #00203B !important;
+            font-weight: 700 !important;
+            padding: 12px 8px !important;
+        }
+
+        table td {
+            background-color: #002a4a !important;
+            color: #FFFFFF !important;
+            padding: 10px 8px !important;
+            border-color: #9DA2A3 !important;
         }
 
         /* Ensure good readability on mobile */
         @media (max-width: 640px) {
             .app-header h1 {
-                font-size: 20px;
+                font-size: 22px;
+            }
+
+            .app-header h2 {
+                font-size: 16px;
+            }
+
+            body {
+                font-size: 16px;
+            }
+
+            .radio-option span {
+                font-size: 16px;
+            }
+
+            .question-card label {
+                font-size: 16px;
             }
         }
     </style>
 </head>
-<body data-theme="seahawks" class="bg-base-200 min-h-screen">
+<body data-theme="seahawks" class="bg-base-100 min-h-screen">
     <!-- Header -->
     <div class="app-header sticky top-0 z-50 shadow-lg">
-        <h1>🏈 Super Bowl Prediction Game</h1>
-        <h2>Seahawks vs Patriots</h2>
+        <h1>🏈 SUPER BOWL PREDICTIONS</h1>
+        <h2>Seattle Seahawks vs New England Patriots</h2>
     </div>
 
     <div class="container mx-auto px-4 py-6 max-w-2xl">
@@ -689,11 +854,11 @@
                 html += `<div class="question-card">`;
                 html += `<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
                     <label style="margin: 0;">
-                        <span style="color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Question ${index + 1}</span><br>
-                        ${q.label}
-                        <span style="display: inline-block; background: #002244; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">${q.points} pts</span>
+                        <span style="color: #33F200; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Question ${index + 1}</span><br>
+                        <span style="color: #FFFFFF;">${q.label}</span>
+                        <span style="display: inline-block; background: #33F200; color: #00203B; padding: 4px 12px; border-radius: 12px; font-size: 14px; font-weight: 700; margin-left: 10px;">${q.points} pts</span>
                     </label>
-                    <button type="button" onclick="clearResult('${q.id}')" style="background: #fee2e2; color: #dc2626; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer;">✕ Clear</button>
+                    <button type="button" onclick="clearResult('${q.id}')" style="background: rgba(255, 107, 107, 0.2); color: #ff6b6b; border: 1px solid #ff6b6b; padding: 8px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">✕ Clear</button>
                 </div>`;
 
                 if (q.type === 'radio') {
@@ -715,7 +880,7 @@
                 html += `</div>`;
             });
 
-            html += `<div style="background: #dbeafe; border-radius: 12px; padding: 16px; margin-top: 24px; display: flex; align-items: center; gap: 12px;"><span style="font-size: 20px;">ℹ️</span><span style="color: #1e40af; font-size: 14px;">Results are saved automatically as you enter them.</span></div>`;
+            html += `<div style="background: rgba(96, 165, 250, 0.15); border: 1px solid #60a5fa; border-radius: 12px; padding: 16px; margin-top: 24px; display: flex; align-items: center; gap: 12px;"><span style="font-size: 20px;">ℹ️</span><span style="color: #FFFFFF; font-size: 16px;">Results are saved automatically as you enter them.</span></div>`;
 
             form.innerHTML = html;
 
@@ -849,9 +1014,9 @@
             questions.forEach((q, index) => {
                 html += `<div class="question-card">`;
                 html += `<label>
-                    <span style="color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Question ${index + 1}</span><br>
-                    ${q.label}
-                    ${q.points > 0 ? `<span style="display: inline-block; background: #002244; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">${q.points} pts</span>` : '<span style="display: inline-block; background: #e5e7eb; color: #6b7280; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">Tiebreaker</span>'}
+                    <span style="color: #33F200; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Question ${index + 1}</span><br>
+                    <span style="color: #FFFFFF;">${q.label}</span>
+                    ${q.points > 0 ? `<span style="display: inline-block; background: #33F200; color: #00203B; padding: 4px 12px; border-radius: 12px; font-size: 14px; font-weight: 700; margin-left: 10px;">${q.points} pts</span>` : '<span style="display: inline-block; background: #9DA2A3; color: #00203B; padding: 4px 12px; border-radius: 12px; font-size: 14px; font-weight: 600; margin-left: 10px;">Tiebreaker</span>'}
                 </label>`;
 
                 if (q.type === 'radio') {
