@@ -462,9 +462,6 @@
                         </button>
                         <div id="gameStatusContent" class="px-4 pb-4">
                             <div id="gameStatus"></div>
-                            <button id="toggleButton" class="btn btn-primary w-full btn-lg mt-4">
-                                Close Submissions
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -716,8 +713,8 @@
             // Always show leaderboard
             renderLeaderboard();
 
-            // Show all predictions if admin enabled it (defaults to true)
-            const showAllPredictions = currentLeague.showAllPredictions !== false;
+            // Show all predictions if admin enabled it (defaults to false)
+            const showAllPredictions = currentLeague.showAllPredictions === true;
             if (showAllPredictions) {
                 renderAllPredictions();
             } else {
@@ -811,41 +808,61 @@
         // Render admin controls
         function renderAdminControls() {
             const statusDiv = document.getElementById('gameStatus');
-            const showPredictions = currentLeague.showAllPredictions !== false; // Default to true
+            const showPredictions = currentLeague.showAllPredictions === true; // Default to false
             const shareUrl = `${window.location.origin}${window.location.pathname}?league=${currentLeague.slug}`;
 
+            // Submissions toggle colors
+            const submissionsOnStyle = currentLeague.isOpen
+                ? 'background: #003320; border: 2px solid #33F200; color: #33F200;'
+                : 'background: #1a1520; border: 2px solid #ff6b6b40; color: #9DA2A3;';
+            const submissionsOffStyle = !currentLeague.isOpen
+                ? 'background: #3d1a1a; border: 2px solid #ff6b6b; color: #ff6b6b;'
+                : 'background: #1a1520; border: 2px solid #33F20040; color: #9DA2A3;';
+
+            // Show predictions toggle colors (off = green/safe, on = red/warning)
+            const predictionsOffStyle = !showPredictions
+                ? 'background: #003320; border: 2px solid #33F200; color: #33F200;'
+                : 'background: #1a1520; border: 2px solid #ff6b6b40; color: #9DA2A3;';
+            const predictionsOnStyle = showPredictions
+                ? 'background: #3d1a1a; border: 2px solid #ff6b6b; color: #ff6b6b;'
+                : 'background: #1a1520; border: 2px solid #33F20040; color: #9DA2A3;';
+
             statusDiv.innerHTML = `
-                <div class="badge ${currentLeague.isOpen ? 'badge-success' : 'badge-error'} badge-lg mb-4">
-                    ${currentLeague.isOpen ? '✓ Submissions OPEN' : '✗ Submissions CLOSED'}
+                <div style="margin-bottom: 20px;">
+                    <div style="color: #FFFFFF; font-weight: 600; margin-bottom: 10px;">Submissions</div>
+                    <div style="display: flex; gap: 12px;">
+                        <button onclick="setSubmissions(true)" style="${submissionsOnStyle} padding: 12px 20px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; flex: 1; transition: all 0.2s;">
+                            🔓 Open
+                        </button>
+                        <button onclick="setSubmissions(false)" style="${submissionsOffStyle} padding: 12px 20px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; flex: 1; transition: all 0.2s;">
+                            🔒 Closed
+                        </button>
+                    </div>
+                    <div style="color: #9DA2A3; font-size: 13px; margin-top: 8px;">
+                        ${currentLeague.isOpen ? '✓ Users can submit and edit predictions' : '✗ Users cannot submit or edit predictions'}
+                    </div>
                 </div>
 
-                <div style="margin-top: 12px; padding: 10px; background: #002a4a; border-radius: 8px; font-size: 14px;">
+                <div style="margin-bottom: 20px;">
+                    <div style="color: #FFFFFF; font-weight: 600; margin-bottom: 10px;">Show All Predictions Table</div>
+                    <div style="display: flex; gap: 12px;">
+                        <button onclick="setShowPredictions(false)" style="${predictionsOffStyle} padding: 12px 20px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; flex: 1; transition: all 0.2s;">
+                            🔒 Hidden
+                        </button>
+                        <button onclick="setShowPredictions(true)" style="${predictionsOnStyle} padding: 12px 20px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; flex: 1; transition: all 0.2s;">
+                            👁️ Visible
+                        </button>
+                    </div>
+                    <div style="color: #9DA2A3; font-size: 13px; margin-top: 8px;">
+                        ${showPredictions ? '⚠️ All users can see everyone\'s predictions' : '✓ Predictions table is hidden from users'}
+                    </div>
+                </div>
+
+                <div style="padding: 10px; background: #002a4a; border-radius: 8px; font-size: 14px;">
                     <span style="color: #9DA2A3;">Share link:</span>
                     <a href="#" onclick="copyLeagueUrl(); return false;" style="color: #33F200; margin-left: 8px; text-decoration: underline;">📋 Copy invite link</a>
                 </div>
-
-                <div class="form-control mt-6">
-                    <label class="label cursor-pointer justify-start gap-4">
-                        <span class="label-text text-base">Show "All Predictions" Table</span>
-                        <input type="checkbox" class="toggle toggle-success"
-                            ${showPredictions ? 'checked' : ''}
-                            onchange="toggleShowPredictions()" />
-                    </label>
-                    <div class="label">
-                        <span class="label-text-alt text-base-content/60">
-                            ${showPredictions ? 'All users can see the predictions table' : 'Predictions table is hidden from all users'}
-                        </span>
-                    </div>
-                </div>
             `;
-
-            const toggleBtn = document.getElementById('toggleButton');
-            toggleBtn.textContent = currentLeague.isOpen ? '🔒 Close Submissions' : '🔓 Open Submissions';
-            toggleBtn.onclick = toggleSubmissions;
-            // Red/warning style for dangerous operation
-            toggleBtn.style.backgroundColor = currentLeague.isOpen ? '#dc2626' : '#059669';
-            toggleBtn.style.borderColor = currentLeague.isOpen ? '#dc2626' : '#059669';
-            toggleBtn.style.color = '#FFFFFF';
 
             // Preserve collapsed state
             const content = document.getElementById('gameStatusContent');
@@ -858,34 +875,38 @@
             renderResultsForm();
         }
 
-        // Toggle submissions
-        async function toggleSubmissions() {
-            const action = currentLeague.isOpen ? 'close' : 'open';
-            const confirmed = confirm(`Are you sure you want to ${action} submissions?\n\n${currentLeague.isOpen ? 'Users will no longer be able to submit or edit their predictions.' : 'Users will be able to submit and edit their predictions again.'}`);
+        // Set submissions open/closed
+        async function setSubmissions(isOpen) {
+            // If already in this state, do nothing
+            if (currentLeague.isOpen === isOpen) return;
 
-            if (!confirmed) return;
+            // Confirm when closing submissions
+            if (!isOpen) {
+                const confirmed = confirm('Are you sure you want to close submissions?\n\nUsers will no longer be able to submit or edit their predictions.');
+                if (!confirmed) return;
+            }
 
             await db.transact([
-                db.tx.leagues[currentLeague.id].update({ isOpen: !currentLeague.isOpen })
+                db.tx.leagues[currentLeague.id].update({ isOpen: isOpen })
             ]);
         }
 
-        // Toggle show all predictions
-        async function toggleShowPredictions() {
-            console.log('=== TOGGLING SHOW ALL PREDICTIONS ===');
-            console.log('Current value:', currentLeague.showAllPredictions);
+        // Set show all predictions
+        async function setShowPredictions(show) {
+            const currentValue = currentLeague.showAllPredictions === true; // Default to false
 
-            const currentValue = currentLeague.showAllPredictions !== false; // Default to true
-            const newValue = !currentValue;
+            // If already in this state, do nothing
+            if (currentValue === show) return;
 
-            console.log('New value:', newValue);
+            // Confirm when turning ON (showing predictions)
+            if (show) {
+                const confirmed = confirm('Are you sure you want to show all predictions?\n\n⚠️ All users will be able to see everyone\'s answers!\n\nThis is typically done after submissions are closed.');
+                if (!confirmed) return;
+            }
 
             await db.transact([
-                db.tx.leagues[currentLeague.id].update({ showAllPredictions: newValue })
+                db.tx.leagues[currentLeague.id].update({ showAllPredictions: show })
             ]);
-
-            console.log('Toggle saved');
-            // Don't re-render - InstantDB subscription will update automatically
         }
 
         // Render results form
