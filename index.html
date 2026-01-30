@@ -124,15 +124,6 @@
             background-color: #8d949a;
         }
 
-        .btn-danger {
-            background-color: #dc2626;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background-color: #b91c1c;
-        }
-
         .header {
             background-color: var(--seahawks-navy);
             padding: 24px;
@@ -231,6 +222,13 @@
             background-color: #dc2626;
             color: white;
         }
+
+        .info-box {
+            background-color: rgba(105, 190, 40, 0.2);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
     </style>
 </head>
 <body>
@@ -245,22 +243,50 @@
             Loading game...
         </div>
 
-        <!-- Admin Panel -->
+        <!-- League Creation -->
+        <div id="leagueCreation" class="hidden">
+            <h2 style="margin-bottom: 24px;">Create Your League</h2>
+            <p style="margin-bottom: 24px;">Enter a name for your prediction league. You'll get a shareable link to invite others!</p>
+
+            <form id="leagueForm">
+                <div class="question">
+                    <label for="leagueName">League Name:</label>
+                    <input type="text" id="leagueName" required placeholder="e.g., Good Vibes">
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">Create League</button>
+            </form>
+        </div>
+
+        <!-- League URL Display -->
+        <div id="leagueUrlDisplay" class="hidden info-box">
+            <h3 style="margin-bottom: 12px;">📋 Share This Link With Others:</h3>
+            <div style="background-color: white; color: black; padding: 12px; border-radius: 4px; word-break: break-all; margin-bottom: 12px; font-size: 16px;" id="shareUrl"></div>
+            <button onclick="copyLeagueUrl()" class="btn-secondary" style="width: 100%;">Copy Link</button>
+        </div>
+
+        <!-- Team Name Entry -->
+        <div id="teamNameEntry" class="hidden">
+            <h2 style="margin-bottom: 24px;">Enter Your Team Name</h2>
+            <p style="margin-bottom: 24px;">Choose a unique name for your team in this league.</p>
+
+            <form id="teamNameForm">
+                <div class="question">
+                    <label for="teamNameInput">Your Team Name:</label>
+                    <input type="text" id="teamNameInput" required placeholder="e.g., John's Picks">
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">Continue</button>
+            </form>
+        </div>
+
+        <!-- Admin Panel (for league creator) -->
         <div id="adminPanel" class="hidden">
-            <h2 style="margin-bottom: 24px;">Admin Panel</h2>
-
             <div class="tab-buttons">
-                <button class="tab-button active" onclick="switchAdminTab('predictions')">My Predictions</button>
-                <button class="tab-button" onclick="switchAdminTab('controls')">Admin Controls</button>
+                <button class="tab-button active" onclick="switchTab('predictions')">My Predictions</button>
+                <button class="tab-button" onclick="switchTab('admin')">Admin Controls</button>
             </div>
 
-            <!-- Admin Tab 1: Predictions -->
-            <div id="adminPredictionsTab">
-                <p style="margin-bottom: 24px;">Submit your predictions as the admin team:</p>
-            </div>
-
-            <!-- Admin Tab 2: Controls -->
-            <div id="adminControlsTab" class="hidden">
+            <!-- Admin Controls Tab -->
+            <div id="adminTab" class="hidden">
                 <div style="margin-bottom: 32px;">
                     <h3 style="margin-bottom: 16px;">Game Status</h3>
                     <div id="gameStatus"></div>
@@ -278,32 +304,12 @@
             </div>
         </div>
 
-        <!-- Team Creation -->
-        <div id="teamCreation" class="hidden">
-            <h2 style="margin-bottom: 24px;">Create Your Team</h2>
-            <p style="margin-bottom: 24px;">Enter your team name to get started. You'll receive a shareable link for your team members.</p>
-
-            <form id="teamForm">
-                <div class="question">
-                    <label for="teamName">Team Name:</label>
-                    <input type="text" id="teamName" required placeholder="e.g., Smith Family">
-                </div>
-                <button type="submit" class="btn-primary" style="width: 100%;">Create Team</button>
-            </form>
-        </div>
-
-        <!-- Team URL Display -->
-        <div id="teamUrlDisplay" class="hidden" style="margin-bottom: 32px; padding: 16px; background-color: rgba(105, 190, 40, 0.2); border-radius: 8px;">
-            <h3 style="margin-bottom: 12px;">Share This Link With Your Team:</h3>
-            <div style="background-color: white; color: black; padding: 12px; border-radius: 4px; word-break: break-all; margin-bottom: 12px;" id="shareUrl"></div>
-            <button onclick="copyTeamUrl()" class="btn-secondary" style="width: 100%;">Copy Link</button>
-        </div>
-
         <!-- Predictions Form -->
         <div id="predictionsSection" class="hidden">
             <div id="submissionsStatus" style="margin-bottom: 24px;"></div>
 
-            <h2 style="margin-bottom: 24px;" id="predictionFormTitle">Submit Your Predictions</h2>
+            <h2 style="margin-bottom: 24px;">Submit Your Predictions</h2>
+            <p id="teamNameDisplay" style="margin-bottom: 24px; color: var(--seahawks-green); font-weight: bold;"></p>
 
             <form id="predictionsForm">
                 <!-- Questions will be generated by JS -->
@@ -325,15 +331,16 @@
 
     <script>
         // InstantDB Configuration
-        const APP_ID = '8b6d941d-edc0-4750-95ec-19660710b8d6'; // Replace with your InstantDB App ID
+        const APP_ID = '8b6d941d-edc0-4750-95ec-19660710b8d6';
         let db;
 
         // Global state
-        let gameState = null;
+        let currentLeague = null;
         let allPredictions = [];
-        let currentTeamSlug = null;
-        let isAdmin = false;
-        let currentAdminTab = 'predictions';
+        let currentUserId = null;
+        let currentTeamName = null;
+        let isLeagueCreator = false;
+        let currentTab = 'predictions';
 
         // Questions configuration
         const questions = [
@@ -354,79 +361,169 @@
             { id: 'totalSacks', label: 'Total sacks?', type: 'number', points: 5 }
         ];
 
+        // Get or create user ID
+        function getUserId() {
+            let userId = localStorage.getItem('userId');
+            if (!userId) {
+                userId = 'user-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
+                localStorage.setItem('userId', userId);
+            }
+            return userId;
+        }
+
         // Initialize app
         function initApp() {
             // Initialize InstantDB
             db = window.InstantDBInit({ appId: APP_ID });
 
-            // Check for admin mode
+            currentUserId = getUserId();
+
+            // Check for league parameter
             const urlParams = new URLSearchParams(window.location.search);
-            isAdmin = urlParams.get('admin') === 'true';
+            const leagueParam = urlParams.get('league');
 
-            // Check for team parameter
-            const teamParam = urlParams.get('team');
-            if (teamParam) {
-                currentTeamSlug = teamParam;
-                localStorage.setItem('teamSlug', teamParam);
-            } else {
-                currentTeamSlug = localStorage.getItem('teamSlug');
-            }
+            if (leagueParam) {
+                // Subscribe to this specific league by slug
+                db.subscribeQuery(
+                    {
+                        leagues: { $: { where: { slug: leagueParam } } },
+                        predictions: {}
+                    },
+                    (result) => {
+                        if (result.error) {
+                            console.error('InstantDB error:', result.error);
+                            return;
+                        }
 
-            // Subscribe to real-time data
-            db.subscribeQuery(
-                {
-                    gameState: {},
-                    predictions: {}
-                },
-                (result) => {
-                    if (result.error) {
-                        console.error('InstantDB error:', result.error);
-                        return;
+                        currentLeague = result.data.leagues[0];
+
+                        // Filter predictions for this league
+                        if (currentLeague) {
+                            allPredictions = result.data.predictions.filter(p => p.leagueId === currentLeague.id);
+                            isLeagueCreator = currentLeague.creatorId === currentUserId;
+                        } else {
+                            allPredictions = [];
+                        }
+
+                        render();
                     }
+                );
+            } else {
+                // No league parameter - show league creation
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('leagueCreation').classList.remove('hidden');
+                document.getElementById('leagueForm').onsubmit = handleLeagueCreation;
+            }
+        }
 
-                    gameState = result.data.gameState[0] || { id: 'game-state', isOpen: true };
-                    allPredictions = result.data.predictions || [];
+        // Handle league creation
+        async function handleLeagueCreation(e) {
+            e.preventDefault();
 
-                    render();
-                }
-            );
+            const leagueName = document.getElementById('leagueName').value.trim();
+            const leagueSlug = leagueName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+            // Generate UUID for league
+            const leagueId = crypto.randomUUID();
+
+            // Create league
+            await db.transact([
+                db.tx.leagues[leagueId].update({
+                    slug: leagueSlug,
+                    name: leagueName,
+                    creatorId: currentUserId,
+                    isOpen: true,
+                    createdAt: Date.now()
+                })
+            ]);
+
+            // Update URL
+            const newUrl = `${window.location.pathname}?league=${leagueSlug}`;
+            window.history.pushState({}, '', newUrl);
+
+            // Reload to initialize with league
+            window.location.reload();
+        }
+
+        // Copy league URL
+        function copyLeagueUrl() {
+            const url = document.getElementById('shareUrl').textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Link copied to clipboard!');
+            });
         }
 
         // Render UI
         function render() {
             document.getElementById('loading').classList.add('hidden');
 
-            if (isAdmin) {
-                renderAdminPanel();
-            } else if (!currentTeamSlug) {
-                renderTeamCreation();
+            if (!currentLeague) {
+                return; // League not found
+            }
+
+            // Show league URL
+            const shareUrl = `${window.location.origin}${window.location.pathname}?league=${currentLeague.slug}`;
+            document.getElementById('shareUrl').textContent = shareUrl;
+            document.getElementById('leagueUrlDisplay').classList.remove('hidden');
+
+            // Check if user has set their team name
+            const userPrediction = allPredictions.find(p => p.userId === currentUserId);
+
+            if (!userPrediction) {
+                // Show team name entry
+                document.getElementById('teamNameEntry').classList.remove('hidden');
+                document.getElementById('teamNameForm').onsubmit = handleTeamNameSubmit;
             } else {
+                currentTeamName = userPrediction.teamName;
+
+                // Show admin panel for creator
+                if (isLeagueCreator) {
+                    document.getElementById('adminPanel').classList.remove('hidden');
+                    renderAdminControls();
+                }
+
+                // Show predictions form
                 renderPredictionsForm();
             }
 
+            // Always show leaderboard
             renderLeaderboard();
 
-            if (!gameState.isOpen) {
+            // Show all predictions if closed
+            if (!currentLeague.isOpen) {
                 renderAllPredictions();
             }
         }
 
-        // Render admin panel
-        function renderAdminPanel() {
-            document.getElementById('adminPanel').classList.remove('hidden');
+        // Handle team name submission
+        async function handleTeamNameSubmit(e) {
+            e.preventDefault();
 
-            if (currentAdminTab === 'predictions') {
-                // Admin can submit predictions as "Admin Team"
-                currentTeamSlug = 'admin-team';
-                renderPredictionsForm();
-            } else {
-                renderAdminControls();
-            }
+            const teamName = document.getElementById('teamNameInput').value.trim();
+            currentTeamName = teamName;
+
+            // Generate UUID for prediction
+            const predictionId = crypto.randomUUID();
+
+            // Create initial prediction entry
+            await db.transact([
+                db.tx.predictions[predictionId].update({
+                    leagueId: currentLeague.id,
+                    userId: currentUserId,
+                    teamName: teamName,
+                    submittedAt: Date.now(),
+                    score: 0,
+                    tiebreakDiff: 0
+                })
+            ]);
+
+            // Hide team name entry
+            document.getElementById('teamNameEntry').classList.add('hidden');
         }
 
-        // Switch admin tabs
-        function switchAdminTab(tab) {
-            currentAdminTab = tab;
+        // Switch tabs (admin)
+        function switchTab(tab) {
+            currentTab = tab;
 
             document.querySelectorAll('.tab-button').forEach(btn => {
                 btn.classList.remove('active');
@@ -434,30 +531,27 @@
 
             if (tab === 'predictions') {
                 document.querySelectorAll('.tab-button')[0].classList.add('active');
-                document.getElementById('adminPredictionsTab').classList.remove('hidden');
-                document.getElementById('adminControlsTab').classList.add('hidden');
+                document.getElementById('adminTab').classList.add('hidden');
                 document.getElementById('predictionsSection').classList.remove('hidden');
             } else {
                 document.querySelectorAll('.tab-button')[1].classList.add('active');
-                document.getElementById('adminPredictionsTab').classList.add('hidden');
-                document.getElementById('adminControlsTab').classList.remove('hidden');
+                document.getElementById('adminTab').classList.remove('hidden');
                 document.getElementById('predictionsSection').classList.add('hidden');
+                renderAdminControls();
             }
-
-            render();
         }
 
         // Render admin controls
         function renderAdminControls() {
             const statusDiv = document.getElementById('gameStatus');
             statusDiv.innerHTML = `
-                <span class="status-badge ${gameState.isOpen ? 'status-open' : 'status-closed'}">
-                    ${gameState.isOpen ? 'Submissions OPEN' : 'Submissions CLOSED'}
+                <span class="status-badge ${currentLeague.isOpen ? 'status-open' : 'status-closed'}">
+                    ${currentLeague.isOpen ? 'Submissions OPEN' : 'Submissions CLOSED'}
                 </span>
             `;
 
             const toggleBtn = document.getElementById('toggleButton');
-            toggleBtn.textContent = gameState.isOpen ? 'Close Submissions' : 'Open Submissions';
+            toggleBtn.textContent = currentLeague.isOpen ? 'Close Submissions' : 'Open Submissions';
             toggleBtn.onclick = toggleSubmissions;
 
             renderResultsForm();
@@ -466,7 +560,7 @@
         // Toggle submissions
         async function toggleSubmissions() {
             await db.transact([
-                db.tx.gameState['game-state'].update({ isOpen: !gameState.isOpen })
+                db.tx.leagues[currentLeague.id].update({ isOpen: !currentLeague.isOpen })
             ]);
         }
 
@@ -482,7 +576,7 @@
                 if (q.type === 'radio') {
                     q.options.forEach(option => {
                         const value = option.toLowerCase().replace(/\s+/g, '-');
-                        const checked = gameState.actualResults?.[q.id] === value ? 'checked' : '';
+                        const checked = currentLeague.actualResults?.[q.id] === value ? 'checked' : '';
                         html += `
                             <div class="radio-option">
                                 <input type="radio" name="result-${q.id}" value="${value}" ${checked} id="result-${q.id}-${value}">
@@ -491,7 +585,7 @@
                         `;
                     });
                 } else {
-                    const value = gameState.actualResults?.[q.id] || '';
+                    const value = currentLeague.actualResults?.[q.id] || '';
                     html += `<input type="number" name="result-${q.id}" value="${value}" min="0">`;
                 }
 
@@ -524,20 +618,22 @@
             const updates = [];
 
             allPredictions.forEach(pred => {
-                const score = calculateScore(pred.predictions, actualResults);
-                const tiebreakDiff = Math.abs((pred.predictions?.totalPoints || 0) - (actualResults.totalPoints || 0));
+                if (pred.predictions) {
+                    const score = calculateScore(pred.predictions, actualResults);
+                    const tiebreakDiff = Math.abs((pred.predictions?.totalPoints || 0) - (actualResults.totalPoints || 0));
 
-                updates.push(
-                    db.tx.predictions[pred.id].update({
-                        score,
-                        tiebreakDiff
-                    })
-                );
+                    updates.push(
+                        db.tx.predictions[pred.id].update({
+                            score,
+                            tiebreakDiff
+                        })
+                    );
+                }
             });
 
-            // Update game state with actual results
+            // Update league with actual results
             updates.push(
-                db.tx.gameState['game-state'].update({ actualResults })
+                db.tx.leagues[currentLeague.id].update({ actualResults })
             );
 
             await db.transact(updates);
@@ -565,42 +661,6 @@
             return score;
         }
 
-        // Render team creation
-        function renderTeamCreation() {
-            document.getElementById('teamCreation').classList.remove('hidden');
-            document.getElementById('teamForm').onsubmit = handleTeamCreation;
-        }
-
-        // Handle team creation
-        async function handleTeamCreation(e) {
-            e.preventDefault();
-
-            const teamName = document.getElementById('teamName').value.trim();
-            const teamSlug = teamName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-
-            currentTeamSlug = teamSlug;
-            localStorage.setItem('teamSlug', teamSlug);
-
-            // Update URL
-            const newUrl = `${window.location.pathname}?team=${teamSlug}`;
-            window.history.pushState({}, '', newUrl);
-
-            // Show team URL
-            const shareUrl = `${window.location.origin}${newUrl}`;
-            document.getElementById('shareUrl').textContent = shareUrl;
-            document.getElementById('teamUrlDisplay').classList.remove('hidden');
-
-            render();
-        }
-
-        // Copy team URL
-        function copyTeamUrl() {
-            const url = document.getElementById('shareUrl').textContent;
-            navigator.clipboard.writeText(url).then(() => {
-                alert('Link copied to clipboard!');
-            });
-        }
-
         // Render predictions form
         function renderPredictionsForm() {
             document.getElementById('predictionsSection').classList.remove('hidden');
@@ -608,23 +668,19 @@
             // Show status
             const statusDiv = document.getElementById('submissionsStatus');
             statusDiv.innerHTML = `
-                <span class="status-badge ${gameState.isOpen ? 'status-open' : 'status-closed'}">
-                    ${gameState.isOpen ? 'Submissions Open' : 'Submissions Closed'}
+                <span class="status-badge ${currentLeague.isOpen ? 'status-open' : 'status-closed'}">
+                    ${currentLeague.isOpen ? 'Submissions Open' : 'Submissions Closed'}
                 </span>
             `;
 
-            // Show team URL if not admin
-            if (!isAdmin && currentTeamSlug) {
-                const shareUrl = `${window.location.origin}${window.location.pathname}?team=${currentTeamSlug}`;
-                document.getElementById('shareUrl').textContent = shareUrl;
-                document.getElementById('teamUrlDisplay').classList.remove('hidden');
-            }
+            // Show team name
+            document.getElementById('teamNameDisplay').textContent = `Team: ${currentTeamName}`;
 
             const form = document.getElementById('predictionsForm');
             let html = '';
 
-            // Get existing predictions for this team
-            const existingPred = allPredictions.find(p => p.id === currentTeamSlug);
+            // Get existing predictions
+            const userPrediction = allPredictions.find(p => p.userId === currentUserId);
 
             questions.forEach(q => {
                 html += `<div class="question">`;
@@ -633,23 +689,23 @@
                 if (q.type === 'radio') {
                     q.options.forEach(option => {
                         const value = option.toLowerCase().replace(/\s+/g, '-');
-                        const checked = existingPred?.predictions?.[q.id] === value ? 'checked' : '';
+                        const checked = userPrediction?.predictions?.[q.id] === value ? 'checked' : '';
                         html += `
                             <div class="radio-option">
-                                <input type="radio" name="${q.id}" value="${value}" ${checked} required ${!gameState.isOpen ? 'disabled' : ''} id="${q.id}-${value}">
+                                <input type="radio" name="${q.id}" value="${value}" ${checked} required ${!currentLeague.isOpen ? 'disabled' : ''} id="${q.id}-${value}">
                                 <span>${option}</span>
                             </div>
                         `;
                     });
                 } else {
-                    const value = existingPred?.predictions?.[q.id] || '';
-                    html += `<input type="number" name="${q.id}" value="${value}" min="0" required ${!gameState.isOpen ? 'disabled' : ''}>`;
+                    const value = userPrediction?.predictions?.[q.id] || '';
+                    html += `<input type="number" name="${q.id}" value="${value}" min="0" required ${!currentLeague.isOpen ? 'disabled' : ''}>`;
                 }
 
                 html += `</div>`;
             });
 
-            if (gameState.isOpen) {
+            if (currentLeague.isOpen) {
                 html += `<button type="submit" class="btn-primary" style="width: 100%;">Submit Predictions</button>`;
             } else {
                 html += `<p style="text-align: center; color: var(--seahawks-grey);">Submissions are closed. View the leaderboard below!</p>`;
@@ -663,7 +719,7 @@
         async function handlePredictionsSubmit(e) {
             e.preventDefault();
 
-            if (!gameState.isOpen) {
+            if (!currentLeague.isOpen) {
                 alert('Submissions are closed!');
                 return;
             }
@@ -680,32 +736,30 @@
                 }
             });
 
-            // Get team name from slug or use Admin Team
-            const teamName = currentTeamSlug === 'admin-team'
-                ? 'Admin Team'
-                : currentTeamSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            // Find user's prediction
+            const userPrediction = allPredictions.find(p => p.userId === currentUserId);
 
-            const teamUrl = isAdmin ? '?admin=true' : `?team=${currentTeamSlug}`;
+            if (userPrediction) {
+                await db.transact([
+                    db.tx.predictions[userPrediction.id].update({
+                        predictions,
+                        submittedAt: Date.now()
+                    })
+                ]);
 
-            await db.transact([
-                db.tx.predictions[currentTeamSlug].update({
-                    teamName,
-                    teamUrl,
-                    submittedAt: Date.now(),
-                    predictions,
-                    score: 0,
-                    tiebreakDiff: 0
-                })
-            ]);
-
-            alert('Predictions submitted successfully!');
+                alert('Predictions submitted successfully!');
+            } else {
+                alert('Error: Could not find your prediction entry!');
+            }
         }
 
         // Render leaderboard
         function renderLeaderboard() {
             const leaderboardDiv = document.getElementById('leaderboard');
 
-            if (allPredictions.length === 0) {
+            const teamsWithPredictions = allPredictions.filter(p => p.predictions);
+
+            if (teamsWithPredictions.length === 0) {
                 leaderboardDiv.innerHTML = '<p style="text-align: center; color: var(--seahawks-grey);">No predictions yet!</p>';
                 return;
             }
@@ -713,7 +767,7 @@
             document.getElementById('leaderboardSection').classList.remove('hidden');
 
             // Sort by score (desc), then tiebreak diff (asc)
-            const sorted = [...allPredictions].sort((a, b) => {
+            const sorted = [...teamsWithPredictions].sort((a, b) => {
                 if (b.score !== a.score) return b.score - a.score;
                 return a.tiebreakDiff - b.tiebreakDiff;
             });
@@ -737,7 +791,9 @@
 
         // Render all predictions
         function renderAllPredictions() {
-            if (allPredictions.length === 0) return;
+            const teamsWithPredictions = allPredictions.filter(p => p.predictions);
+
+            if (teamsWithPredictions.length === 0) return;
 
             document.getElementById('allPredictionsSection').classList.remove('hidden');
 
@@ -747,12 +803,12 @@
             });
             html += '<th>Score</th></tr></thead><tbody>';
 
-            allPredictions.forEach(pred => {
+            teamsWithPredictions.forEach(pred => {
                 html += `<tr><td><strong>${pred.teamName}</strong></td>`;
 
                 questions.forEach(q => {
                     const value = pred.predictions?.[q.id] || '-';
-                    const actual = gameState.actualResults?.[q.id];
+                    const actual = currentLeague.actualResults?.[q.id];
                     const isCorrect = actual && value === actual;
 
                     html += `<td class="${isCorrect ? 'correct-answer' : ''}">${value}</td>`;
@@ -762,10 +818,10 @@
             });
 
             // Add actual results row if available
-            if (gameState.actualResults) {
+            if (currentLeague.actualResults) {
                 html += `<tr style="background-color: rgba(105, 190, 40, 0.5);"><td><strong>ACTUAL</strong></td>`;
                 questions.forEach(q => {
-                    html += `<td><strong>${gameState.actualResults[q.id] || '-'}</strong></td>`;
+                    html += `<td><strong>${currentLeague.actualResults[q.id] || '-'}</strong></td>`;
                 });
                 html += '<td>-</td></tr>';
             }
