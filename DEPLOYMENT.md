@@ -141,39 +141,39 @@ netlify deploy --prod
 
 It's recommended to use separate InstantDB apps for QA and production environments.
 
-### Option 1: Using Netlify Dashboard (Recommended)
+📖 **For detailed setup instructions, see [MULTI_ENV_SETUP.md](./MULTI_ENV_SETUP.md)**
 
-1. Create two InstantDB apps at https://instantdb.com/dash:
+🚀 **Quick Reference: [NETLIFY_QUICK_REF.md](./NETLIFY_QUICK_REF.md)**
+
+### Quick Setup Summary
+
+1. **Create two InstantDB apps** at https://instantdb.com/dash:
    - One for QA/testing
    - One for production
 
-2. In Netlify, go to Site Settings → Environment variables
+2. **Set environment variables in Netlify Dashboard:**
+   - Go to: Site configuration → Environment variables
+   - Add `INSTANTDB_APP_ID` for production context (Production App ID)
+   - Add `INSTANTDB_APP_ID` for branch-deploy context (QA App ID)
+   - Add `INSTANTDB_APP_ID` for deploy-preview context (QA App ID)
 
-3. Click "Add a variable" → Select "Add a single variable"
+3. **Verify configuration:**
+   ```bash
+   node validate-netlify-env.js
+   ```
 
-4. For **Production:**
-   - Key: `INSTANTDB_APP_ID`
-   - Value: Your production InstantDB App ID
-   - Scopes: Select only "Production"
+### Alternative: Using Netlify CLI
 
-5. Add another variable for **Branch deploys:**
-   - Key: `INSTANTDB_APP_ID`
-   - Value: Your QA InstantDB App ID
-   - Scopes: Select "Deploy previews" and "Branch deploys"
+```bash
+# Production database
+netlify env:set INSTANTDB_APP_ID "your-production-app-id" --context production
 
-### Option 2: Using netlify.toml
-
-Uncomment and edit the environment sections in `netlify.toml`:
-
-```toml
-[context.production.environment]
-  INSTANTDB_APP_ID = "your-production-app-id"
-
-[context.branch-deploy.environment]
-  INSTANTDB_APP_ID = "your-qa-app-id"
+# QA database
+netlify env:set INSTANTDB_APP_ID "your-qa-app-id" --context branch-deploy
+netlify env:set INSTANTDB_APP_ID "your-qa-app-id" --context deploy-preview
 ```
 
-**Note:** If you commit these to git, anyone with repo access can see them. Use Netlify dashboard for sensitive values.
+**Note:** See [MULTI_ENV_SETUP.md](./MULTI_ENV_SETUP.md) for complete instructions, troubleshooting, and best practices.
 
 ## Branch Strategy
 
