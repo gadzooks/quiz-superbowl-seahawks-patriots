@@ -7,393 +7,246 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Super Bowl Prediction Game</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.6.0/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script type="module">
         import { init } from 'https://cdn.jsdelivr.net/npm/@instantdb/core/+esm';
         window.InstantDBInit = init;
     </script>
+    <script>
+        // Configure Tailwind with Seahawks theme colors
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'seahawks-navy': '#002244',
+                        'seahawks-green': '#69BE28',
+                        'seahawks-grey': '#A5ACAF',
+                    }
+                }
+            },
+            daisyui: {
+                themes: [
+                    {
+                        seahawks: {
+                            "primary": "#69BE28",
+                            "primary-content": "#ffffff",
+                            "secondary": "#A5ACAF",
+                            "accent": "#002244",
+                            "neutral": "#002244",
+                            "base-100": "#002244",
+                            "base-200": "#001a33",
+                            "base-300": "#001122",
+                            "base-content": "#ffffff",
+                        },
+                    },
+                ],
+            },
+        }
+    </script>
     <style>
-        :root {
-            --seahawks-navy: #002244;
-            --seahawks-green: #69BE28;
-            --seahawks-grey: #A5ACAF;
-        }
+        /* Custom styles for mobile-optimized prediction game */
 
-        body {
-            font-size: 18px;
-            background-color: var(--seahawks-navy);
-            color: white;
-        }
-
-        h1, h2, h3 {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        h1 {
-            font-size: 32px;
-        }
-
-        .question {
-            margin-bottom: 24px;
-            padding: 16px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-        }
-
-        .question label {
-            display: block;
-            margin-bottom: 12px;
-            font-weight: 600;
-        }
-
-        /* Large radio buttons */
+        /* Large tap-friendly radio buttons for elderly users */
         input[type="radio"] {
-            width: 40px;
-            height: 40px;
-            margin-right: 12px;
+            width: 32px;
+            height: 32px;
             cursor: pointer;
         }
 
         .radio-option {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-            min-height: 48px;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-
-        .radio-option:hover {
-            background-color: rgba(105, 190, 40, 0.2);
+            @apply flex items-center gap-3 p-4 rounded-lg cursor-pointer transition-colors;
+            @apply hover:bg-primary/10 min-h-[60px];
         }
 
         .radio-option span {
-            font-size: 18px;
+            @apply text-lg;
         }
 
-        /* Large number inputs */
-        input[type="number"], input[type="text"] {
-            width: 100%;
-            padding: 16px;
-            font-size: 20px;
-            border-radius: 8px;
-            border: 2px solid var(--seahawks-grey);
-            background-color: white;
-            color: black;
-            min-height: 48px;
-        }
-
-        input[type="number"]:focus, input[type="text"]:focus {
-            outline: none;
-            border-color: var(--seahawks-green);
-        }
-
-        /* Large buttons */
-        button {
-            min-height: 48px;
-            padding: 16px 32px;
-            font-size: 20px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-        }
-
-        .btn-primary {
-            background-color: var(--seahawks-green);
-            color: white;
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            background-color: #5aa823;
-            transform: scale(1.02);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            background-color: var(--seahawks-grey);
-            color: var(--seahawks-navy);
-        }
-
-        .btn-secondary:hover {
-            background-color: #8d949a;
-        }
-
-        .header {
-            background-color: var(--seahawks-navy);
-            padding: 24px;
-            text-align: center;
-            border-bottom: 4px solid var(--seahawks-green);
-        }
-
-        .container {
-            max-width: 640px;
-            margin: 0 auto;
-            padding: 24px;
-        }
-
-        .leaderboard-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 16px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            margin-bottom: 12px;
-            font-size: 18px;
-        }
-
-        .leaderboard-row.first {
-            background-color: rgba(105, 190, 40, 0.3);
-            border: 2px solid var(--seahawks-green);
-        }
-
-        .tab-buttons {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-
-        .tab-button {
-            flex: 1;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-
-        .tab-button.active {
-            background-color: var(--seahawks-green);
-        }
-
-        .predictions-table {
-            overflow-x: auto;
-            margin-top: 24px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: rgba(255, 255, 255, 0.05);
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            font-size: 16px;
-        }
-
-        th {
-            background-color: var(--seahawks-green);
-            font-weight: bold;
-        }
-
-        .correct-answer {
-            background-color: rgba(105, 190, 40, 0.3);
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 48px;
-            font-size: 20px;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 8px 16px;
-            border-radius: 24px;
-            font-weight: bold;
-            margin-bottom: 16px;
-        }
-
-        .status-open {
-            background-color: var(--seahawks-green);
-            color: white;
-        }
-
-        .status-closed {
-            background-color: #dc2626;
-            color: white;
-        }
-
-        .info-box {
-            background-color: rgba(105, 190, 40, 0.2);
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 24px;
-        }
-
+        /* Collapsible answers */
         .collapsible-answers {
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease-out;
-            margin-top: 12px;
         }
 
         .collapsible-answers.active {
-            max-height: 1000px;
+            max-height: 2000px;
             transition: max-height 0.5s ease-in;
         }
 
         .answer-item {
-            padding: 8px 12px;
-            margin: 4px 0;
-            background-color: rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
-            font-size: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            @apply p-3 my-2 bg-base-300 rounded-lg text-sm flex justify-between items-center;
         }
 
         .answer-item.correct {
-            background-color: rgba(105, 190, 40, 0.2);
-            border-left: 3px solid var(--seahawks-green);
+            @apply bg-success/20 border-l-4 border-success;
         }
 
         .answer-item.incorrect {
-            background-color: rgba(220, 38, 38, 0.1);
-            border-left: 3px solid #dc2626;
+            @apply bg-error/20 border-l-4 border-error;
         }
 
-        .toggle-answers {
-            cursor: pointer;
-            color: var(--seahawks-green);
-            font-size: 14px;
-            margin-top: 8px;
-            text-decoration: underline;
+        /* Hidden utility */
+        .hidden {
+            display: none !important;
         }
 
-        .toggle-answers:hover {
-            color: #5aa823;
+        /* Ensure good readability on mobile */
+        @media (max-width: 640px) {
+            .navbar h1 {
+                font-size: 1.25rem;
+            }
         }
     </style>
 </head>
-<body>
-    <div class="header">
-        <h1>🏈 Super Bowl Prediction Game</h1>
-        <h2>Seahawks vs Patriots</h2>
+<body data-theme="seahawks" class="bg-base-100">
+    <!-- Header -->
+    <div class="navbar bg-accent shadow-lg sticky top-0 z-50">
+        <div class="flex-1">
+            <h1 class="text-2xl font-bold text-primary">🏈 Super Bowl Prediction Game</h1>
+        </div>
+    </div>
+    <div class="text-center py-2 bg-accent/80">
+        <h2 class="text-lg font-semibold text-base-content">Seahawks vs Patriots</h2>
     </div>
 
-    <div class="container">
+    <div class="container mx-auto px-4 py-6 max-w-2xl">
         <!-- Loading State -->
-        <div id="loading" class="loading">
-            Loading game...
+        <div id="loading" class="flex justify-center items-center min-h-screen">
+            <span class="loading loading-spinner loading-lg text-primary"></span>
         </div>
 
         <!-- League Creation -->
         <div id="leagueCreation" class="hidden">
-            <h2 style="margin-bottom: 24px;">Create Your League</h2>
-            <p style="margin-bottom: 24px;">Enter a name for your prediction league. You'll get a shareable link to invite others!</p>
+            <div class="card bg-base-200 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-2xl text-primary">Create Your League</h2>
+                    <p class="text-base-content/80">Enter a name for your prediction league. You'll get a shareable link to invite others!</p>
 
-            <form id="leagueForm">
-                <div class="question">
-                    <label for="leagueName">League Name:</label>
-                    <input type="text" id="leagueName" required placeholder="e.g., Good Vibes">
+                    <form id="leagueForm" class="space-y-4 mt-4">
+                        <div class="form-control">
+                            <label class="label" for="leagueName">
+                                <span class="label-text text-base-content">League Name</span>
+                            </label>
+                            <input type="text" id="leagueName" required placeholder="e.g., Good Vibes"
+                                class="input input-bordered input-primary w-full text-lg" />
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full btn-lg">Create League</button>
+                    </form>
                 </div>
-                <button type="submit" class="btn-primary" style="width: 100%;">Create League</button>
-            </form>
+            </div>
         </div>
 
         <!-- League URL Display -->
-        <div id="leagueUrlDisplay" class="hidden info-box">
-            <h3 style="margin-bottom: 12px;">📋 Share This Link With Others:</h3>
-            <div style="background-color: white; color: black; padding: 12px; border-radius: 4px; word-break: break-all; margin-bottom: 12px; font-size: 16px;" id="shareUrl"></div>
-            <button onclick="copyLeagueUrl()" class="btn-secondary" style="width: 100%;">Copy Link</button>
+        <div id="leagueUrlDisplay" class="hidden alert alert-success shadow-lg mb-6">
+            <div class="flex-col w-full">
+                <div class="flex items-center gap-2 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span class="font-bold">📋 Share This Link:</span>
+                </div>
+                <div class="bg-base-100 text-base-content p-3 rounded-lg break-all text-sm mb-2" id="shareUrl"></div>
+                <button onclick="copyLeagueUrl()" class="btn btn-secondary btn-sm w-full">Copy Link</button>
+            </div>
         </div>
 
         <!-- Team Name Entry -->
         <div id="teamNameEntry" class="hidden">
-            <h2 style="margin-bottom: 24px;">Enter Your Team Name</h2>
-            <p style="margin-bottom: 24px;">Choose a unique name for your team in this league.</p>
+            <div class="card bg-base-200 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-2xl text-primary">Enter Your Team Name</h2>
+                    <p class="text-base-content/80">Choose a unique name for your team in this league.</p>
 
-            <form id="teamNameForm">
-                <div class="question">
-                    <label for="teamNameInput">Your Team Name:</label>
-                    <input type="text" id="teamNameInput" required placeholder="e.g., John's Picks">
+                    <form id="teamNameForm" class="space-y-4 mt-4">
+                        <div class="form-control">
+                            <label class="label" for="teamNameInput">
+                                <span class="label-text text-base-content">Your Team Name</span>
+                            </label>
+                            <input type="text" id="teamNameInput" required placeholder="e.g., John's Picks"
+                                class="input input-bordered input-primary w-full text-lg" />
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full btn-lg">Continue</button>
+                    </form>
                 </div>
-                <button type="submit" class="btn-primary" style="width: 100%;">Continue</button>
-            </form>
+            </div>
         </div>
 
         <!-- Admin Panel (for league creator) -->
         <div id="adminPanel" class="hidden">
-            <div class="tab-buttons">
-                <button class="tab-button active" onclick="switchTab('predictions')">My Predictions</button>
-                <button class="tab-button" onclick="switchTab('participants')">Participants</button>
-                <button class="tab-button" onclick="switchTab('scores')">Scores</button>
-                <button class="tab-button" onclick="switchTab('admin')">Admin Controls</button>
+            <div role="tablist" class="tabs tabs-boxed bg-base-200 mb-6 sticky top-20 z-40 shadow-lg">
+                <a role="tab" class="tab tab-active" onclick="switchTab('predictions')">My Predictions</a>
+                <a role="tab" class="tab" onclick="switchTab('participants')">Participants</a>
+                <a role="tab" class="tab" onclick="switchTab('scores')">Scores</a>
+                <a role="tab" class="tab" onclick="switchTab('admin')">Admin</a>
             </div>
 
             <!-- Admin Controls Tab -->
-            <div id="adminTab" class="hidden">
-                <div style="margin-bottom: 32px;">
-                    <h3 style="margin-bottom: 16px;">Game Status</h3>
-                    <div id="gameStatus"></div>
-                    <button id="toggleButton" class="btn-primary" style="width: 100%; margin-top: 16px;">
-                        Close Submissions
-                    </button>
+            <div id="adminTab" class="hidden space-y-6">
+                <div class="card bg-base-200 shadow-xl">
+                    <div class="card-body">
+                        <h3 class="card-title text-primary">Game Status</h3>
+                        <div id="gameStatus"></div>
+                        <button id="toggleButton" class="btn btn-primary w-full btn-lg mt-4">
+                            Close Submissions
+                        </button>
+                    </div>
                 </div>
 
-                <div>
-                    <h3 style="margin-bottom: 16px;">Enter Actual Results</h3>
-                    <p style="margin-bottom: 16px; color: var(--seahawks-grey); font-size: 14px;">
-                        Results are saved automatically as you enter them. Scores update in real-time.
-                    </p>
-                    <p id="resultsAutoSaveStatus" style="margin-bottom: 16px; color: var(--seahawks-green); font-size: 14px; text-align: center;"></p>
-                    <form id="resultsForm">
-                        <!-- Results form will be generated by JS -->
-                    </form>
+                <div class="card bg-base-200 shadow-xl">
+                    <div class="card-body">
+                        <h3 class="card-title text-primary">Enter Actual Results</h3>
+                        <p class="text-sm text-base-content/60">
+                            Results are saved automatically as you enter them. Scores update in real-time.
+                        </p>
+                        <p id="resultsAutoSaveStatus" class="text-sm text-success text-center font-semibold"></p>
+                        <form id="resultsForm" class="space-y-4 mt-4">
+                            <!-- Results form will be generated by JS -->
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Regular User Panel (non-admin users) -->
         <div id="userPanel" class="hidden">
-            <div class="tab-buttons">
-                <button class="tab-button active" onclick="switchUserTab('predictions')">My Predictions</button>
-                <button class="tab-button" onclick="switchUserTab('scores')">Scores</button>
+            <div role="tablist" class="tabs tabs-boxed bg-base-200 mb-6 sticky top-20 z-40 shadow-lg">
+                <a role="tab" class="tab tab-active" onclick="switchUserTab('predictions')">My Predictions</a>
+                <a role="tab" class="tab" onclick="switchUserTab('scores')">Scores</a>
             </div>
         </div>
 
         <!-- Predictions Form -->
         <div id="predictionsSection" class="hidden">
-            <div id="submissionsStatus" style="margin-bottom: 24px;"></div>
+            <div id="submissionsStatus" class="mb-4"></div>
 
-            <h2 style="margin-bottom: 24px;">Submit Your Predictions</h2>
-            <p id="teamNameDisplay" style="margin-bottom: 24px; color: var(--seahawks-green); font-weight: bold;"></p>
-            <p id="autoSaveStatus" style="margin-bottom: 16px; color: var(--seahawks-green); font-size: 14px; text-align: center;"></p>
+            <div class="card bg-base-200 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-2xl text-primary">Submit Your Predictions</h2>
+                    <p id="teamNameDisplay" class="text-success font-bold"></p>
+                    <p id="autoSaveStatus" class="text-sm text-success text-center font-semibold"></p>
 
-            <form id="predictionsForm">
-                <!-- Questions will be generated by JS -->
-            </form>
+                    <form id="predictionsForm" class="space-y-4 mt-4">
+                        <!-- Questions will be generated by JS -->
+                    </form>
+                </div>
+            </div>
         </div>
 
         <!-- Participants List -->
         <div id="participantsSection" class="hidden">
-            <h2 style="margin-bottom: 24px;">👥 Participants</h2>
-            <div id="participantsList"></div>
+            <h2 class="text-3xl font-bold mb-6 text-primary">👥 Participants</h2>
+            <div id="participantsList" class="space-y-3"></div>
         </div>
 
         <!-- Leaderboard -->
         <div id="leaderboardSection" class="hidden">
-            <h2 style="margin-bottom: 24px;">🏆 Leaderboard</h2>
-            <div id="leaderboard"></div>
+            <h2 class="text-3xl font-bold mb-6 text-primary">🏆 Leaderboard</h2>
+            <div id="leaderboard" class="space-y-3"></div>
         </div>
 
         <!-- All Predictions Table -->
         <div id="allPredictionsSection" class="hidden">
-            <h2 style="margin-bottom: 24px;">All Predictions</h2>
-            <div class="predictions-table" id="allPredictionsTable"></div>
+            <h2 class="text-3xl font-bold mb-6 text-primary">All Predictions</h2>
+            <div class="overflow-x-auto" id="allPredictionsTable"></div>
         </div>
     </div>
 
@@ -624,9 +477,9 @@
         function switchTab(tab) {
             currentTab = tab;
 
-            // Remove active class from all admin tab buttons
-            document.querySelectorAll('#adminPanel .tab-button').forEach(btn => {
-                btn.classList.remove('active');
+            // Remove active class from all admin tabs
+            document.querySelectorAll('#adminPanel .tab').forEach(btn => {
+                btn.classList.remove('tab-active');
             });
 
             // Hide all sections
@@ -636,18 +489,18 @@
             document.getElementById('adminTab').classList.add('hidden');
 
             if (tab === 'predictions') {
-                document.querySelectorAll('#adminPanel .tab-button')[0].classList.add('active');
+                document.querySelectorAll('#adminPanel .tab')[0].classList.add('tab-active');
                 document.getElementById('predictionsSection').classList.remove('hidden');
             } else if (tab === 'participants') {
-                document.querySelectorAll('#adminPanel .tab-button')[1].classList.add('active');
+                document.querySelectorAll('#adminPanel .tab')[1].classList.add('tab-active');
                 document.getElementById('participantsSection').classList.remove('hidden');
                 renderParticipants();
             } else if (tab === 'scores') {
-                document.querySelectorAll('#adminPanel .tab-button')[2].classList.add('active');
+                document.querySelectorAll('#adminPanel .tab')[2].classList.add('tab-active');
                 document.getElementById('leaderboardSection').classList.remove('hidden');
                 renderLeaderboard();
             } else if (tab === 'admin') {
-                document.querySelectorAll('#adminPanel .tab-button')[3].classList.add('active');
+                document.querySelectorAll('#adminPanel .tab')[3].classList.add('tab-active');
                 document.getElementById('adminTab').classList.remove('hidden');
                 renderAdminControls();
             }
@@ -657,9 +510,9 @@
         function switchUserTab(tab) {
             currentTab = tab;
 
-            // Remove active class from all user tab buttons
-            document.querySelectorAll('#userPanel .tab-button').forEach(btn => {
-                btn.classList.remove('active');
+            // Remove active class from all user tabs
+            document.querySelectorAll('#userPanel .tab').forEach(btn => {
+                btn.classList.remove('tab-active');
             });
 
             // Hide all sections
@@ -667,10 +520,10 @@
             document.getElementById('leaderboardSection').classList.add('hidden');
 
             if (tab === 'predictions') {
-                document.querySelectorAll('#userPanel .tab-button')[0].classList.add('active');
+                document.querySelectorAll('#userPanel .tab')[0].classList.add('tab-active');
                 document.getElementById('predictionsSection').classList.remove('hidden');
             } else if (tab === 'scores') {
-                document.querySelectorAll('#userPanel .tab-button')[1].classList.add('active');
+                document.querySelectorAll('#userPanel .tab')[1].classList.add('tab-active');
                 document.getElementById('leaderboardSection').classList.remove('hidden');
                 renderLeaderboard();
             }
@@ -679,28 +532,25 @@
         // Render admin controls
         function renderAdminControls() {
             const statusDiv = document.getElementById('gameStatus');
-            const showPredictions = currentLeague.showAllPredictions !== false; // Default to true if not set
+            const showPredictions = currentLeague.showAllPredictions !== false; // Default to true
 
             statusDiv.innerHTML = `
-                <div style="margin-bottom: 16px;">
-                    <span class="status-badge ${currentLeague.isOpen ? 'status-open' : 'status-closed'}">
-                        ${currentLeague.isOpen ? 'Submissions OPEN' : 'Submissions CLOSED'}
-                    </span>
+                <div class="badge ${currentLeague.isOpen ? 'badge-success' : 'badge-error'} badge-lg mb-4">
+                    ${currentLeague.isOpen ? '✓ Submissions OPEN' : '✗ Submissions CLOSED'}
                 </div>
-                <div style="margin-top: 16px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="font-size: 16px;">Show "All Predictions" Table</span>
-                        <button type="button" onclick="toggleShowPredictions()"
-                            style="position: relative; width: 60px; height: 34px; border: none; cursor: pointer;
-                                background-color: ${showPredictions ? 'var(--seahawks-green)' : '#ccc'};
-                                border-radius: 34px; transition: background-color 0.4s;">
-                            <span style="position: absolute; height: 26px; width: 26px; left: ${showPredictions ? '30px' : '4px'};
-                                bottom: 4px; background-color: white; transition: left 0.4s; border-radius: 50%;"></span>
-                        </button>
+
+                <div class="form-control mt-6">
+                    <label class="label cursor-pointer justify-start gap-4">
+                        <span class="label-text text-base">Show "All Predictions" Table</span>
+                        <input type="checkbox" class="toggle toggle-success"
+                            ${showPredictions ? 'checked' : ''}
+                            onchange="toggleShowPredictions()" />
+                    </label>
+                    <div class="label">
+                        <span class="label-text-alt text-base-content/60">
+                            ${showPredictions ? 'All users can see the predictions table' : 'Predictions table is hidden from all users'}
+                        </span>
                     </div>
-                    <p style="font-size: 12px; color: var(--seahawks-grey);">
-                        ${showPredictions ? 'All users can see the predictions table' : 'Predictions table is hidden from all users'}
-                    </p>
                 </div>
             `;
 
@@ -732,10 +582,8 @@
                 db.tx.leagues[currentLeague.id].update({ showAllPredictions: newValue })
             ]);
 
-            console.log('Toggle saved, re-rendering...');
-
-            // Re-render admin controls to update toggle appearance
-            renderAdminControls();
+            console.log('Toggle saved');
+            // Don't re-render - InstantDB subscription will update automatically
         }
 
         // Render results form
@@ -745,13 +593,14 @@
             let html = '';
 
             questions.forEach(q => {
-                html += `<div class="question">`;
-                html += `<label style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>${q.label} (${q.points} points)</span>
-                    <button type="button" onclick="clearResult('${q.id}')" class="btn-secondary" style="min-height: 32px; padding: 8px 16px; font-size: 14px;">Clear</button>
-                </label>`;
+                html += `<div class="form-control bg-base-300 p-4 rounded-lg">`;
+                html += `<div class="flex justify-between items-center mb-2">
+                    <span class="label-text text-base font-semibold">${q.label} <span class="badge badge-primary badge-sm">${q.points} pts</span></span>
+                    <button type="button" onclick="clearResult('${q.id}')" class="btn btn-ghost btn-xs">✕ Clear</button>
+                </div>`;
 
                 if (q.type === 'radio') {
+                    html += `<div class="space-y-2">`;
                     q.options.forEach(option => {
                         const value = option.toLowerCase().replace(/\s+/g, '-');
                         const checked = currentLeague.actualResults?.[q.id] === value ? 'checked' : '';
@@ -762,15 +611,17 @@
                             </div>
                         `;
                     });
+                    html += `</div>`;
                 } else {
                     const value = currentLeague.actualResults?.[q.id] || '';
-                    html += `<input type="number" name="result-${q.id}" value="${value}" min="0">`;
+                    html += `<input type="number" name="result-${q.id}" value="${value}" min="0"
+                        class="input input-bordered input-primary w-full mt-2 text-lg">`;
                 }
 
                 html += `</div>`;
             });
 
-            html += `<p style="text-align: center; color: var(--seahawks-grey); font-size: 14px; margin-top: 24px;">Results are saved automatically as you enter them.</p>`;
+            html += `<div class="alert alert-info mt-6"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span>Results are saved automatically as you enter them.</span></div>`;
 
             form.innerHTML = html;
 
@@ -887,9 +738,9 @@
             // Show status
             const statusDiv = document.getElementById('submissionsStatus');
             statusDiv.innerHTML = `
-                <span class="status-badge ${currentLeague.isOpen ? 'status-open' : 'status-closed'}">
-                    ${currentLeague.isOpen ? 'Submissions Open' : 'Submissions Closed'}
-                </span>
+                <div class="badge ${currentLeague.isOpen ? 'badge-success' : 'badge-error'} badge-lg">
+                    ${currentLeague.isOpen ? '✓ Submissions Open' : '✗ Submissions Closed'}
+                </div>
             `;
 
             // Show team name
@@ -902,32 +753,35 @@
             const userPrediction = allPredictions.find(p => p.userId === currentUserId);
 
             questions.forEach(q => {
-                html += `<div class="question">`;
-                html += `<label>${q.label} ${q.points > 0 ? `(${q.points} points)` : '(Tiebreaker)'}</label>`;
+                html += `<div class="form-control bg-base-300 p-4 rounded-lg">`;
+                html += `<label class="label"><span class="label-text text-base font-semibold">${q.label} ${q.points > 0 ? `<span class="badge badge-primary badge-sm ml-2">${q.points} pts</span>` : '<span class="badge badge-ghost badge-sm ml-2">Tiebreaker</span>'}</span></label>`;
 
                 if (q.type === 'radio') {
+                    html += `<div class="space-y-2">`;
                     q.options.forEach(option => {
                         const value = option.toLowerCase().replace(/\s+/g, '-');
                         const checked = userPrediction?.predictions?.[q.id] === value ? 'checked' : '';
                         html += `
                             <div class="radio-option">
-                                <input type="radio" name="${q.id}" value="${value}" ${checked} required ${!currentLeague.isOpen ? 'disabled' : ''} id="${q.id}-${value}">
+                                <input type="radio" name="${q.id}" value="${value}" ${checked} ${!currentLeague.isOpen ? 'disabled' : ''} id="${q.id}-${value}">
                                 <span>${option}</span>
                             </div>
                         `;
                     });
+                    html += `</div>`;
                 } else {
                     const value = userPrediction?.predictions?.[q.id] || '';
-                    html += `<input type="number" name="${q.id}" value="${value}" min="0" required ${!currentLeague.isOpen ? 'disabled' : ''}>`;
+                    html += `<input type="number" name="${q.id}" value="${value}" min="0" ${!currentLeague.isOpen ? 'disabled' : ''}
+                        class="input input-bordered input-primary w-full mt-2 text-lg">`;
                 }
 
                 html += `</div>`;
             });
 
             if (currentLeague.isOpen) {
-                html += `<p style="text-align: center; color: var(--seahawks-grey); font-size: 14px; margin-top: 24px;">Your answers are saved automatically as you select them.</p>`;
+                html += `<div class="alert alert-info mt-6"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span>Your answers are saved automatically as you select them.</span></div>`;
             } else {
-                html += `<p style="text-align: center; color: var(--seahawks-grey);">Submissions are closed. View the leaderboard below!</p>`;
+                html += `<div class="alert mt-6"><span>Submissions are closed. View the leaderboard!</span></div>`;
             }
 
             form.innerHTML = html;
