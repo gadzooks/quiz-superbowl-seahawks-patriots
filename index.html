@@ -810,6 +810,13 @@
                 const predicted = predictions[q.id];
                 const actual = actualResults[q.id];
 
+                // Only award points if BOTH prediction and actual result exist
+                if (predicted === undefined || predicted === null || predicted === '' ||
+                    actual === undefined || actual === null || actual === '') {
+                    debug.push(`⊘ ${q.id}: no answer set (predicted="${predicted}", actual="${actual}")`);
+                    return;
+                }
+
                 let isCorrect = false;
                 if (q.type === 'number') {
                     isCorrect = parseInt(predicted) === parseInt(actual);
