@@ -28,15 +28,21 @@
                 themes: [
                     {
                         seahawks: {
-                            "primary": "#69BE28",
+                            "primary": "#002244",
                             "primary-content": "#ffffff",
-                            "secondary": "#A5ACAF",
-                            "accent": "#002244",
-                            "neutral": "#002244",
-                            "base-100": "#002244",
-                            "base-200": "#001a33",
-                            "base-300": "#001122",
-                            "base-content": "#ffffff",
+                            "secondary": "#69BE28",
+                            "secondary-content": "#ffffff",
+                            "accent": "#69BE28",
+                            "accent-content": "#002244",
+                            "neutral": "#1f2937",
+                            "neutral-content": "#ffffff",
+                            "base-100": "#ffffff",
+                            "base-200": "#f3f4f6",
+                            "base-300": "#e5e7eb",
+                            "base-content": "#1f2937",
+                            "success": "#22c55e",
+                            "error": "#ef4444",
+                            "info": "#3b82f6",
                         },
                     },
                 ],
@@ -46,20 +52,62 @@
     <style>
         /* Custom styles for mobile-optimized prediction game */
 
-        /* Large tap-friendly radio buttons for elderly users */
-        input[type="radio"] {
-            width: 32px;
-            height: 32px;
+        /* Radio option styling - clean and tappable */
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            margin: 8px 0;
+            background-color: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
             cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 56px;
         }
 
-        .radio-option {
-            @apply flex items-center gap-3 p-4 rounded-lg cursor-pointer transition-colors;
-            @apply hover:bg-primary/10 min-h-[60px];
+        .radio-option:hover {
+            background-color: #f0fdf4;
+            border-color: #69BE28;
+        }
+
+        .radio-option:has(input:checked) {
+            background-color: #f0fdf4;
+            border-color: #69BE28;
+            box-shadow: 0 0 0 3px rgba(105, 190, 40, 0.2);
+        }
+
+        .radio-option input[type="radio"] {
+            width: 24px;
+            height: 24px;
+            accent-color: #69BE28;
+            cursor: pointer;
+            flex-shrink: 0;
         }
 
         .radio-option span {
-            @apply text-lg;
+            font-size: 16px;
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        /* Question card styling */
+        .question-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .question-card label {
+            display: block;
+            font-size: 16px;
+            font-weight: 600;
+            color: #002244;
+            margin-bottom: 16px;
         }
 
         /* Collapsible answers */
@@ -75,15 +123,24 @@
         }
 
         .answer-item {
-            @apply p-3 my-2 bg-base-300 rounded-lg text-sm flex justify-between items-center;
+            padding: 12px 16px;
+            margin: 6px 0;
+            background-color: #f3f4f6;
+            border-radius: 8px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .answer-item.correct {
-            @apply bg-success/20 border-l-4 border-success;
+            background-color: #dcfce7;
+            border-left: 4px solid #22c55e;
         }
 
         .answer-item.incorrect {
-            @apply bg-error/20 border-l-4 border-error;
+            background-color: #fee2e2;
+            border-left: 4px solid #ef4444;
         }
 
         /* Hidden utility */
@@ -91,23 +148,59 @@
             display: none !important;
         }
 
+        /* Number input styling */
+        input[type="number"] {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 18px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #f9fafb;
+            color: #1f2937;
+            transition: all 0.2s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #69BE28;
+            box-shadow: 0 0 0 3px rgba(105, 190, 40, 0.2);
+            background: white;
+        }
+
+        /* Better header */
+        .app-header {
+            background: linear-gradient(135deg, #002244 0%, #003366 100%);
+            color: white;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .app-header h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .app-header h2 {
+            font-size: 16px;
+            font-weight: 500;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
         /* Ensure good readability on mobile */
         @media (max-width: 640px) {
-            .navbar h1 {
-                font-size: 1.25rem;
+            .app-header h1 {
+                font-size: 20px;
             }
         }
     </style>
 </head>
-<body data-theme="seahawks" class="bg-base-100">
+<body data-theme="seahawks" class="bg-base-200 min-h-screen">
     <!-- Header -->
-    <div class="navbar bg-accent shadow-lg sticky top-0 z-50">
-        <div class="flex-1">
-            <h1 class="text-2xl font-bold text-primary">🏈 Super Bowl Prediction Game</h1>
-        </div>
-    </div>
-    <div class="text-center py-2 bg-accent/80">
-        <h2 class="text-lg font-semibold text-base-content">Seahawks vs Patriots</h2>
+    <div class="app-header sticky top-0 z-50 shadow-lg">
+        <h1>🏈 Super Bowl Prediction Game</h1>
+        <h2>Seahawks vs Patriots</h2>
     </div>
 
     <div class="container mx-auto px-4 py-6 max-w-2xl">
@@ -592,36 +685,37 @@
             const form = document.getElementById('resultsForm');
             let html = '';
 
-            questions.forEach(q => {
-                html += `<div class="form-control bg-base-300 p-4 rounded-lg">`;
-                html += `<div class="flex justify-between items-center mb-2">
-                    <span class="label-text text-base font-semibold">${q.label} <span class="badge badge-primary badge-sm">${q.points} pts</span></span>
-                    <button type="button" onclick="clearResult('${q.id}')" class="btn btn-ghost btn-xs">✕ Clear</button>
+            questions.forEach((q, index) => {
+                html += `<div class="question-card">`;
+                html += `<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                    <label style="margin: 0;">
+                        <span style="color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Question ${index + 1}</span><br>
+                        ${q.label}
+                        <span style="display: inline-block; background: #002244; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">${q.points} pts</span>
+                    </label>
+                    <button type="button" onclick="clearResult('${q.id}')" style="background: #fee2e2; color: #dc2626; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer;">✕ Clear</button>
                 </div>`;
 
                 if (q.type === 'radio') {
-                    html += `<div class="space-y-2">`;
                     q.options.forEach(option => {
                         const value = option.toLowerCase().replace(/\s+/g, '-');
                         const checked = currentLeague.actualResults?.[q.id] === value ? 'checked' : '';
                         html += `
-                            <div class="radio-option">
-                                <input type="radio" name="result-${q.id}" value="${value}" ${checked} id="result-${q.id}-${value}">
+                            <label class="radio-option">
+                                <input type="radio" name="result-${q.id}" value="${value}" ${checked}>
                                 <span>${option}</span>
-                            </div>
+                            </label>
                         `;
                     });
-                    html += `</div>`;
                 } else {
                     const value = currentLeague.actualResults?.[q.id] || '';
-                    html += `<input type="number" name="result-${q.id}" value="${value}" min="0"
-                        class="input input-bordered input-primary w-full mt-2 text-lg">`;
+                    html += `<input type="number" name="result-${q.id}" value="${value}" min="0" placeholder="Enter number">`;
                 }
 
                 html += `</div>`;
             });
 
-            html += `<div class="alert alert-info mt-6"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span>Results are saved automatically as you enter them.</span></div>`;
+            html += `<div style="background: #dbeafe; border-radius: 12px; padding: 16px; margin-top: 24px; display: flex; align-items: center; gap: 12px;"><span style="font-size: 20px;">ℹ️</span><span style="color: #1e40af; font-size: 14px;">Results are saved automatically as you enter them.</span></div>`;
 
             form.innerHTML = html;
 
@@ -752,27 +846,28 @@
             // Get existing predictions
             const userPrediction = allPredictions.find(p => p.userId === currentUserId);
 
-            questions.forEach(q => {
-                html += `<div class="form-control bg-base-300 p-4 rounded-lg">`;
-                html += `<label class="label"><span class="label-text text-base font-semibold">${q.label} ${q.points > 0 ? `<span class="badge badge-primary badge-sm ml-2">${q.points} pts</span>` : '<span class="badge badge-ghost badge-sm ml-2">Tiebreaker</span>'}</span></label>`;
+            questions.forEach((q, index) => {
+                html += `<div class="question-card">`;
+                html += `<label>
+                    <span style="color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Question ${index + 1}</span><br>
+                    ${q.label}
+                    ${q.points > 0 ? `<span style="display: inline-block; background: #002244; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">${q.points} pts</span>` : '<span style="display: inline-block; background: #e5e7eb; color: #6b7280; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">Tiebreaker</span>'}
+                </label>`;
 
                 if (q.type === 'radio') {
-                    html += `<div class="space-y-2">`;
                     q.options.forEach(option => {
                         const value = option.toLowerCase().replace(/\s+/g, '-');
                         const checked = userPrediction?.predictions?.[q.id] === value ? 'checked' : '';
                         html += `
-                            <div class="radio-option">
-                                <input type="radio" name="${q.id}" value="${value}" ${checked} ${!currentLeague.isOpen ? 'disabled' : ''} id="${q.id}-${value}">
+                            <label class="radio-option">
+                                <input type="radio" name="${q.id}" value="${value}" ${checked} ${!currentLeague.isOpen ? 'disabled' : ''}>
                                 <span>${option}</span>
-                            </div>
+                            </label>
                         `;
                     });
-                    html += `</div>`;
                 } else {
                     const value = userPrediction?.predictions?.[q.id] || '';
-                    html += `<input type="number" name="${q.id}" value="${value}" min="0" ${!currentLeague.isOpen ? 'disabled' : ''}
-                        class="input input-bordered input-primary w-full mt-2 text-lg">`;
+                    html += `<input type="number" name="${q.id}" value="${value}" min="0" ${!currentLeague.isOpen ? 'disabled' : ''} placeholder="Enter number">`;
                 }
 
                 html += `</div>`;
