@@ -137,28 +137,41 @@
         }
 
         .answer-item {
-            padding: 16px 20px;
-            margin: 8px 0;
-            background-color: #002a4a;
-            border-radius: 10px;
-            font-size: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #FFFFFF;
-            border: 1px solid #9DA2A3;
+            padding: 16px 20px !important;
+            margin: 8px 0 !important;
+            background-color: #00203B !important;
+            border-radius: 10px !important;
+            font-size: 18px !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            color: #FFFFFF !important;
+            border: 2px solid #9DA2A3 !important;
+            font-weight: 500 !important;
+        }
+
+        .answer-item span {
+            color: #FFFFFF !important;
         }
 
         .answer-item.correct {
-            background-color: rgba(51, 242, 0, 0.15);
-            border-left: 5px solid #33F200;
-            border-color: #33F200;
+            background-color: #003320 !important;
+            border: 2px solid #33F200 !important;
+            border-left: 6px solid #33F200 !important;
+        }
+
+        .answer-item.correct span {
+            color: #33F200 !important;
         }
 
         .answer-item.incorrect {
-            background-color: rgba(255, 107, 107, 0.15);
-            border-left: 5px solid #ff6b6b;
-            border-color: #ff6b6b;
+            background-color: #330a0a !important;
+            border: 2px solid #ff6b6b !important;
+            border-left: 6px solid #ff6b6b !important;
+        }
+
+        .answer-item.incorrect span {
+            color: #ff9999 !important;
         }
 
         /* Hidden utility */
@@ -319,22 +332,33 @@
         }
 
         /* Table styling for All Predictions */
-        table {
-            font-size: 14px;
+        table, .table {
+            font-size: 14px !important;
+            background-color: #00203B !important;
         }
 
-        table th {
+        table th, .table th {
             background-color: #33F200 !important;
             color: #00203B !important;
             font-weight: 700 !important;
             padding: 12px 8px !important;
+            font-size: 13px !important;
         }
 
-        table td {
+        table td, .table td {
             background-color: #002a4a !important;
             color: #FFFFFF !important;
             padding: 10px 8px !important;
             border-color: #9DA2A3 !important;
+            font-size: 14px !important;
+        }
+
+        table thead, .table thead {
+            background-color: #33F200 !important;
+        }
+
+        table tbody tr, .table tbody tr {
+            background-color: #002a4a !important;
         }
 
         /* Ensure good readability on mobile */
@@ -1347,7 +1371,7 @@
         // Render answer details for a prediction
         function renderAnswerDetails(pred, actualResults) {
             if (!pred.predictions) {
-                return '<div style="padding: 12px; color: var(--seahawks-grey); text-align: center;">No predictions submitted</div>';
+                return '<div style="padding: 12px; color: #9DA2A3; text-align: center;">No predictions submitted</div>';
             }
 
             let html = '';
@@ -1362,25 +1386,35 @@
                     displayAnswer = userAnswer.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
                 }
 
-                // Determine if answer is correct
-                let answerClass = '';
+                // Determine if answer is correct and set colors
+                let bgColor = '#00203B';
+                let borderColor = '#9DA2A3';
+                let textColor = '#FFFFFF';
                 let statusIcon = '';
-                if (correctAnswer !== undefined && correctAnswer !== null) {
+                let answerClass = '';
+
+                if (correctAnswer !== undefined && correctAnswer !== null && correctAnswer !== '') {
                     if (userAnswer === correctAnswer || (q.type === 'number' && parseInt(userAnswer) === parseInt(correctAnswer))) {
                         answerClass = 'correct';
+                        bgColor = '#003320';
+                        borderColor = '#33F200';
+                        textColor = '#33F200';
                         statusIcon = '✓';
                     } else {
                         answerClass = 'incorrect';
+                        bgColor = '#330a0a';
+                        borderColor = '#ff6b6b';
+                        textColor = '#ff9999';
                         statusIcon = '✗';
                     }
                 }
 
                 html += `
-                    <div class="answer-item ${answerClass}">
-                        <span>${q.label}</span>
-                        <span>
+                    <div class="answer-item ${answerClass}" style="background-color: ${bgColor}; border: 2px solid ${borderColor}; ${answerClass ? `border-left: 6px solid ${borderColor};` : ''} padding: 16px 20px; margin: 8px 0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: ${textColor}; font-size: 16px; font-weight: 500;">${q.label}</span>
+                        <span style="color: ${textColor}; font-size: 18px; font-weight: 700;">
                             ${displayAnswer || '-'}
-                            ${statusIcon ? `<strong style="margin-left: 8px;">${statusIcon}</strong>` : ''}
+                            ${statusIcon ? `<strong style="margin-left: 10px; font-size: 20px;">${statusIcon}</strong>` : ''}
                         </span>
                     </div>
                 `;
@@ -1467,33 +1501,42 @@
 
             document.getElementById('allPredictionsSection').classList.remove('hidden');
 
-            let html = '<table class="table table-zebra table-pin-rows table-pin-cols text-xs"><thead><tr class="bg-primary text-primary-content"><th class="sticky left-0 z-10">Team</th>';
+            // Build table with inline styles for better control
+            let html = `<table style="width: 100%; border-collapse: collapse; font-size: 14px; background-color: #00203B;">
+                <thead>
+                    <tr style="background-color: #33F200;">
+                        <th style="background-color: #33F200; color: #00203B; font-weight: 700; padding: 12px 8px; text-align: left; position: sticky; left: 0; z-index: 10;">Team</th>`;
             questions.forEach(q => {
-                html += `<th class="whitespace-normal">${q.label}</th>`;
+                html += `<th style="background-color: #33F200; color: #00203B; font-weight: 700; padding: 12px 8px; white-space: normal; min-width: 80px;">${q.label}</th>`;
             });
-            html += '<th>Score</th></tr></thead><tbody>';
+            html += `<th style="background-color: #33F200; color: #00203B; font-weight: 700; padding: 12px 8px;">Score</th></tr></thead><tbody>`;
 
             teamsWithPredictions.forEach(pred => {
-                html += `<tr><td class="sticky left-0 z-10 bg-base-200 font-bold">${pred.teamName}</td>`;
+                html += `<tr style="background-color: #002a4a;">
+                    <td style="background-color: #002a4a; color: #FFFFFF; font-weight: 700; padding: 10px 8px; border-bottom: 1px solid #9DA2A3; position: sticky; left: 0; z-index: 10;">${pred.teamName}</td>`;
 
                 questions.forEach(q => {
                     const value = pred.predictions?.[q.id] || '-';
                     const actual = currentLeague.actualResults?.[q.id];
-                    const isCorrect = actual && value === actual;
+                    const isCorrect = actual && (value === actual || (q.type === 'number' && parseInt(value) === parseInt(actual)));
+                    const bgColor = isCorrect ? '#003320' : '#002a4a';
+                    const textColor = isCorrect ? '#33F200' : '#FFFFFF';
 
-                    html += `<td class="${isCorrect ? 'bg-success/20' : ''}">${value}</td>`;
+                    html += `<td style="background-color: ${bgColor}; color: ${textColor}; padding: 10px 8px; border-bottom: 1px solid #9DA2A3;">${value}</td>`;
                 });
 
-                html += `<td class="font-bold">${pred.score}</td></tr>`;
+                html += `<td style="background-color: #002a4a; color: #33F200; font-weight: 700; padding: 10px 8px; border-bottom: 1px solid #9DA2A3; font-size: 16px;">${pred.score}</td></tr>`;
             });
 
             // Add actual results row if available
-            if (currentLeague.actualResults) {
-                html += `<tr class="bg-success/40"><td class="sticky left-0 z-10 bg-success/40 font-bold">ACTUAL</td>`;
+            if (currentLeague.actualResults && Object.keys(currentLeague.actualResults).length > 0) {
+                html += `<tr style="background-color: #003320;">
+                    <td style="background-color: #003320; color: #33F200; font-weight: 700; padding: 10px 8px; border-top: 3px solid #33F200; position: sticky; left: 0; z-index: 10;">✓ ACTUAL</td>`;
                 questions.forEach(q => {
-                    html += `<td class="font-bold">${currentLeague.actualResults[q.id] || '-'}</td>`;
+                    const value = currentLeague.actualResults[q.id];
+                    html += `<td style="background-color: #003320; color: #33F200; font-weight: 600; padding: 10px 8px; border-top: 3px solid #33F200;">${value !== undefined && value !== null ? value : '-'}</td>`;
                 });
-                html += '<td>-</td></tr>';
+                html += `<td style="background-color: #003320; color: #33F200; font-weight: 700; padding: 10px 8px; border-top: 3px solid #33F200;">-</td></tr>`;
             }
 
             html += '</tbody></table>';
