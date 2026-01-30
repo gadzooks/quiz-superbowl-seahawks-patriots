@@ -262,8 +262,9 @@
             background: #00203B !important;
             color: #FFFFFF;
             padding: 16px;
+            padding-bottom: 20px;
             text-align: center;
-            border-bottom: 3px solid #33F200;
+            border-bottom: none;
         }
 
         .header-content {
@@ -322,18 +323,16 @@
         @media (max-width: 480px) {
             .header-content {
                 flex-direction: column;
-                gap: 8px;
-            }
-            .header-text {
-                text-align: center;
-            }
-            .header-teams {
-                flex-direction: row;
-                gap: 8px;
-                align-items: center;
+                gap: 4px;
             }
             .header-logo {
                 height: 70px;
+            }
+            .matchup-text {
+                font-size: 12px;
+            }
+            .title-text {
+                font-size: 18px;
             }
         }
 
@@ -503,7 +502,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             z-index: 1000;
             opacity: 1;
             transition: opacity 0.5s ease-out;
@@ -534,6 +533,10 @@
             flex-direction: column;
             align-items: center;
             text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
+            padding-top: 16px;
+            background: linear-gradient(to bottom, rgba(0, 32, 59, 0.95) 0%, rgba(0, 32, 59, 0.7) 70%, transparent 100%);
+            width: 100%;
+            padding-bottom: 20px;
         }
 
         @keyframes imageReveal {
@@ -548,23 +551,23 @@
         }
 
         .intro-football {
-            font-size: 80px;
+            font-size: 32px;
             animation: footballBounce 0.6s ease-out;
         }
 
         .intro-title {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 700;
             color: #33F200;
-            margin-top: 20px;
+            margin-top: 8px;
             opacity: 0;
             animation: slideUp 0.5s ease-out 0.3s forwards;
         }
 
         .intro-team-name {
-            font-size: 24px;
+            font-size: 20px;
             color: #FFFFFF;
-            margin-top: 12px;
+            margin-top: 6px;
             opacity: 0;
             animation: slideUp 0.5s ease-out 0.5s forwards;
         }
@@ -709,6 +712,81 @@
             transform: translateY(-50%) scale(0.95);
         }
 
+        /* Intro replay button */
+        .intro-replay-btn {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(51, 242, 0, 0.1);
+            border: 2px solid rgba(51, 242, 0, 0.3);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .intro-replay-btn:hover {
+            background: rgba(51, 242, 0, 0.2);
+            border-color: #33F200;
+        }
+
+        .intro-replay-btn:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        /* New header layout */
+        .header-matchup {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+
+        .matchup-text {
+            font-size: 13px;
+            font-weight: 700;
+            color: #C4C4C4;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .header-title {
+            width: 100%;
+            text-align: center;
+            margin-top: 4px;
+        }
+
+        .title-text {
+            font-size: 22px;
+            font-weight: 800;
+            color: #33F200;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Progress bar */
+        .progress-bar-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: rgba(0, 32, 59, 0.8);
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #33F200 0%, #2ad600 50%, #33F200 100%);
+            transition: width 0.3s ease;
+            box-shadow: 0 0 8px rgba(51, 242, 0, 0.5);
+        }
+
         /* Respect reduced motion preferences */
         @media (prefers-reduced-motion: reduce) {
             .intro-football,
@@ -740,17 +818,21 @@
         <button id="soundToggle" class="sound-toggle" onclick="SoundManager.toggle()" title="Toggle sound">
             🔇
         </button>
+        <button id="introReplayBtn" class="intro-replay-btn hidden" onclick="replayIntro()" title="See intro again">
+            📷
+        </button>
         <div class="header-content">
-            <div class="header-text">
-                <h1>SUPER BOWL</h1>
-                <h2>PREDICTIONS</h2>
+            <div class="header-matchup">
+                <span class="matchup-text">Seahawks vs Pats</span>
             </div>
             <img src="images/superbowl-lx-logo.svg" alt="Super Bowl LX" class="header-logo" />
-            <div class="header-teams">
-                <span class="team-name">Seahawks</span>
-                <span class="vs">vs</span>
-                <span class="team-name">Patriots</span>
+            <div class="header-title">
+                <span class="title-text">Predictions</span>
             </div>
+        </div>
+        <!-- Progress bar below header -->
+        <div id="progressBarContainer" class="progress-bar-container hidden">
+            <div id="progressBar" class="progress-bar"></div>
         </div>
     </div>
 
@@ -1165,7 +1247,7 @@
             // Pick 5 random images (shuffled)
             const slideshowImages = shuffleArray(introImages).slice(0, 5);
             let currentIndex = 0;
-            const slideDuration = 1200; // 1.2 seconds per image
+            const slideDuration = 2500; // 2.5 seconds per image
             const totalDuration = slideshowImages.length * slideDuration;
 
             // Preload images for smooth slideshow
@@ -1222,6 +1304,40 @@
             }, totalDuration + 500); // Add small buffer after last image
         }
 
+        // Replay intro from header button
+        function replayIntro() {
+            if (currentTeamName) {
+                showIntroOverlay(currentTeamName);
+            }
+        }
+
+        // Update progress bar based on answered questions
+        function updateProgressBar() {
+            const container = document.getElementById('progressBarContainer');
+            const bar = document.getElementById('progressBar');
+            const form = document.getElementById('predictionsForm');
+
+            if (!form || !container || !bar) return;
+
+            const formData = new FormData(form);
+            let answeredCount = 0;
+
+            questions.forEach(q => {
+                const value = formData.get(q.id);
+                if (value !== null && value !== '') {
+                    answeredCount++;
+                }
+            });
+
+            const percentage = (answeredCount / questions.length) * 100;
+            bar.style.width = percentage + '%';
+
+            // Show container if any progress
+            if (answeredCount > 0) {
+                container.classList.remove('hidden');
+            }
+        }
+
         // Trigger winner celebration (confetti + sound)
         let hasTriggeredWinnerCelebration = false;
         function triggerWinnerCelebration() {
@@ -1267,17 +1383,55 @@
             }
         }
 
-        // Show completion celebration
+        // Show completion celebration - enhanced for mobile
         function showCompletionCelebration() {
-            // Small confetti burst
             if (typeof confetti === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                // Multiple bursts of confetti for a bigger celebration
+                const colors = ['#33F200', '#00203B', '#FFFFFF', '#FFD700'];
+
+                // Center burst
                 confetti({
-                    particleCount: 50,
-                    spread: 60,
-                    origin: { y: 0.7 },
-                    colors: ['#33F200', '#00203B', '#FFFFFF'],
+                    particleCount: 100,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    colors: colors,
                     disableForReducedMotion: true
                 });
+
+                // Left burst after delay
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 50,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0, y: 0.7 },
+                        colors: colors,
+                        disableForReducedMotion: true
+                    });
+                }, 200);
+
+                // Right burst after delay
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 50,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1, y: 0.7 },
+                        colors: colors,
+                        disableForReducedMotion: true
+                    });
+                }, 400);
+
+                // Final top burst
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 75,
+                        spread: 100,
+                        origin: { y: 0.3 },
+                        colors: colors,
+                        disableForReducedMotion: true
+                    });
+                }, 600);
             }
 
             // Play success sound
@@ -1487,6 +1641,9 @@
             } else {
                 currentTeamName = userPrediction.teamName;
 
+                // Show the intro replay button for returning users
+                document.getElementById('introReplayBtn').classList.remove('hidden');
+
                 // Update tab labels with team name
                 const adminTab = document.getElementById('adminPredictionsTab');
                 const userTab = document.getElementById('userPredictionsTab');
@@ -1566,6 +1723,9 @@
 
             // Show celebratory intro overlay
             showIntroOverlay(teamName);
+
+            // Show the intro replay button in header
+            document.getElementById('introReplayBtn').classList.remove('hidden');
         }
 
         // Switch tabs (admin)
@@ -1959,11 +2119,17 @@
                     input.addEventListener('change', handleAutoSave);
                 });
             }
+
+            // Initialize progress bar with current state
+            updateProgressBar();
         }
 
         // Handle auto-save
         let autoSaveTimeout = null;
         async function handleAutoSave() {
+            // Always update progress bar on change
+            updateProgressBar();
+
             if (!currentLeague.isOpen) return;
 
             // Show saving status
@@ -2207,7 +2373,7 @@
             if (answeredCount < totalQuestions) {
                 html += `<div class="alert alert-info mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span>${answeredCount} out of ${totalQuestions} answers have been added / updated.</span>
+                    <span>${answeredCount} out of ${totalQuestions} answers checked.</span>
                 </div>`;
             }
 
