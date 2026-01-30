@@ -1496,6 +1496,22 @@
 
         // Get or create user ID
         function getUserId() {
+            // Check for user ID in URL (for session recovery on different device)
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlUserId = urlParams.get('user');
+
+            if (urlUserId) {
+                // Use the URL user ID and save to localStorage
+                localStorage.setItem('userId', urlUserId);
+                // Clean up URL to remove user parameter (keeps it private)
+                urlParams.delete('user');
+                const newUrl = urlParams.toString()
+                    ? `${window.location.pathname}?${urlParams.toString()}`
+                    : window.location.pathname;
+                window.history.replaceState({}, '', newUrl);
+                return urlUserId;
+            }
+
             let userId = localStorage.getItem('userId');
             if (!userId) {
                 userId = 'user-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
@@ -2857,6 +2873,9 @@
                                         </div>
                                         <progress class="progress progress-primary w-full" value="${percentage}" max="100"></progress>
                                     </div>
+                                    <button onclick="copyParticipantLink('${pred.userId}', '${pred.teamName}')" class="btn btn-ghost btn-xs mt-3" style="color: #9DA2A3;">
+                                        📋 Copy recovery link
+                                    </button>
                                 </div>
                                 <div class="ml-4">
                                     ${isComplete
@@ -2871,6 +2890,19 @@
             });
 
             participantsDiv.innerHTML = html;
+        }
+
+        // Copy participant recovery link
+        function copyParticipantLink(userId, teamName) {
+            const baseUrl = `${window.location.origin}${window.location.pathname}`;
+            const link = `${baseUrl}?league=${currentLeague.slug}&user=${userId}`;
+
+            navigator.clipboard.writeText(link).then(() => {
+                showToast(`Recovery link copied for ${teamName}!`);
+            }).catch(() => {
+                // Fallback for older browsers
+                prompt(`Copy this recovery link for ${teamName}:`, link);
+            });
         }
 
         // Count answered questions
