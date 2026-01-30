@@ -14,6 +14,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.6.0/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script type="module">
         import { init } from 'https://cdn.jsdelivr.net/npm/@instantdb/core/+esm';
         window.InstantDBInit = init;
@@ -220,9 +221,10 @@
             box-shadow: 0 0 0 3px rgba(51, 242, 0, 0.3) !important;
         }
 
-        /* App header - Seahawks gradient */
+        /* App header - Seahawks gradient - MUST be opaque for sticky */
         .app-header {
-            background: linear-gradient(135deg, #00203B 0%, #002a4a 50%, #00203B 100%);
+            position: relative;
+            background: #00203B !important;
             color: #FFFFFF;
             padding: 20px 16px;
             text-align: center;
@@ -241,6 +243,13 @@
             font-weight: 500;
             color: #C4C4C4;
             margin-top: 6px;
+        }
+
+        .header-logo {
+            height: 60px;
+            width: auto;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
         }
 
         /* Cards - better contrast */
@@ -389,12 +398,275 @@
                 font-size: 16px;
             }
         }
+
+        /* ========== FUN UI ENHANCEMENTS ========== */
+
+        /* Background styling - simple solid for reliability */
+        body {
+            background-color: #00203B;
+        }
+
+        /* 12th Man badge reference */
+        .app-header::before {
+            content: "12";
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            font-weight: 900;
+            color: rgba(51, 242, 0, 0.2);
+            letter-spacing: -2px;
+            z-index: 1;
+        }
+
+        /* Intro overlay styling */
+        .intro-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 32, 59, 0.98);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+            overflow: hidden;
+        }
+
+        .intro-overlay.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .intro-image {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            filter: brightness(0.5);
+        }
+
+        .intro-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
+        }
+
+        @keyframes imageReveal {
+            0% {
+                opacity: 0;
+                transform: scale(1.1);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .intro-football {
+            font-size: 80px;
+            animation: footballBounce 0.6s ease-out;
+        }
+
+        .intro-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #33F200;
+            margin-top: 20px;
+            opacity: 0;
+            animation: slideUp 0.5s ease-out 0.3s forwards;
+        }
+
+        .intro-team-name {
+            font-size: 24px;
+            color: #FFFFFF;
+            margin-top: 12px;
+            opacity: 0;
+            animation: slideUp 0.5s ease-out 0.5s forwards;
+        }
+
+        @keyframes footballBounce {
+            0% {
+                transform: translateY(-100px) rotate(-20deg);
+                opacity: 0;
+            }
+            50% {
+                transform: translateY(10px) rotate(10deg);
+            }
+            70% {
+                transform: translateY(-5px) rotate(-5deg);
+            }
+            100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Trophy bounce animation */
+        .trophy-bounce {
+            display: inline-block;
+            animation: trophyBounce 0.5s ease-out;
+        }
+
+        @keyframes trophyBounce {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.3); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
+
+        /* Winner shimmer border effect */
+        .winner-shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .winner-shimmer::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(
+                90deg,
+                #FFD700 0%,
+                #FFF8DC 25%,
+                #FFD700 50%,
+                #FFF8DC 75%,
+                #FFD700 100%
+            );
+            background-size: 200% 100%;
+            animation: shimmer 2s linear infinite;
+            border-radius: inherit;
+            z-index: -1;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Podium place styling */
+        .place-gold {
+            border: 3px solid #FFD700 !important;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .place-silver {
+            border: 3px solid #C0C0C0 !important;
+            box-shadow: 0 0 15px rgba(192, 192, 192, 0.2);
+        }
+
+        .place-bronze {
+            border: 3px solid #CD7F32 !important;
+            box-shadow: 0 0 15px rgba(205, 127, 50, 0.2);
+        }
+
+        /* Toast notification styling */
+        .toast-notification {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: linear-gradient(135deg, #003320 0%, #002a4a 100%);
+            border: 2px solid #33F200;
+            border-radius: 16px;
+            padding: 16px 24px;
+            color: #FFFFFF;
+            font-size: 18px;
+            font-weight: 600;
+            z-index: 1001;
+            opacity: 0;
+            transition: all 0.4s ease-out;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .toast-notification.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* Sound toggle button */
+        .sound-toggle {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(51, 242, 0, 0.1);
+            border: 2px solid rgba(51, 242, 0, 0.3);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .sound-toggle:hover {
+            background: rgba(51, 242, 0, 0.2);
+            border-color: #33F200;
+        }
+
+        .sound-toggle:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        /* Respect reduced motion preferences */
+        @media (prefers-reduced-motion: reduce) {
+            .intro-football,
+            .intro-title,
+            .intro-team-name,
+            .trophy-bounce {
+                animation: none !important;
+                opacity: 1 !important;
+                transform: none !important;
+            }
+
+            .winner-shimmer::before {
+                animation: none !important;
+            }
+
+            .toast-notification {
+                transition: opacity 0.2s ease-out !important;
+            }
+
+            .toast-notification.show {
+                transform: translateX(-50%) translateY(0);
+            }
+        }
     </style>
 </head>
 <body data-theme="seahawks" class="bg-base-100 min-h-screen">
     <!-- Header -->
-    <div class="app-header sticky top-0 z-50 shadow-lg">
-        <h1>🏈 SUPER BOWL PREDICTIONS</h1>
+    <div class="app-header sticky top-0 z-50 shadow-lg" style="background: linear-gradient(135deg, #00203B 0%, #002a4a 50%, #00203B 100%); background-color: #00203B;">
+        <button id="soundToggle" class="sound-toggle" onclick="SoundManager.toggle()" title="Toggle sound">
+            🔇
+        </button>
+        <img src="images/superbowl-lx-logo.svg" alt="Super Bowl LX" class="header-logo" />
+        <h1>SUPER BOWL PREDICTIONS</h1>
         <h2>Seattle Seahawks vs New England Patriots</h2>
     </div>
 
@@ -448,6 +720,19 @@
                 </div>
             </div>
         </div>
+
+        <!-- Intro Overlay (shown after team registration) -->
+        <div id="introOverlay" class="intro-overlay hidden">
+            <img id="introImage" class="intro-image" src="" alt="Seahawks" />
+            <div class="intro-content">
+                <div class="intro-football">🏈</div>
+                <div class="intro-title">Welcome to the Game!</div>
+                <div id="introTeamName" class="intro-team-name"></div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toastNotification" class="toast-notification"></div>
 
         <!-- Admin Panel (for league creator) -->
         <div id="adminPanel" class="hidden">
@@ -572,6 +857,365 @@
         let currentTeamName = null;
         let isLeagueCreator = false;
         let currentTab = 'predictions';
+        let hasShownCompletionCelebration = false; // Track if completion celebration has been shown
+
+        // ========== SOUND MANAGER ==========
+        // Uses Web Audio API for synthesized sounds - no external files needed
+        const SoundManager = {
+            enabled: false, // Default OFF for elderly users
+            audioContext: null,
+
+            init() {
+                // Load preference from localStorage
+                const saved = localStorage.getItem('soundEnabled');
+                this.enabled = saved === 'true';
+                this.updateButton();
+
+                // Check for reduced motion preference
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    this.enabled = false;
+                    localStorage.setItem('soundEnabled', 'false');
+                }
+            },
+
+            getContext() {
+                if (!this.audioContext) {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                return this.audioContext;
+            },
+
+            toggle() {
+                this.enabled = !this.enabled;
+                localStorage.setItem('soundEnabled', this.enabled.toString());
+                this.updateButton();
+
+                // Play a test sound when enabling
+                if (this.enabled) {
+                    this.playClick();
+                }
+            },
+
+            updateButton() {
+                const btn = document.getElementById('soundToggle');
+                if (btn) {
+                    btn.textContent = this.enabled ? '🔊' : '🔇';
+                    btn.title = this.enabled ? 'Sound on - click to mute' : 'Sound off - click to enable';
+                }
+            },
+
+            // Simple click sound for feedback
+            playClick() {
+                if (!this.enabled) return;
+                try {
+                    const ctx = this.getContext();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.frequency.setValueAtTime(800, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.1);
+                } catch (e) {
+                    console.log('Sound not available');
+                }
+            },
+
+            // Triumphant chord for team registration
+            playCheer() {
+                if (!this.enabled) return;
+                try {
+                    const ctx = this.getContext();
+
+                    // Play a triumphant chord (C major with added notes)
+                    const frequencies = [261.63, 329.63, 392.00, 523.25]; // C4, E4, G4, C5
+                    const duration = 0.8;
+
+                    frequencies.forEach((freq, i) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+                        // Stagger the start slightly for a richer sound
+                        const startTime = ctx.currentTime + i * 0.05;
+                        gain.gain.setValueAtTime(0, startTime);
+                        gain.gain.linearRampToValueAtTime(0.15, startTime + 0.1);
+                        gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+
+                        osc.start(startTime);
+                        osc.stop(startTime + duration);
+                    });
+                } catch (e) {
+                    console.log('Sound not available');
+                }
+            },
+
+            // Ascending fanfare for winners
+            playWinner() {
+                if (!this.enabled) return;
+                try {
+                    const ctx = this.getContext();
+
+                    // Ascending fanfare notes
+                    const notes = [
+                        { freq: 392.00, time: 0 },      // G4
+                        { freq: 493.88, time: 0.15 },   // B4
+                        { freq: 587.33, time: 0.30 },   // D5
+                        { freq: 783.99, time: 0.45 }    // G5
+                    ];
+
+                    notes.forEach(note => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(note.freq, ctx.currentTime + note.time);
+
+                        gain.gain.setValueAtTime(0, ctx.currentTime + note.time);
+                        gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + note.time + 0.05);
+                        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + note.time + 0.3);
+
+                        osc.start(ctx.currentTime + note.time);
+                        osc.stop(ctx.currentTime + note.time + 0.35);
+                    });
+
+                    // Add a final sustain chord
+                    setTimeout(() => {
+                        const chordFreqs = [392.00, 493.88, 587.33]; // G major
+                        chordFreqs.forEach(freq => {
+                            const osc = ctx.createOscillator();
+                            const gain = ctx.createGain();
+
+                            osc.connect(gain);
+                            gain.connect(ctx.destination);
+
+                            osc.type = 'sine';
+                            osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+                            gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1);
+
+                            osc.start(ctx.currentTime);
+                            osc.stop(ctx.currentTime + 1);
+                        });
+                    }, 600);
+                } catch (e) {
+                    console.log('Sound not available');
+                }
+            },
+
+            // Small success sound for completion
+            playSuccess() {
+                if (!this.enabled) return;
+                try {
+                    const ctx = this.getContext();
+
+                    // Two-note success jingle
+                    const notes = [
+                        { freq: 523.25, time: 0 },    // C5
+                        { freq: 659.25, time: 0.1 }   // E5
+                    ];
+
+                    notes.forEach(note => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(note.freq, ctx.currentTime + note.time);
+
+                        gain.gain.setValueAtTime(0.15, ctx.currentTime + note.time);
+                        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + note.time + 0.2);
+
+                        osc.start(ctx.currentTime + note.time);
+                        osc.stop(ctx.currentTime + note.time + 0.25);
+                    });
+                } catch (e) {
+                    console.log('Sound not available');
+                }
+            }
+        };
+
+        // ========== CELEBRATION FUNCTIONS ==========
+
+        // Show intro overlay after team registration
+        // Seahawks intro images (bundled locally)
+        const introImages = [
+            'images/seahawks-1.png',
+            'images/seahawks-2.jpg',
+            'images/seahawks-3.png',
+            'images/seahawks-4.jpg',
+            'images/seahawks-5.jpg',
+            'images/seahawks-6.jpg',
+            'images/seahawks-7.png'
+        ];
+
+        // Shuffle array helper
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function showIntroOverlay(teamName) {
+            const overlay = document.getElementById('introOverlay');
+            const teamNameEl = document.getElementById('introTeamName');
+            const introImage = document.getElementById('introImage');
+
+            // Pick 5 random images (shuffled)
+            const slideshowImages = shuffleArray(introImages).slice(0, 5);
+            let currentIndex = 0;
+            const slideDuration = 1200; // 1.2 seconds per image
+            const totalDuration = slideshowImages.length * slideDuration;
+
+            // Preload images for smooth slideshow
+            slideshowImages.forEach(src => {
+                const img = new Image();
+                img.src = src;
+            });
+
+            // Start with first image
+            introImage.src = slideshowImages[0];
+            introImage.style.opacity = '1';
+
+            teamNameEl.textContent = `Team: ${teamName}`;
+            overlay.classList.remove('hidden');
+
+            // Play triumphant sound
+            SoundManager.playCheer();
+
+            // Trigger confetti
+            if (typeof confetti === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#33F200', '#00203B', '#FFFFFF', '#FFD700'],
+                    disableForReducedMotion: true
+                });
+            }
+
+            // Slideshow - cycle through images
+            const slideshowInterval = setInterval(() => {
+                currentIndex++;
+                if (currentIndex < slideshowImages.length) {
+                    // Fade transition
+                    introImage.style.opacity = '0';
+                    setTimeout(() => {
+                        introImage.src = slideshowImages[currentIndex];
+                        introImage.style.opacity = '1';
+                    }, 200);
+                }
+            }, slideDuration);
+
+            // Auto-dismiss after slideshow completes
+            setTimeout(() => {
+                clearInterval(slideshowInterval);
+                overlay.classList.add('fade-out');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    overlay.classList.remove('fade-out');
+                    // Clear image src to free memory
+                    introImage.src = '';
+                    introImage.style.opacity = '';
+                }, 500);
+            }, totalDuration + 500); // Add small buffer after last image
+        }
+
+        // Trigger winner celebration (confetti + sound)
+        let hasTriggeredWinnerCelebration = false;
+        function triggerWinnerCelebration() {
+            if (hasTriggeredWinnerCelebration) return;
+            hasTriggeredWinnerCelebration = true;
+
+            // Play winner sound
+            SoundManager.playWinner();
+
+            // Confetti burst with Seahawks colors
+            if (typeof confetti === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                // First burst
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#33F200', '#00203B', '#FFFFFF', '#FFD700'],
+                    disableForReducedMotion: true
+                });
+
+                // Second burst after delay
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 50,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 },
+                        colors: ['#33F200', '#00203B', '#FFFFFF', '#FFD700'],
+                        disableForReducedMotion: true
+                    });
+                }, 250);
+
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 50,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 },
+                        colors: ['#33F200', '#00203B', '#FFFFFF', '#FFD700'],
+                        disableForReducedMotion: true
+                    });
+                }, 400);
+            }
+        }
+
+        // Show completion celebration
+        function showCompletionCelebration() {
+            // Small confetti burst
+            if (typeof confetti === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                confetti({
+                    particleCount: 50,
+                    spread: 60,
+                    origin: { y: 0.7 },
+                    colors: ['#33F200', '#00203B', '#FFFFFF'],
+                    disableForReducedMotion: true
+                });
+            }
+
+            // Play success sound
+            SoundManager.playSuccess();
+
+            // Show toast
+            showToast('All predictions submitted! Good luck! 🏈');
+        }
+
+        // Show toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toastNotification');
+            toast.textContent = message;
+            toast.classList.add('show');
+
+            // Hide after 4 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
 
         // Questions configuration
         const questions = [
@@ -606,6 +1250,9 @@
         function initApp() {
             console.log('=== INITIALIZING APP ===');
 
+            // Initialize Sound Manager
+            SoundManager.init();
+
             // Initialize InstantDB
             db = window.InstantDBInit({ appId: APP_ID });
             console.log('InstantDB initialized:', db);
@@ -615,10 +1262,25 @@
 
             // Check for league parameter and admin override
             const urlParams = new URLSearchParams(window.location.search);
-            const leagueParam = urlParams.get('league');
+            let leagueParam = urlParams.get('league');
             const isAdminOverride = urlParams.get('isAdmin') === 'true';
 
+            // If no URL param, check localStorage for saved league
+            if (!leagueParam) {
+                const savedLeague = localStorage.getItem('currentLeagueSlug');
+                if (savedLeague) {
+                    leagueParam = savedLeague;
+                    console.log('Restored league from localStorage:', leagueParam);
+                    // Update URL to reflect the league (without reload)
+                    const newUrl = `${window.location.pathname}?league=${leagueParam}`;
+                    window.history.replaceState({}, '', newUrl);
+                }
+            }
+
             if (leagueParam) {
+                // Save league to localStorage for future visits
+                localStorage.setItem('currentLeagueSlug', leagueParam);
+
                 // Subscribe to this specific league by slug
                 db.subscribeQuery(
                     {
@@ -722,6 +1384,11 @@
             const shareUrl = `${window.location.origin}${window.location.pathname}?league=${currentLeague.slug}`;
             document.getElementById('shareUrl').textContent = shareUrl;
 
+            // Check if completion celebration was already shown for this league
+            if (localStorage.getItem(`completionCelebration-${currentLeague.id}`) === 'true') {
+                hasShownCompletionCelebration = true;
+            }
+
             // Check if user has set their team name
             const userPrediction = allPredictions.find(p => p.userId === currentUserId);
 
@@ -808,6 +1475,9 @@
 
             // Hide team name entry
             document.getElementById('teamNameEntry').classList.add('hidden');
+
+            // Show celebratory intro overlay
+            showIntroOverlay(teamName);
         }
 
         // Switch tabs (admin)
@@ -1235,6 +1905,15 @@
                         // This ensures immediate visual feedback
                         renderParticipants();
 
+                        // Check if all predictions are complete - trigger celebration once
+                        const answeredCount = Object.keys(predictions).length;
+                        if (answeredCount === questions.length && !hasShownCompletionCelebration) {
+                            hasShownCompletionCelebration = true;
+                            // Store in localStorage to persist across page reloads
+                            localStorage.setItem(`completionCelebration-${currentLeague.id}`, 'true');
+                            showCompletionCelebration();
+                        }
+
                         // Hide status after 2 seconds
                         setTimeout(() => {
                             statusDiv.textContent = '';
@@ -1428,17 +2107,41 @@
                 </div>`;
             }
 
+            // Track if we should trigger winner celebration
+            let shouldCelebrate = false;
+
             sorted.forEach((pred, index) => {
                 const isFirst = index === 0 && pred.score > 0 && hasScores;
+                const isSecond = index === 1 && pred.score > 0 && hasScores;
+                const isThird = index === 2 && pred.score > 0 && hasScores;
                 const uniqueId = `answers-${pred.id}`;
                 const canShowAnswers = !currentLeague.isOpen;
 
+                // Determine place styling
+                let placeClass = '';
+                let placeEmoji = '';
+                let shimmerClass = '';
+
+                if (isFirst) {
+                    placeClass = 'place-gold';
+                    placeEmoji = '<span class="trophy-bounce" style="font-size: 28px; margin-right: 8px;">🏆</span>';
+                    shimmerClass = 'winner-shimmer';
+                    shouldCelebrate = true;
+                } else if (isSecond) {
+                    placeClass = 'place-silver';
+                    placeEmoji = '<span style="font-size: 24px; margin-right: 8px;">🥈</span>';
+                } else if (isThird) {
+                    placeClass = 'place-bronze';
+                    placeEmoji = '<span style="font-size: 24px; margin-right: 8px;">🥉</span>';
+                }
+
                 html += `
-                    <div class="card bg-base-200 shadow-lg ${isFirst ? 'ring-2 ring-primary' : ''}">
+                    <div class="card bg-base-200 shadow-lg ${placeClass} ${shimmerClass}">
                         <div class="card-body p-4">
                             <div class="flex justify-between items-center">
                                 <div class="flex-1">
                                     <div class="flex items-center gap-2">
+                                        ${placeEmoji}
                                         <span class="badge badge-lg ${isFirst ? 'badge-primary' : 'badge-ghost'}">${index + 1}</span>
                                         <h3 class="text-lg font-bold">${pred.teamName}</h3>
                                     </div>
@@ -1460,6 +2163,14 @@
             });
 
             leaderboardDiv.innerHTML = html;
+
+            // Trigger winner celebration if there's a first place winner
+            if (shouldCelebrate && answeredCount === totalQuestions) {
+                // Small delay to let the DOM update
+                setTimeout(() => {
+                    triggerWinnerCelebration();
+                }, 300);
+            }
         }
 
         // Toggle answers visibility
