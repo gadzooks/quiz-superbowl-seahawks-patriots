@@ -703,7 +703,10 @@
 
             questions.forEach(q => {
                 html += `<div class="question">`;
-                html += `<label>${q.label} (${q.points} points)</label>`;
+                html += `<label style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>${q.label} (${q.points} points)</span>
+                    <button type="button" onclick="clearResult('${q.id}')" class="btn-secondary" style="min-height: 32px; padding: 8px 16px; font-size: 14px;">Clear</button>
+                </label>`;
 
                 if (q.type === 'radio') {
                     q.options.forEach(option => {
@@ -952,6 +955,63 @@
         async function handlePredictionsSubmit(e) {
             e.preventDefault();
             // Auto-save handles this now
+        }
+
+        // Clear a specific result
+        async function clearResult(questionId) {
+            console.log('=== CLEARING RESULT FOR:', questionId, '===');
+
+            try {
+                // Get current actual results
+                const actualResults = { ...currentLeague.actualResults };
+
+                // Remove this question's result
+                delete actualResults[questionId];
+
+                console.log('Updated results after clear:', actualResults);
+
+                // Calculate scores for all predictions with updated results
+                const updates = [];
+
+                allPredictions.forEach(pred => {
+                    if (pred.predictions) {
+                        const score = calculateScore(pred.predictions, actualResults);
+                        const tiebreakDiff = Math.abs((pred.predictions?.totalPoints || 0) - (actualResults.totalPoints || 0));
+
+                        updates.push(
+                            db.tx.predictions[pred.id].update({
+                                score,
+                                tiebreakDiff
+                            })
+                        );
+                    }
+                });
+
+                // Update league with new actual results
+                updates.push(
+                    db.tx.leagues[currentLeague.id].update({ actualResults })
+                );
+
+                await db.transact(updates);
+
+                console.log('Result cleared and scores updated');
+
+                // Show feedback
+                const statusDiv = document.getElementById('resultsAutoSaveStatus');
+                statusDiv.textContent = '✓ Result cleared and scores updated';
+                statusDiv.style.color = 'var(--seahawks-green)';
+
+                setTimeout(() => {
+                    statusDiv.textContent = '';
+                }, 2000);
+
+                // Re-render the form to uncheck the radio buttons
+                renderResultsForm();
+                renderLeaderboard();
+            } catch (error) {
+                console.error('Error clearing result:', error);
+                alert('Error clearing result: ' + error.message);
+            }
         }
 
         // Handle auto-save for results
