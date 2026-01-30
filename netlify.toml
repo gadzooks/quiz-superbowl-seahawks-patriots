@@ -1,0 +1,38 @@
+# Netlify Configuration for Super Bowl Prediction App
+
+[build]
+  # No build command needed - this is a static HTML file
+  command = ""
+  # Publish the root directory containing index.html
+  publish = "."
+
+# Production deployment from prod branch
+[context.production]
+  command = ""
+  publish = "."
+
+# Branch deploys (e.g., master → QA)
+[context.branch-deploy]
+  command = ""
+  publish = "."
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Cache static assets
+[[headers]]
+  for = "*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Redirect rules (if needed in the future)
+# [[redirects]]
+#   from = "/old-path"
+#   to = "/new-path"
+#   status = 301
