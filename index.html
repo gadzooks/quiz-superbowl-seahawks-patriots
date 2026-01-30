@@ -770,11 +770,12 @@
         }
 
         .matchup-text {
-            font-size: 13px;
-            font-weight: 700;
-            color: #C4C4C4;
-            letter-spacing: 1px;
+            font-size: 20px;
+            font-weight: 800;
+            color: #33F200;
+            letter-spacing: 2px;
             text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(51, 242, 0, 0.4);
         }
 
         .header-title {
@@ -784,11 +785,10 @@
         }
 
         .title-text {
-            font-size: 22px;
-            font-weight: 800;
-            color: #33F200;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            font-size: 14px;
+            font-weight: 600;
+            color: #C4C4C4;
+            letter-spacing: 1px;
         }
 
         /* Progress bar */
@@ -1826,33 +1826,33 @@
                 : 'background: #1a1520; border: 2px solid #33F20040; color: #9DA2A3;';
 
             statusDiv.innerHTML = `
-                <div style="margin-bottom: 20px;">
-                    <div style="color: #FFFFFF; font-weight: 600; margin-bottom: 10px;">Submissions</div>
-                    <div style="display: flex; gap: 12px;">
-                        <button onclick="setSubmissions(true)" style="${submissionsOnStyle} padding: 12px 20px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; flex: 1; transition: all 0.2s;">
-                            🔓 Open
-                        </button>
-                        <button onclick="setSubmissions(false)" style="${submissionsOffStyle} padding: 12px 20px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; flex: 1; transition: all 0.2s;">
-                            🔒 Closed
-                        </button>
-                    </div>
-                    <div style="color: #9DA2A3; font-size: 13px; margin-top: 8px;">
+                <div style="margin-bottom: 24px;">
+                    <div style="color: #FFFFFF; font-weight: 600; font-size: 18px; margin-bottom: 12px;">Submissions</div>
+                    <label class="radio-option" style="${currentLeague.isOpen ? 'border-color: #33F200; background-color: #003355; box-shadow: 0 0 0 3px rgba(51, 242, 0, 0.3);' : ''}">
+                        <input type="radio" name="submissions" value="open" ${currentLeague.isOpen ? 'checked' : ''} onchange="setSubmissions(true)">
+                        <span style="display: flex; align-items: center; gap: 8px;">🔓 Open</span>
+                    </label>
+                    <label class="radio-option" style="${!currentLeague.isOpen ? 'border-color: #ff6b6b; background-color: #3d1a1a; box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.3);' : ''}">
+                        <input type="radio" name="submissions" value="closed" ${!currentLeague.isOpen ? 'checked' : ''} onchange="setSubmissions(false)">
+                        <span style="display: flex; align-items: center; gap: 8px;">🔒 Closed</span>
+                    </label>
+                    <div style="color: #9DA2A3; font-size: 14px; margin-top: 8px; padding-left: 4px;">
                         ${currentLeague.isOpen ? '✓ Users can submit and edit predictions' : '✗ Users cannot submit or edit predictions'}
                     </div>
                 </div>
 
-                <div style="margin-bottom: 20px;">
-                    <div style="color: #FFFFFF; font-weight: 600; margin-bottom: 10px;">Show All Predictions Table</div>
-                    <div style="display: flex; gap: 12px;">
-                        <button onclick="setShowPredictions(false)" style="${predictionsOffStyle} padding: 12px 20px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; flex: 1; transition: all 0.2s;">
-                            🔒 Hidden
-                        </button>
-                        <button onclick="setShowPredictions(true)" style="${predictionsOnStyle} padding: 12px 20px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; flex: 1; transition: all 0.2s;">
-                            👁️ Visible
-                        </button>
-                    </div>
-                    <div style="color: #9DA2A3; font-size: 13px; margin-top: 8px;">
-                        ${showPredictions ? '⚠️ All users can see everyone\'s predictions' : '✓ Predictions table is hidden from users'}
+                <div style="margin-bottom: 24px;">
+                    <div style="color: #FFFFFF; font-weight: 600; font-size: 18px; margin-bottom: 12px;">Show All Answers</div>
+                    <label class="radio-option" style="${!showPredictions ? 'border-color: #33F200; background-color: #003355; box-shadow: 0 0 0 3px rgba(51, 242, 0, 0.3);' : ''}">
+                        <input type="radio" name="showPredictions" value="hidden" ${!showPredictions ? 'checked' : ''} onchange="setShowPredictions(false)">
+                        <span style="display: flex; align-items: center; gap: 8px;">🔒 Hidden</span>
+                    </label>
+                    <label class="radio-option" style="${showPredictions ? 'border-color: #ff6b6b; background-color: #3d1a1a; box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.3);' : ''}">
+                        <input type="radio" name="showPredictions" value="visible" ${showPredictions ? 'checked' : ''} onchange="setShowPredictions(true)">
+                        <span style="display: flex; align-items: center; gap: 8px;">👁️ Visible</span>
+                    </label>
+                    <div style="color: #9DA2A3; font-size: 14px; margin-top: 8px; padding-left: 4px;">
+                        ${showPredictions ? '⚠️ All users can see everyone\'s predictions and answers' : '✓ Predictions and answers are hidden from users'}
                     </div>
                 </div>
 
@@ -1889,8 +1889,22 @@
 
             // Confirm when closing submissions
             if (!isOpen) {
-                const confirmed = confirm('Are you sure you want to close submissions?\n\nUsers will no longer be able to submit or edit their predictions.');
-                if (!confirmed) return;
+                const confirmed = confirm('⚠️ Close Submissions?\n\nUsers will no longer be able to submit or edit their predictions.\n\nAre you sure you want to continue?');
+                if (!confirmed) {
+                    // Revert radio button
+                    renderAdminControls();
+                    return;
+                }
+            }
+
+            // Confirm when opening submissions
+            if (isOpen) {
+                const confirmed = confirm('🔓 Open Submissions?\n\nUsers will be able to submit and edit their predictions again.\n\nAre you sure you want to continue?');
+                if (!confirmed) {
+                    // Revert radio button
+                    renderAdminControls();
+                    return;
+                }
             }
 
             await db.transact([
@@ -1907,18 +1921,29 @@
 
             // Confirm when turning ON (showing predictions)
             if (show) {
-                const confirmed = confirm('Are you sure you want to show all predictions?\n\n⚠️ All users will be able to see everyone\'s answers!\n\nThis is typically done after submissions are closed.');
-                if (!confirmed) return;
+                const confirmed = confirm('⚠️ Show All Answers?\n\nAll users will be able to see everyone\'s predictions and answers!\n\nThis is typically done after submissions are closed.\n\nAre you sure you want to continue?');
+                if (!confirmed) {
+                    // Revert radio button
+                    renderAdminControls();
+                    return;
+                }
+            }
+
+            // Confirm when turning OFF (hiding predictions)
+            if (!show) {
+                const confirmed = confirm('🔒 Hide All Answers?\n\nUsers will no longer be able to see the predictions table or individual answers.\n\nAre you sure you want to continue?');
+                if (!confirmed) {
+                    // Revert radio button
+                    renderAdminControls();
+                    return;
+                }
             }
 
             console.log(`Admin toggling Show All Predictions to: ${show}`);
-            console.log('This will update all users in real-time via InstantDB...');
 
             await db.transact([
                 db.tx.leagues[currentLeague.id].update({ showAllPredictions: show })
             ]);
-
-            console.log('✓ Database updated. All users should see the change automatically!');
         }
 
         // Render results form
@@ -2407,7 +2432,7 @@
                 const isSecond = index === 1 && pred.score > 0 && hasScores;
                 const isThird = index === 2 && pred.score > 0 && hasScores;
                 const uniqueId = `answers-${pred.id}`;
-                const canShowAnswers = !currentLeague.isOpen;
+                const canShowAnswers = !currentLeague.isOpen && currentLeague.showAllPredictions === true;
 
                 // Determine place styling
                 let placeClass = '';
