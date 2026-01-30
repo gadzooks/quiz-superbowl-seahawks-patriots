@@ -841,6 +841,153 @@
             .toast-notification.show {
                 transform: translateX(-50%) translateY(0);
             }
+
+            .league-name-header {
+                animation: none !important;
+            }
+        }
+
+        /* ========== FEATURE 1: Correct Answer Indicators ========== */
+        .correct-answer-indicator {
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .correct-answer-indicator.correct {
+            background: rgba(51, 242, 0, 0.15);
+            border: 2px solid #33F200;
+            color: #33F200;
+        }
+
+        .correct-answer-indicator.incorrect {
+            background: rgba(255, 107, 107, 0.15);
+            border: 2px solid #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .correct-answer-indicator .indicator-icon {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .user-answer-correct {
+            background-color: #003320 !important;
+            border-color: #33F200 !important;
+            box-shadow: 0 0 0 3px rgba(51, 242, 0, 0.3) !important;
+        }
+
+        .user-answer-incorrect {
+            background-color: #330a0a !important;
+            border-color: #ff6b6b !important;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.3) !important;
+        }
+
+        /* ========== FEATURE 2: Team Name Edit ========== */
+        .team-name-edit-btn {
+            background: rgba(0, 32, 59, 0.3);
+            border: 1px solid rgba(0, 32, 59, 0.5);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 11px;
+            color: #00203B;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+
+        .team-name-edit-btn:hover {
+            background: rgba(0, 32, 59, 0.5);
+            border-color: #00203B;
+        }
+
+        .char-count {
+            font-size: 13px;
+            margin-top: 8px;
+            transition: color 0.2s ease;
+        }
+
+        .char-count-valid {
+            color: #33F200;
+        }
+
+        .char-count-warning {
+            color: #fbbf24;
+        }
+
+        .char-count-error {
+            color: #ff6b6b;
+        }
+
+        /* ========== FEATURE 3: League Name Display (Header) ========== */
+        .league-name-header {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: linear-gradient(
+                90deg,
+                #33F200 0%,
+                #66FF33 50%,
+                #33F200 100%
+            );
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: leagueShimmer 3s ease-in-out infinite;
+            padding: 4px 12px;
+            border: 1px solid rgba(51, 242, 0, 0.3);
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        @keyframes leagueShimmer {
+            0%, 100% {
+                background-position: 0% 0%;
+            }
+            50% {
+                background-position: 100% 0%;
+            }
+        }
+
+        /* ========== FEATURE 4: Delete Team Button ========== */
+        .delete-team-btn {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.4);
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #ff6b6b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .delete-team-btn:hover {
+            background: rgba(255, 107, 107, 0.2);
+            border-color: #ff6b6b;
+        }
+
+        .delete-confirm-modal .modal-box {
+            background: linear-gradient(135deg, #1a0f0f 0%, #2d1515 100%);
+            border: 2px solid #ff6b6b;
+        }
+
+        .btn-delete {
+            background-color: #ff6b6b !important;
+            color: #FFFFFF !important;
+            border: none !important;
+        }
+
+        .btn-delete:hover {
+            background-color: #ff5252 !important;
         }
     </style>
 </head>
@@ -860,6 +1007,9 @@
             <img src="images/superbowl-lx-logo.svg" alt="Super Bowl LX" class="header-logo" />
             <div class="header-title">
                 <span class="title-text">Predictions</span>
+            </div>
+            <div id="leagueNameHeader" class="hidden" style="margin-top: 6px;">
+                <span class="league-name-header"></span>
             </div>
         </div>
         <!-- Progress bar below header -->
@@ -911,6 +1061,7 @@
                                 <span class="label-text text-base-content">Your Team Name</span>
                             </label>
                             <input type="text" id="teamNameInput" required placeholder="e.g., John's Picks"
+                                minlength="3" maxlength="15"
                                 class="input input-bordered input-primary w-full text-lg" />
                         </div>
                         <button type="submit" class="btn btn-primary w-full btn-lg">Continue</button>
@@ -931,6 +1082,50 @@
 
         <!-- Toast Notification -->
         <div id="toastNotification" class="toast-notification"></div>
+
+        <!-- Team Name Edit Modal -->
+        <dialog id="teamNameModal" class="modal">
+            <div class="modal-box bg-base-200">
+                <h3 class="font-bold text-lg text-primary mb-4">Edit Team Name</h3>
+                <form id="teamNameEditForm" class="space-y-4">
+                    <div class="form-control">
+                        <label class="label" for="teamNameEditInput">
+                            <span class="label-text text-base-content">New Team Name</span>
+                        </label>
+                        <input type="text" id="teamNameEditInput" required
+                            minlength="3" maxlength="15"
+                            placeholder="Enter team name"
+                            class="input input-bordered input-primary w-full text-lg"
+                            oninput="updateTeamNameCharCount()" />
+                        <div id="teamNameCharCount" class="char-count char-count-valid">0/15 characters (min 3)</div>
+                    </div>
+                    <div class="modal-action">
+                        <button type="button" class="btn btn-ghost" onclick="closeTeamNameModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+            <form method="dialog" class="modal-backdrop">
+                <button>close</button>
+            </form>
+        </dialog>
+
+        <!-- Delete Team Confirmation Modal -->
+        <dialog id="deleteTeamModal" class="modal delete-confirm-modal">
+            <div class="modal-box bg-base-200" style="background: linear-gradient(135deg, #1a0f0f 0%, #2d1515 100%); border: 2px solid #ff6b6b;">
+                <h3 class="font-bold text-lg mb-4" style="color: #ff6b6b;">Delete Team</h3>
+                <p class="mb-2" style="color: #FFFFFF;">Are you sure you want to delete <strong id="deleteTeamName" style="color: #ff6b6b;"></strong>?</p>
+                <p class="text-sm mb-4" style="color: #ff9999;">This action cannot be undone. All predictions for this team will be permanently removed.</p>
+                <input type="hidden" id="deleteTeamId" value="" />
+                <div class="modal-action">
+                    <button type="button" class="btn btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+                    <button type="button" class="btn btn-delete" onclick="confirmDeleteTeam()">Delete Team</button>
+                </div>
+            </div>
+            <form method="dialog" class="modal-backdrop">
+                <button>close</button>
+            </form>
+        </dialog>
 
         <!-- Admin Panel (for league creator) -->
         <div id="adminPanel" class="hidden">
@@ -1674,6 +1869,9 @@
             const shareUrl = `${window.location.origin}${window.location.pathname}?league=${currentLeague.slug}`;
             document.getElementById('shareUrl').textContent = shareUrl;
 
+            // Render league name in header
+            renderLeagueName();
+
             // Check if completion celebration was already shown for this league
             if (localStorage.getItem(`completionCelebration-${currentLeague.id}`) === 'true') {
                 hasShownCompletionCelebration = true;
@@ -1702,8 +1900,8 @@
                 // Update tab labels with team name
                 const adminTab = document.getElementById('adminPredictionsTab');
                 const userTab = document.getElementById('userPredictionsTab');
-                if (adminTab) adminTab.textContent = `Team ${currentTeamName}`;
-                if (userTab) userTab.textContent = `Team ${currentTeamName}`;
+                if (adminTab) adminTab.innerHTML = `Team ${currentTeamName} <button class="team-name-edit-btn" onclick="event.stopPropagation(); openTeamNameModal();">Edit</button>`;
+                if (userTab) userTab.innerHTML = `Team ${currentTeamName} <button class="team-name-edit-btn" onclick="event.stopPropagation(); openTeamNameModal();">Edit</button>`;
 
                 // Show admin panel for creator
                 if (isLeagueCreator) {
@@ -1747,6 +1945,12 @@
 
             const teamName = document.getElementById('teamNameInput').value.trim();
 
+            // Validate length (3-15 characters)
+            if (teamName.length < 3 || teamName.length > 15) {
+                alert('Team name must be 3-15 characters.');
+                return;
+            }
+
             // Check if team name already exists (case-insensitive)
             const teamNameExists = allPredictions.some(p =>
                 p.teamName.toLowerCase() === teamName.toLowerCase()
@@ -1783,6 +1987,107 @@
 
             // Show the intro replay button in header
             document.getElementById('introReplayBtn').classList.remove('hidden');
+        }
+
+        // ========== TEAM NAME EDITING ==========
+
+        // Open team name edit modal
+        function openTeamNameModal() {
+            const modal = document.getElementById('teamNameModal');
+            const input = document.getElementById('teamNameEditInput');
+
+            // Pre-fill with current team name
+            input.value = currentTeamName || '';
+            updateTeamNameCharCount();
+
+            // Set up form submit handler
+            document.getElementById('teamNameEditForm').onsubmit = handleTeamNameChange;
+
+            modal.showModal();
+        }
+
+        // Close team name edit modal
+        function closeTeamNameModal() {
+            const modal = document.getElementById('teamNameModal');
+            modal.close();
+        }
+
+        // Update character count display
+        function updateTeamNameCharCount() {
+            const input = document.getElementById('teamNameEditInput');
+            const countDiv = document.getElementById('teamNameCharCount');
+            const length = input.value.length;
+
+            countDiv.textContent = `${length}/15 characters (min 3)`;
+
+            // Update styling based on validity
+            countDiv.classList.remove('char-count-valid', 'char-count-warning', 'char-count-error');
+
+            if (length < 3) {
+                countDiv.classList.add('char-count-error');
+            } else if (length > 12) {
+                countDiv.classList.add('char-count-warning');
+            } else {
+                countDiv.classList.add('char-count-valid');
+            }
+        }
+
+        // Handle team name change submission
+        async function handleTeamNameChange(e) {
+            e.preventDefault();
+
+            const newName = document.getElementById('teamNameEditInput').value.trim();
+
+            // Validate length
+            if (newName.length < 3 || newName.length > 15) {
+                showToast('Team name must be 3-15 characters');
+                return;
+            }
+
+            // Check if same as current name
+            if (newName.toLowerCase() === currentTeamName.toLowerCase()) {
+                closeTeamNameModal();
+                return;
+            }
+
+            // Check if team name already exists (case-insensitive, excluding current user)
+            const teamNameExists = allPredictions.some(p =>
+                p.userId !== currentUserId &&
+                p.teamName.toLowerCase() === newName.toLowerCase()
+            );
+
+            if (teamNameExists) {
+                showToast('This team name is already taken');
+                return;
+            }
+
+            // Find user's prediction and update
+            const userPrediction = allPredictions.find(p => p.userId === currentUserId);
+            if (!userPrediction) {
+                showToast('Error: Could not find your team');
+                return;
+            }
+
+            try {
+                await db.transact([
+                    db.tx.predictions[userPrediction.id].update({
+                        teamName: newName
+                    })
+                ]);
+
+                currentTeamName = newName;
+                closeTeamNameModal();
+                showToast('Team name updated!');
+
+                // Update tab labels
+                const adminTab = document.getElementById('adminPredictionsTab');
+                const userTab = document.getElementById('userPredictionsTab');
+                if (adminTab) adminTab.innerHTML = `Team ${currentTeamName} <button class="team-name-edit-btn" onclick="event.stopPropagation(); openTeamNameModal();">Edit</button>`;
+                if (userTab) userTab.innerHTML = `Team ${currentTeamName} <button class="team-name-edit-btn" onclick="event.stopPropagation(); openTeamNameModal();">Edit</button>`;
+            } catch (error) {
+                console.error('Error updating team name:', error);
+                showToast('Error updating team name');
+            }
         }
 
         // Switch tabs (admin)
@@ -1877,7 +2182,7 @@
             // Update My Predictions tab with team name
             const userTab = document.getElementById('userPredictionsTab');
             if (userTab && currentTeamName) {
-                userTab.textContent = `Team ${currentTeamName}`;
+                userTab.innerHTML = `Team ${currentTeamName} <button class="team-name-edit-btn" onclick="event.stopPropagation(); openTeamNameModal();">Edit</button>`;
             }
         }
 
@@ -2201,7 +2506,25 @@
             // Get existing predictions
             const userPrediction = allPredictions.find(p => p.userId === currentUserId);
 
+            // Check if results exist for showing correct answers
+            const hasResults = currentLeague.actualResults && Object.keys(currentLeague.actualResults).length > 0;
+            const showCorrectAnswers = !currentLeague.isOpen && hasResults;
+
             questions.forEach((q, index) => {
+                const userAnswer = userPrediction?.predictions?.[q.id];
+                const correctAnswer = currentLeague.actualResults?.[q.id];
+                const hasCorrectAnswer = correctAnswer !== undefined && correctAnswer !== null && correctAnswer !== '';
+
+                // Determine if user's answer is correct
+                let isCorrect = false;
+                if (hasCorrectAnswer && userAnswer !== undefined && userAnswer !== null && userAnswer !== '') {
+                    if (q.type === 'number') {
+                        isCorrect = parseInt(userAnswer) === parseInt(correctAnswer);
+                    } else {
+                        isCorrect = userAnswer === correctAnswer;
+                    }
+                }
+
                 html += `<div class="question-card">`;
                 html += `<label>
                     <span style="color: #33F200; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Question ${index + 1}</span><br>
@@ -2212,17 +2535,47 @@
                 if (q.type === 'radio') {
                     q.options.forEach(option => {
                         const value = option.toLowerCase().replace(/\s+/g, '-');
-                        const checked = userPrediction?.predictions?.[q.id] === value ? 'checked' : '';
+                        const checked = userAnswer === value ? 'checked' : '';
+                        // Apply correct/incorrect styling when showing results
+                        let answerClass = '';
+                        if (showCorrectAnswers && hasCorrectAnswer && checked) {
+                            answerClass = isCorrect ? 'user-answer-correct' : 'user-answer-incorrect';
+                        }
                         html += `
-                            <label class="radio-option">
+                            <label class="radio-option ${answerClass}">
                                 <input type="radio" name="${q.id}" value="${value}" ${checked} ${!currentLeague.isOpen ? 'disabled' : ''}>
                                 <span>${option}</span>
                             </label>
                         `;
                     });
                 } else {
-                    const value = userPrediction?.predictions?.[q.id] || '';
-                    html += `<input type="number" name="${q.id}" value="${value}" min="0" ${!currentLeague.isOpen ? 'disabled' : ''} placeholder="Enter number">`;
+                    const value = userAnswer || '';
+                    // Apply correct/incorrect styling for number inputs
+                    let inputClass = '';
+                    if (showCorrectAnswers && hasCorrectAnswer && value !== '') {
+                        inputClass = isCorrect ? 'user-answer-correct' : 'user-answer-incorrect';
+                    }
+                    html += `<input type="number" name="${q.id}" value="${value}" min="0" ${!currentLeague.isOpen ? 'disabled' : ''} placeholder="Enter number" class="${inputClass}">`;
+                }
+
+                // Show correct answer indicator when submissions are closed and results exist
+                if (showCorrectAnswers && hasCorrectAnswer) {
+                    // Format the correct answer for display
+                    let displayCorrectAnswer = correctAnswer;
+                    if (q.type === 'radio') {
+                        displayCorrectAnswer = String(correctAnswer).split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                    }
+
+                    const indicatorClass = isCorrect ? 'correct' : 'incorrect';
+                    const indicatorIcon = isCorrect ? '✓' : '✗';
+                    const indicatorText = isCorrect ? 'Correct!' : `Correct answer: ${displayCorrectAnswer}`;
+
+                    html += `
+                        <div class="correct-answer-indicator ${indicatorClass}">
+                            <span class="indicator-icon">${indicatorIcon}</span>
+                            <span>${indicatorText}</span>
+                        </div>
+                    `;
                 }
 
                 html += `</div>`;
@@ -2948,6 +3301,7 @@
                                             📋 Copy recovery link
                                         </button>
                                         ${managerToggle}
+                                        ${isLeagueCreator ? `<button onclick="openDeleteModal('${pred.id}', '${pred.teamName.replace(/'/g, "\\'")}')" class="delete-team-btn mt-3">🗑️ Delete</button>` : ''}
                                     </div>
                                 </div>
                                 <div class="ml-4">
@@ -2993,6 +3347,59 @@
             } catch (error) {
                 console.error('Error toggling manager status:', error);
                 showToast('Error updating manager status');
+            }
+        }
+
+        // ========== DELETE TEAM FUNCTIONS ==========
+
+        // Open delete confirmation modal
+        function openDeleteModal(predictionId, teamName) {
+            const modal = document.getElementById('deleteTeamModal');
+            document.getElementById('deleteTeamId').value = predictionId;
+            document.getElementById('deleteTeamName').textContent = teamName;
+            modal.showModal();
+        }
+
+        // Close delete modal
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteTeamModal');
+            modal.close();
+        }
+
+        // Confirm and execute team deletion
+        async function confirmDeleteTeam() {
+            const predictionId = document.getElementById('deleteTeamId').value;
+            const teamName = document.getElementById('deleteTeamName').textContent;
+
+            if (!predictionId) {
+                showToast('Error: No team selected');
+                return;
+            }
+
+            try {
+                await db.transact([
+                    db.tx.predictions[predictionId].delete()
+                ]);
+
+                closeDeleteModal();
+                showToast(`${teamName} has been deleted`);
+
+                // The UI will update automatically via the InstantDB subscription
+            } catch (error) {
+                console.error('Error deleting team:', error);
+                showToast('Error deleting team');
+            }
+        }
+
+        // Render league name in header
+        function renderLeagueName() {
+            const container = document.getElementById('leagueNameHeader');
+            if (!container || !currentLeague) return;
+
+            const nameSpan = container.querySelector('.league-name-header');
+            if (nameSpan) {
+                nameSpan.textContent = currentLeague.name;
+                container.classList.remove('hidden');
             }
         }
 
