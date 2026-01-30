@@ -886,10 +886,14 @@
 
             let html = '';
 
-            // Show status message if no scores yet
-            if (!hasScores) {
+            // Count how many questions admin has answered
+            const answeredCount = countAnsweredQuestions(currentLeague.actualResults);
+            const totalQuestions = questions.length;
+
+            // Show status message about admin progress
+            if (answeredCount < totalQuestions) {
                 html += `<div class="info-box" style="margin-bottom: 16px; text-align: center;">
-                    Waiting for admin to enter game results...
+                    ${answeredCount} out of ${totalQuestions} answers have been added / updated.
                 </div>`;
             }
 
