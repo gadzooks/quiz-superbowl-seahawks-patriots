@@ -226,30 +226,80 @@
             position: relative;
             background: #00203B !important;
             color: #FFFFFF;
-            padding: 20px 16px;
+            padding: 16px;
             text-align: center;
             border-bottom: 3px solid #33F200;
         }
 
-        .app-header h1 {
-            font-size: 26px;
-            font-weight: bold;
-            margin: 0;
-            color: #33F200;
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
         }
 
-        .app-header h2 {
-            font-size: 18px;
-            font-weight: 500;
+        .header-text {
+            text-align: right;
+        }
+
+        .header-text h1 {
+            font-size: 20px;
+            font-weight: 800;
+            margin: 0;
+            color: #33F200;
+            letter-spacing: 2px;
+        }
+
+        .header-text h2 {
+            font-size: 14px;
+            font-weight: 600;
             color: #C4C4C4;
-            margin-top: 6px;
+            margin: 0;
+            letter-spacing: 1px;
         }
 
         .header-logo {
-            height: 60px;
+            height: 80px;
             width: auto;
-            margin-bottom: 8px;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            filter: drop-shadow(0 2px 8px rgba(51, 242, 0, 0.3));
+        }
+
+        .header-teams {
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-teams .team-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .header-teams .vs {
+            font-size: 11px;
+            color: #33F200;
+            font-weight: 600;
+        }
+
+        @media (max-width: 480px) {
+            .header-content {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .header-text {
+                text-align: center;
+            }
+            .header-teams {
+                flex-direction: row;
+                gap: 8px;
+                align-items: center;
+            }
+            .header-logo {
+                height: 70px;
+            }
         }
 
         /* Cards - better contrast */
@@ -401,24 +451,14 @@
 
         /* ========== FUN UI ENHANCEMENTS ========== */
 
-        /* Background styling - simple solid for reliability */
+        /* Background styling with 12s and footballs pattern */
         body {
             background-color: #00203B;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ctext x='20' y='40' font-family='Arial, sans-serif' font-size='32' font-weight='900' fill='%2333F200' fill-opacity='0.04'%3E12%3C/text%3E%3Ctext x='120' y='90' font-family='Arial, sans-serif' font-size='24' fill='%23FFFFFF' fill-opacity='0.03'%3E🏈%3C/text%3E%3Ctext x='60' y='140' font-family='Arial, sans-serif' font-size='28' font-weight='900' fill='%2333F200' fill-opacity='0.03'%3E12%3C/text%3E%3Ctext x='150' y='180' font-family='Arial, sans-serif' font-size='20' fill='%23FFFFFF' fill-opacity='0.04'%3E🏈%3C/text%3E%3Ctext x='10' y='190' font-family='Arial, sans-serif' font-size='18' fill='%23FFFFFF' fill-opacity='0.02'%3E🏈%3C/text%3E%3C/svg%3E");
+            background-attachment: fixed;
         }
 
         /* 12th Man badge reference */
-        .app-header::before {
-            content: "12";
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 24px;
-            font-weight: 900;
-            color: rgba(51, 242, 0, 0.2);
-            letter-spacing: -2px;
-            z-index: 1;
-        }
 
         /* Intro overlay styling */
         .intro-overlay {
@@ -665,9 +705,18 @@
         <button id="soundToggle" class="sound-toggle" onclick="SoundManager.toggle()" title="Toggle sound">
             🔇
         </button>
-        <img src="images/superbowl-lx-logo.svg" alt="Super Bowl LX" class="header-logo" />
-        <h1>SUPER BOWL PREDICTIONS</h1>
-        <h2>Seattle Seahawks vs New England Patriots</h2>
+        <div class="header-content">
+            <div class="header-text">
+                <h1>SUPER BOWL</h1>
+                <h2>PREDICTIONS</h2>
+            </div>
+            <img src="images/superbowl-lx-logo.svg" alt="Super Bowl LX" class="header-logo" />
+            <div class="header-teams">
+                <span class="team-name">Seahawks</span>
+                <span class="vs">vs</span>
+                <span class="team-name">Patriots</span>
+            </div>
+        </div>
     </div>
 
     <div class="container mx-auto px-4 py-6 max-w-2xl">
@@ -737,7 +786,7 @@
         <!-- Admin Panel (for league creator) -->
         <div id="adminPanel" class="hidden">
             <div role="tablist" class="tabs tabs-boxed bg-base-200 mb-6 sticky top-20 z-40 shadow-lg">
-                <a role="tab" class="tab tab-active" onclick="switchTab('predictions')">My Predictions</a>
+                <a role="tab" id="adminPredictionsTab" class="tab tab-active" onclick="switchTab('predictions')">My Predictions</a>
                 <a role="tab" class="tab" onclick="switchTab('scores')">Scores</a>
                 <a role="tab" class="tab" onclick="switchTab('admin')">Admin</a>
             </div>
@@ -809,7 +858,7 @@
         <!-- Regular User Panel (non-admin users) -->
         <div id="userPanel" class="hidden">
             <div role="tablist" class="tabs tabs-boxed bg-base-200 mb-6 sticky top-20 z-40 shadow-lg">
-                <a role="tab" class="tab tab-active" onclick="switchUserTab('predictions')">My Predictions</a>
+                <a role="tab" id="userPredictionsTab" class="tab tab-active" onclick="switchUserTab('predictions')">My Predictions</a>
                 <a role="tab" class="tab" onclick="switchUserTab('scores')">Scores</a>
             </div>
         </div>
@@ -1404,6 +1453,12 @@
                 }
             } else {
                 currentTeamName = userPrediction.teamName;
+
+                // Update tab labels with team name
+                const adminTab = document.getElementById('adminPredictionsTab');
+                const userTab = document.getElementById('userPredictionsTab');
+                if (adminTab) adminTab.textContent = `Team ${currentTeamName}`;
+                if (userTab) userTab.textContent = `Team ${currentTeamName}`;
 
                 // Show admin panel for creator
                 if (isLeagueCreator) {
