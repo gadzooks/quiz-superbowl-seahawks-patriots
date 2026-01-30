@@ -64,6 +64,14 @@ if (!fs.existsSync(distDir)) {
 const outputPath = path.join(distDir, 'index.html');
 fs.writeFileSync(outputPath, content, 'utf8');
 
+// Copy favicon to dist
+const faviconPath = path.join(__dirname, 'favicon.svg');
+const faviconOutputPath = path.join(distDir, 'favicon.svg');
+if (fs.existsSync(faviconPath)) {
+  fs.copyFileSync(faviconPath, faviconOutputPath);
+  console.log('✓ Favicon copied to dist/');
+}
+
 console.log('✓ Build complete!');
 console.log('');
 console.log('🚀 Starting local server...');
@@ -71,7 +79,16 @@ console.log('🚀 Starting local server...');
 // Simple HTTP server
 const PORT = 8000;
 const server = http.createServer((req, res) => {
-  const filePath = path.join(distDir, 'index.html');
+  // Serve favicon.svg or index.html
+  let filePath, contentType;
+
+  if (req.url === '/favicon.svg') {
+    filePath = path.join(distDir, 'favicon.svg');
+    contentType = 'image/svg+xml';
+  } else {
+    filePath = path.join(distDir, 'index.html');
+    contentType = 'text/html';
+  }
 
   fs.readFile(filePath, (err, data) => {
     if (err) {
@@ -80,7 +97,7 @@ const server = http.createServer((req, res) => {
       return;
     }
 
-    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.writeHead(200, { 'Content-Type': contentType });
     res.end(data);
   });
 });

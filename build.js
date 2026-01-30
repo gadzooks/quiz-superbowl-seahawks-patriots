@@ -40,5 +40,13 @@ if (!fs.existsSync(distDir)) {
 // Write the output file
 fs.writeFileSync(outputPath, content, 'utf8');
 
+// Copy favicon to dist
+const faviconPath = path.join(__dirname, 'favicon.svg');
+const faviconOutputPath = path.join(__dirname, 'dist', 'favicon.svg');
+if (fs.existsSync(faviconPath)) {
+  fs.copyFileSync(faviconPath, faviconOutputPath);
+  console.log('✓ Favicon copied to dist/');
+}
+
 console.log('✓ Build complete! Output: dist/index.html');
 console.log('✓ InstantDB App ID injected successfully');
