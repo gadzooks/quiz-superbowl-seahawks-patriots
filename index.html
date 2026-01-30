@@ -419,17 +419,8 @@
             </div>
         </div>
 
-        <!-- League URL Display -->
-        <div id="leagueUrlDisplay" class="hidden alert alert-success shadow-lg mb-6">
-            <div class="flex-col w-full">
-                <div class="flex items-center gap-2 mb-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    <span class="font-bold">📋 Share This Link:</span>
-                </div>
-                <div class="bg-base-100 text-base-content p-3 rounded-lg break-all text-sm mb-2" id="shareUrl"></div>
-                <button onclick="copyLeagueUrl()" class="btn btn-secondary btn-sm w-full">Copy Link</button>
-            </div>
-        </div>
+        <!-- League URL stored for copy function -->
+        <div id="shareUrl" class="hidden"></div>
 
         <!-- Team Name Entry -->
         <div id="teamNameEntry" class="hidden">
@@ -464,19 +455,27 @@
             <!-- Admin Controls Tab -->
             <div id="adminTab" class="hidden space-y-6">
                 <div class="card bg-base-200 shadow-xl">
-                    <div class="card-body">
-                        <h3 class="card-title text-primary">Game Status</h3>
-                        <div id="gameStatus"></div>
-                        <button id="toggleButton" class="btn btn-primary w-full btn-lg mt-4">
-                            Close Submissions
+                    <div class="card-body p-0">
+                        <button onclick="toggleGameStatus()" class="w-full p-4 flex justify-between items-center cursor-pointer" style="background: transparent; border: none;">
+                            <h3 class="card-title text-primary m-0">Game Status</h3>
+                            <span id="gameStatusToggleIcon" style="color: #33F200; font-size: 18px;">▼</span>
                         </button>
+                        <div id="gameStatusContent" class="px-4 pb-4">
+                            <div id="gameStatus"></div>
+                            <button id="toggleButton" class="btn btn-primary w-full btn-lg mt-4">
+                                Close Submissions
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="card bg-base-200 shadow-xl">
+                <div class="card shadow-xl" style="background-color: #1a0a0a; border: 2px solid #ff6b6b;">
                     <div class="card-body">
-                        <h3 class="card-title text-primary">Enter Actual Results</h3>
-                        <p class="text-sm text-base-content/60">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="background: #ff6b6b; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; text-transform: uppercase;">Admin Only</span>
+                            <h3 class="card-title" style="color: #ff6b6b; margin: 0;">Enter Actual Results</h3>
+                        </div>
+                        <p class="text-sm" style="color: #9DA2A3;">
                             Results are saved automatically as you enter them. Scores update in real-time.
                         </p>
                         <p id="resultsAutoSaveStatus" class="text-sm text-success text-center font-semibold"></p>
@@ -679,10 +678,9 @@
 
             console.log('Rendering for league:', currentLeague.name);
 
-            // Show league URL
+            // Store league URL for copy function
             const shareUrl = `${window.location.origin}${window.location.pathname}?league=${currentLeague.slug}`;
             document.getElementById('shareUrl').textContent = shareUrl;
-            document.getElementById('leagueUrlDisplay').classList.remove('hidden');
 
             // Check if user has set their team name
             const userPrediction = allPredictions.find(p => p.userId === currentUserId);
@@ -703,17 +701,16 @@
                     document.getElementById('userPanel').classList.remove('hidden');
                 }
 
-                // Show predictions form by default
+                // Render all content but preserve current tab
                 renderPredictionsForm();
-                document.getElementById('predictionsSection').classList.remove('hidden');
-                document.getElementById('participantsSection').classList.add('hidden');
-                document.getElementById('leaderboardSection').classList.add('hidden');
-                if (isLeagueCreator) {
-                    document.getElementById('adminTab').classList.add('hidden');
-                }
-
-                // Render participants list (hidden by default, shown when tab clicked)
                 renderParticipants();
+
+                // Restore the correct tab view (preserve current tab on re-renders)
+                if (isLeagueCreator) {
+                    switchTab(currentTab);
+                } else {
+                    switchUserTab(currentTab);
+                }
             }
 
             // Always show leaderboard
@@ -815,10 +812,16 @@
         function renderAdminControls() {
             const statusDiv = document.getElementById('gameStatus');
             const showPredictions = currentLeague.showAllPredictions !== false; // Default to true
+            const shareUrl = `${window.location.origin}${window.location.pathname}?league=${currentLeague.slug}`;
 
             statusDiv.innerHTML = `
                 <div class="badge ${currentLeague.isOpen ? 'badge-success' : 'badge-error'} badge-lg mb-4">
                     ${currentLeague.isOpen ? '✓ Submissions OPEN' : '✗ Submissions CLOSED'}
+                </div>
+
+                <div style="margin-top: 12px; padding: 10px; background: #002a4a; border-radius: 8px; font-size: 14px;">
+                    <span style="color: #9DA2A3;">Share link:</span>
+                    <a href="#" onclick="copyLeagueUrl(); return false;" style="color: #33F200; margin-left: 8px; text-decoration: underline;">📋 Copy invite link</a>
                 </div>
 
                 <div class="form-control mt-6">
@@ -837,14 +840,31 @@
             `;
 
             const toggleBtn = document.getElementById('toggleButton');
-            toggleBtn.textContent = currentLeague.isOpen ? 'Close Submissions' : 'Open Submissions';
+            toggleBtn.textContent = currentLeague.isOpen ? '🔒 Close Submissions' : '🔓 Open Submissions';
             toggleBtn.onclick = toggleSubmissions;
+            // Red/warning style for dangerous operation
+            toggleBtn.style.backgroundColor = currentLeague.isOpen ? '#dc2626' : '#059669';
+            toggleBtn.style.borderColor = currentLeague.isOpen ? '#dc2626' : '#059669';
+            toggleBtn.style.color = '#FFFFFF';
+
+            // Preserve collapsed state
+            const content = document.getElementById('gameStatusContent');
+            const icon = document.getElementById('gameStatusToggleIcon');
+            if (gameStatusCollapsed) {
+                content.style.display = 'none';
+                icon.textContent = '▶';
+            }
 
             renderResultsForm();
         }
 
         // Toggle submissions
         async function toggleSubmissions() {
+            const action = currentLeague.isOpen ? 'close' : 'open';
+            const confirmed = confirm(`Are you sure you want to ${action} submissions?\n\n${currentLeague.isOpen ? 'Users will no longer be able to submit or edit their predictions.' : 'Users will be able to submit and edit their predictions again.'}`);
+
+            if (!confirmed) return;
+
             await db.transact([
                 db.tx.leagues[currentLeague.id].update({ isOpen: !currentLeague.isOpen })
             ]);
@@ -875,30 +895,35 @@
             let html = '';
 
             questions.forEach((q, index) => {
-                html += `<div class="question-card">`;
+                const hasValue = currentLeague.actualResults?.[q.id] !== undefined &&
+                                 currentLeague.actualResults?.[q.id] !== null &&
+                                 currentLeague.actualResults?.[q.id] !== '';
+
+                html += `<div class="question-card" style="background: #1a1520; border: 1px solid #ff6b6b40; border-left: 4px solid #ff6b6b;">`;
                 html += `<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
                     <label style="margin: 0;">
-                        <span style="color: #33F200; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Question ${index + 1}</span><br>
+                        <span style="color: #ff9999; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Question ${index + 1}</span><br>
                         <span style="color: #FFFFFF;">${q.label}</span>
-                        <span style="display: inline-block; background: #33F200; color: #00203B; padding: 4px 12px; border-radius: 12px; font-size: 14px; font-weight: 700; margin-left: 10px;">${q.points} pts</span>
+                        <span style="display: inline-block; background: #ff6b6b; color: #FFFFFF; padding: 4px 12px; border-radius: 12px; font-size: 14px; font-weight: 700; margin-left: 10px;">${q.points} pts</span>
                     </label>
-                    <button type="button" onclick="clearResult('${q.id}')" style="background: rgba(255, 107, 107, 0.2); color: #ff6b6b; border: 1px solid #ff6b6b; padding: 8px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">✕ Clear</button>
+                    ${hasValue ? `<button type="button" onclick="clearResult('${q.id}')" style="background: rgba(255, 107, 107, 0.2); color: #ff6b6b; border: 1px solid #ff6b6b; padding: 8px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">✕ Clear</button>` : ''}
                 </div>`;
 
                 if (q.type === 'radio') {
                     q.options.forEach(option => {
                         const value = option.toLowerCase().replace(/\s+/g, '-');
                         const checked = currentLeague.actualResults?.[q.id] === value ? 'checked' : '';
+                        const selectedStyle = checked ? 'background-color: #3d1a1a; border-color: #ff6b6b; box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.3);' : 'background-color: #1a1520; border-color: #ff6b6b60;';
                         html += `
-                            <label class="radio-option">
-                                <input type="radio" name="result-${q.id}" value="${value}" ${checked}>
+                            <label class="radio-option" style="${selectedStyle}">
+                                <input type="radio" name="result-${q.id}" value="${value}" ${checked} style="accent-color: #ff6b6b;">
                                 <span>${option}</span>
                             </label>
                         `;
                     });
                 } else {
-                    const value = currentLeague.actualResults?.[q.id] || '';
-                    html += `<input type="number" name="result-${q.id}" value="${value}" min="0" placeholder="Enter number">`;
+                    const value = currentLeague.actualResults?.[q.id] ?? '';
+                    html += `<input type="number" name="result-${q.id}" value="${value}" min="0" placeholder="Enter number" style="background: #1a1520; border-color: #ff6b6b60;">`;
                 }
 
                 html += `</div>`;
@@ -1365,6 +1390,22 @@
             } else {
                 element.classList.add('active');
                 if (toggleText) toggleText.textContent = 'Hide answers ▲';
+            }
+        }
+
+        // Toggle Game Status visibility
+        let gameStatusCollapsed = false;
+        function toggleGameStatus() {
+            const content = document.getElementById('gameStatusContent');
+            const icon = document.getElementById('gameStatusToggleIcon');
+            gameStatusCollapsed = !gameStatusCollapsed;
+
+            if (gameStatusCollapsed) {
+                content.style.display = 'none';
+                icon.textContent = '▶';
+            } else {
+                content.style.display = 'block';
+                icon.textContent = '▼';
             }
         }
 
