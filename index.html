@@ -584,9 +584,13 @@
             // Always show leaderboard
             renderLeaderboard();
 
-            // Show all predictions if closed
-            if (!currentLeague.isOpen) {
+            // Show all predictions if admin enabled it (defaults to true)
+            const showAllPredictions = currentLeague.showAllPredictions !== false;
+            if (showAllPredictions) {
                 renderAllPredictions();
+            } else {
+                // Hide the section if toggle is off
+                document.getElementById('allPredictionsSection').classList.add('hidden');
             }
         }
 
@@ -675,10 +679,33 @@
         // Render admin controls
         function renderAdminControls() {
             const statusDiv = document.getElementById('gameStatus');
+            const showPredictions = currentLeague.showAllPredictions !== false; // Default to true if not set
+
             statusDiv.innerHTML = `
-                <span class="status-badge ${currentLeague.isOpen ? 'status-open' : 'status-closed'}">
-                    ${currentLeague.isOpen ? 'Submissions OPEN' : 'Submissions CLOSED'}
-                </span>
+                <div style="margin-bottom: 16px;">
+                    <span class="status-badge ${currentLeague.isOpen ? 'status-open' : 'status-closed'}">
+                        ${currentLeague.isOpen ? 'Submissions OPEN' : 'Submissions CLOSED'}
+                    </span>
+                </div>
+                <div style="margin-top: 16px;">
+                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+                        <span style="font-size: 16px;">Show "All Predictions" Table</span>
+                        <div style="position: relative; width: 60px; height: 34px;">
+                            <input type="checkbox" id="showPredictionsToggle" ${showPredictions ? 'checked' : ''}
+                                onchange="toggleShowPredictions()"
+                                style="opacity: 0; width: 0; height: 0;">
+                            <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+                                background-color: ${showPredictions ? 'var(--seahawks-green)' : '#ccc'};
+                                transition: .4s; border-radius: 34px;">
+                                <span style="position: absolute; content: ''; height: 26px; width: 26px; left: ${showPredictions ? '30px' : '4px'};
+                                    bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+                            </span>
+                        </div>
+                    </label>
+                    <p style="font-size: 12px; color: var(--seahawks-grey); margin-top: 8px;">
+                        ${showPredictions ? 'All users can see the predictions table' : 'Predictions table is hidden from all users'}
+                    </p>
+                </div>
             `;
 
             const toggleBtn = document.getElementById('toggleButton');
@@ -693,6 +720,15 @@
             await db.transact([
                 db.tx.leagues[currentLeague.id].update({ isOpen: !currentLeague.isOpen })
             ]);
+        }
+
+        // Toggle show all predictions
+        async function toggleShowPredictions() {
+            const newValue = !currentLeague.showAllPredictions;
+            await db.transact([
+                db.tx.leagues[currentLeague.id].update({ showAllPredictions: newValue })
+            ]);
+            console.log('Show all predictions:', newValue);
         }
 
         // Render results form
