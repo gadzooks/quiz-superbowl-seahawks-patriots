@@ -315,7 +315,6 @@
         <div id="userPanel" class="hidden">
             <div class="tab-buttons">
                 <button class="tab-button active" onclick="switchUserTab('predictions')">My Predictions</button>
-                <button class="tab-button" onclick="switchUserTab('participants')">Participants</button>
                 <button class="tab-button" onclick="switchUserTab('scores')">Scores</button>
             </div>
         </div>
@@ -600,18 +599,13 @@
 
             // Hide all sections
             document.getElementById('predictionsSection').classList.add('hidden');
-            document.getElementById('participantsSection').classList.add('hidden');
             document.getElementById('leaderboardSection').classList.add('hidden');
 
             if (tab === 'predictions') {
                 document.querySelectorAll('#userPanel .tab-button')[0].classList.add('active');
                 document.getElementById('predictionsSection').classList.remove('hidden');
-            } else if (tab === 'participants') {
-                document.querySelectorAll('#userPanel .tab-button')[1].classList.add('active');
-                document.getElementById('participantsSection').classList.remove('hidden');
-                renderParticipants();
             } else if (tab === 'scores') {
-                document.querySelectorAll('#userPanel .tab-button')[2].classList.add('active');
+                document.querySelectorAll('#userPanel .tab-button')[1].classList.add('active');
                 document.getElementById('leaderboardSection').classList.remove('hidden');
                 renderLeaderboard();
             }
