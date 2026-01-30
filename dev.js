@@ -72,6 +72,26 @@ if (fs.existsSync(faviconPath)) {
   console.log('✓ Favicon copied to dist/');
 }
 
+// Copy images folder to dist
+const imagesDir = path.join(__dirname, 'images');
+const imagesOutputDir = path.join(distDir, 'images');
+if (fs.existsSync(imagesDir)) {
+  // Create images dir in dist if it doesn't exist
+  if (!fs.existsSync(imagesOutputDir)) {
+    fs.mkdirSync(imagesOutputDir, { recursive: true });
+  }
+  // Copy all files from images folder
+  const imageFiles = fs.readdirSync(imagesDir);
+  imageFiles.forEach(file => {
+    const srcPath = path.join(imagesDir, file);
+    const destPath = path.join(imagesOutputDir, file);
+    if (fs.statSync(srcPath).isFile()) {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  });
+  console.log(`✓ Images copied to dist/ (${imageFiles.length} files)`);
+}
+
 console.log('✓ Build complete!');
 console.log('');
 console.log('🚀 Starting local server...');
