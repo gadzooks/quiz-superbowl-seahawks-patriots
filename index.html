@@ -1005,7 +1005,7 @@
             const teamsWithPredictions = allPredictions.filter(p => p.predictions);
 
             if (teamsWithPredictions.length === 0) {
-                leaderboardDiv.innerHTML = '<p style="text-align: center; color: var(--seahawks-grey);">No predictions yet!</p>';
+                leaderboardDiv.innerHTML = '<div class="alert"><span>No predictions yet!</span></div>';
                 return;
             }
 
@@ -1029,33 +1029,39 @@
 
             // Show status message about admin progress
             if (answeredCount < totalQuestions) {
-                html += `<div class="info-box" style="margin-bottom: 16px; text-align: center;">
-                    ${answeredCount} out of ${totalQuestions} answers have been added / updated.
+                html += `<div class="alert alert-info mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>${answeredCount} out of ${totalQuestions} answers have been added / updated.</span>
                 </div>`;
             }
 
             sorted.forEach((pred, index) => {
                 const isFirst = index === 0 && pred.score > 0 && hasScores;
                 const uniqueId = `answers-${pred.id}`;
-                const canShowAnswers = !currentLeague.isOpen; // Only show answers after submissions close
+                const canShowAnswers = !currentLeague.isOpen;
 
                 html += `
-                    <div class="leaderboard-row ${isFirst ? 'first' : ''}" style="flex-direction: column; align-items: stretch;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <strong>${index + 1}. ${pred.teamName}</strong>
-                                ${pred.tiebreakDiff > 0 && hasScores ? `<div style="font-size: 14px; color: var(--seahawks-grey);">Tiebreaker diff: ${pred.tiebreakDiff}</div>` : ''}
+                    <div class="card bg-base-200 shadow-lg ${isFirst ? 'ring-2 ring-primary' : ''}">
+                        <div class="card-body p-4">
+                            <div class="flex justify-between items-center">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="badge badge-lg ${isFirst ? 'badge-primary' : 'badge-ghost'}">${index + 1}</span>
+                                        <h3 class="text-lg font-bold">${pred.teamName}</h3>
+                                    </div>
+                                    ${pred.tiebreakDiff > 0 && hasScores ? `<div class="text-xs text-base-content/60 mt-1">Tiebreaker diff: ${pred.tiebreakDiff}</div>` : ''}
+                                </div>
+                                <div class="text-3xl font-bold text-primary">${hasScores ? pred.score : 0}</div>
                             </div>
-                            <div style="font-size: 24px; font-weight: bold;">${hasScores ? pred.score : 0} pts</div>
+                            ${canShowAnswers ? `
+                                <button class="btn btn-ghost btn-sm mt-2" onclick="toggleAnswers('${uniqueId}')">
+                                    <span class="toggle-text">Show answers ▼</span>
+                                </button>
+                                <div id="${uniqueId}" class="collapsible-answers">
+                                    ${renderAnswerDetails(pred, currentLeague.actualResults)}
+                                </div>
+                            ` : ''}
                         </div>
-                        ${canShowAnswers ? `
-                            <div class="toggle-answers" onclick="toggleAnswers('${uniqueId}')">
-                                Show answers ▼
-                            </div>
-                            <div id="${uniqueId}" class="collapsible-answers">
-                                ${renderAnswerDetails(pred, currentLeague.actualResults)}
-                            </div>
-                        ` : ''}
                     </div>
                 `;
             });
@@ -1067,13 +1073,14 @@
         function toggleAnswers(id) {
             const element = document.getElementById(id);
             const toggleBtn = element.previousElementSibling;
+            const toggleText = toggleBtn.querySelector('.toggle-text');
 
             if (element.classList.contains('active')) {
                 element.classList.remove('active');
-                toggleBtn.innerHTML = 'Show answers ▼';
+                if (toggleText) toggleText.textContent = 'Show answers ▼';
             } else {
                 element.classList.add('active');
-                toggleBtn.innerHTML = 'Hide answers ▲';
+                if (toggleText) toggleText.textContent = 'Hide answers ▲';
             }
         }
 
@@ -1127,7 +1134,7 @@
             const participantsDiv = document.getElementById('participantsList');
 
             if (allPredictions.length === 0) {
-                participantsDiv.innerHTML = '<p style="text-align: center; color: var(--seahawks-grey);">No participants yet!</p>';
+                participantsDiv.innerHTML = '<div class="alert"><span>No participants yet!</span></div>';
                 return;
             }
 
@@ -1148,18 +1155,29 @@
                 const isComplete = answeredCount === totalQuestions;
 
                 html += `
-                    <div class="leaderboard-row ${isComplete ? 'first' : ''}">
-                        <div style="flex: 1;">
-                            <strong>${pred.teamName}</strong>
-                            <div style="font-size: 14px; color: var(--seahawks-grey); margin-top: 4px;">
-                                ${answeredCount} of ${totalQuestions} questions answered
+                    <div class="card bg-base-200 shadow-lg ${isComplete ? 'ring-2 ring-success' : ''}">
+                        <div class="card-body p-4">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <h3 class="font-bold text-lg">${pred.teamName}</h3>
+                                    <p class="text-sm text-base-content/60 mt-1">
+                                        ${answeredCount} of ${totalQuestions} questions answered
+                                    </p>
+                                    <div class="mt-3">
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span>${percentage}%</span>
+                                            <span>${isComplete ? 'Complete!' : 'In progress'}</span>
+                                        </div>
+                                        <progress class="progress progress-primary w-full" value="${percentage}" max="100"></progress>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    ${isComplete
+                                        ? '<div class="badge badge-success badge-lg">✓</div>'
+                                        : `<div class="radial-progress text-primary" style="--value:${percentage}; --size:3rem;">${percentage}%</div>`
+                                    }
+                                </div>
                             </div>
-                            <div style="background-color: rgba(255,255,255,0.2); height: 8px; border-radius: 4px; margin-top: 8px; overflow: hidden;">
-                                <div style="background-color: var(--seahawks-green); height: 100%; width: ${percentage}%; transition: width 0.3s;"></div>
-                            </div>
-                        </div>
-                        <div style="font-size: 20px; font-weight: bold; margin-left: 16px;">
-                            ${isComplete ? '✓' : `${percentage}%`}
                         </div>
                     </div>
                 `;
@@ -1189,31 +1207,31 @@
 
             document.getElementById('allPredictionsSection').classList.remove('hidden');
 
-            let html = '<table><thead><tr><th>Team</th>';
+            let html = '<table class="table table-zebra table-pin-rows table-pin-cols text-xs"><thead><tr class="bg-primary text-primary-content"><th class="sticky left-0 z-10">Team</th>';
             questions.forEach(q => {
-                html += `<th>${q.label}</th>`;
+                html += `<th class="whitespace-normal">${q.label}</th>`;
             });
             html += '<th>Score</th></tr></thead><tbody>';
 
             teamsWithPredictions.forEach(pred => {
-                html += `<tr><td><strong>${pred.teamName}</strong></td>`;
+                html += `<tr><td class="sticky left-0 z-10 bg-base-200 font-bold">${pred.teamName}</td>`;
 
                 questions.forEach(q => {
                     const value = pred.predictions?.[q.id] || '-';
                     const actual = currentLeague.actualResults?.[q.id];
                     const isCorrect = actual && value === actual;
 
-                    html += `<td class="${isCorrect ? 'correct-answer' : ''}">${value}</td>`;
+                    html += `<td class="${isCorrect ? 'bg-success/20' : ''}">${value}</td>`;
                 });
 
-                html += `<td><strong>${pred.score}</strong></td></tr>`;
+                html += `<td class="font-bold">${pred.score}</td></tr>`;
             });
 
             // Add actual results row if available
             if (currentLeague.actualResults) {
-                html += `<tr style="background-color: rgba(105, 190, 40, 0.5);"><td><strong>ACTUAL</strong></td>`;
+                html += `<tr class="bg-success/40"><td class="sticky left-0 z-10 bg-success/40 font-bold">ACTUAL</td>`;
                 questions.forEach(q => {
-                    html += `<td><strong>${currentLeague.actualResults[q.id] || '-'}</strong></td>`;
+                    html += `<td class="font-bold">${currentLeague.actualResults[q.id] || '-'}</td>`;
                 });
                 html += '<td>-</td></tr>';
             }
