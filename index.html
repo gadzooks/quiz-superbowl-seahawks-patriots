@@ -6,6 +6,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Super Bowl Prediction Game</title>
+
+    <!-- Favicon - Seahawks themed -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='80'>🏈</text></svg>">
+    <link rel="apple-touch-icon" href="favicon.svg">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.6.0/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script type="module">
@@ -720,9 +726,15 @@
             const userPrediction = allPredictions.find(p => p.userId === currentUserId);
 
             if (!userPrediction) {
-                // Show team name entry
+                // Show team name entry - don't show leaderboard yet
                 document.getElementById('teamNameEntry').classList.remove('hidden');
                 document.getElementById('teamNameForm').onsubmit = handleTeamNameSubmit;
+
+                // Hide leaderboard on team entry screen
+                const leaderboardSection = document.getElementById('leaderboardSection');
+                if (leaderboardSection) {
+                    leaderboardSection.classList.add('hidden');
+                }
             } else {
                 currentTeamName = userPrediction.teamName;
 
@@ -740,6 +752,7 @@
                 renderParticipants();
 
                 // Restore the correct tab view (preserve current tab on re-renders)
+                // The switchTab/switchUserTab functions handle showing leaderboard on Scores tab
                 if (isLeagueCreator) {
                     switchTab(currentTab);
                 } else {
@@ -747,14 +760,14 @@
                 }
             }
 
-            // Always show leaderboard
-            renderLeaderboard();
-
             // Show all predictions if admin enabled it (defaults to false)
             const showAllPredictions = currentLeague.showAllPredictions === true;
+            console.log('Show All Predictions:', showAllPredictions);
             if (showAllPredictions) {
+                console.log('Rendering all predictions section...');
                 renderAllPredictions();
             } else {
+                console.log('Hiding all predictions section...');
                 // Hide the section if toggle is off
                 document.getElementById('allPredictionsSection').classList.add('hidden');
             }
@@ -949,9 +962,14 @@
                 if (!confirmed) return;
             }
 
+            console.log(`Admin toggling Show All Predictions to: ${show}`);
+            console.log('This will update all users in real-time via InstantDB...');
+
             await db.transact([
                 db.tx.leagues[currentLeague.id].update({ showAllPredictions: show })
             ]);
+
+            console.log('✓ Database updated. All users should see the change automatically!');
         }
 
         // Render results form
@@ -1844,8 +1862,12 @@
         function renderAllPredictions() {
             const teamsWithPredictions = allPredictions.filter(p => p.predictions);
 
-            if (teamsWithPredictions.length === 0) return;
+            if (teamsWithPredictions.length === 0) {
+                console.log('No teams have predictions yet, not showing predictions section');
+                return;
+            }
 
+            console.log(`Showing all predictions for ${teamsWithPredictions.length} teams`);
             document.getElementById('allPredictionsSection').classList.remove('hidden');
 
             // Build table with inline styles for better control
