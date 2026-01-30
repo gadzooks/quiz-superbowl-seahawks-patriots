@@ -688,21 +688,17 @@
                     </span>
                 </div>
                 <div style="margin-top: 16px;">
-                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                         <span style="font-size: 16px;">Show "All Predictions" Table</span>
-                        <div style="position: relative; width: 60px; height: 34px;">
-                            <input type="checkbox" id="showPredictionsToggle" ${showPredictions ? 'checked' : ''}
-                                onchange="toggleShowPredictions()"
-                                style="opacity: 0; width: 0; height: 0;">
-                            <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+                        <button type="button" onclick="toggleShowPredictions()"
+                            style="position: relative; width: 60px; height: 34px; border: none; cursor: pointer;
                                 background-color: ${showPredictions ? 'var(--seahawks-green)' : '#ccc'};
-                                transition: .4s; border-radius: 34px;">
-                                <span style="position: absolute; content: ''; height: 26px; width: 26px; left: ${showPredictions ? '30px' : '4px'};
-                                    bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;"></span>
-                            </span>
-                        </div>
-                    </label>
-                    <p style="font-size: 12px; color: var(--seahawks-grey); margin-top: 8px;">
+                                border-radius: 34px; transition: background-color 0.4s;">
+                            <span style="position: absolute; height: 26px; width: 26px; left: ${showPredictions ? '30px' : '4px'};
+                                bottom: 4px; background-color: white; transition: left 0.4s; border-radius: 50%;"></span>
+                        </button>
+                    </div>
+                    <p style="font-size: 12px; color: var(--seahawks-grey);">
                         ${showPredictions ? 'All users can see the predictions table' : 'Predictions table is hidden from all users'}
                     </p>
                 </div>
@@ -724,11 +720,22 @@
 
         // Toggle show all predictions
         async function toggleShowPredictions() {
-            const newValue = !currentLeague.showAllPredictions;
+            console.log('=== TOGGLING SHOW ALL PREDICTIONS ===');
+            console.log('Current value:', currentLeague.showAllPredictions);
+
+            const currentValue = currentLeague.showAllPredictions !== false; // Default to true
+            const newValue = !currentValue;
+
+            console.log('New value:', newValue);
+
             await db.transact([
                 db.tx.leagues[currentLeague.id].update({ showAllPredictions: newValue })
             ]);
-            console.log('Show all predictions:', newValue);
+
+            console.log('Toggle saved, re-rendering...');
+
+            // Re-render admin controls to update toggle appearance
+            renderAdminControls();
         }
 
         // Render results form
