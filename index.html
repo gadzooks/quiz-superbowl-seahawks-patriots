@@ -607,9 +607,10 @@
             currentUserId = getUserId();
             console.log('Current user ID:', currentUserId);
 
-            // Check for league parameter
+            // Check for league parameter and admin override
             const urlParams = new URLSearchParams(window.location.search);
             const leagueParam = urlParams.get('league');
+            const isAdminOverride = urlParams.get('isAdmin') === 'true';
 
             if (leagueParam) {
                 // Subscribe to this specific league by slug
@@ -633,8 +634,8 @@
                         // Filter predictions for this league
                         if (currentLeague) {
                             allPredictions = result.data.predictions.filter(p => p.leagueId === currentLeague.id);
-                            isLeagueCreator = currentLeague.creatorId === currentUserId;
-                            console.log('Is league creator:', isLeagueCreator, '(creatorId:', currentLeague.creatorId, ', userId:', currentUserId, ')');
+                            isLeagueCreator = currentLeague.creatorId === currentUserId || isAdminOverride;
+                            console.log('Is league creator:', isLeagueCreator, '(creatorId:', currentLeague.creatorId, ', userId:', currentUserId, ', adminOverride:', isAdminOverride, ')');
                             console.log('All predictions:', allPredictions);
                         } else {
                             console.log('No league found with slug:', leagueParam);
@@ -658,6 +659,16 @@
 
             const leagueName = document.getElementById('leagueName').value.trim();
             const leagueSlug = leagueName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+            // Check if a league with this slug already exists
+            const existingLeague = await db.queryOnce({
+                leagues: { $: { where: { slug: leagueSlug } } }
+            });
+
+            if (existingLeague.data.leagues && existingLeague.data.leagues.length > 0) {
+                alert('A league with this name already exists. Please choose a different name.');
+                return;
+            }
 
             // Generate UUID for league
             const leagueId = crypto.randomUUID();
@@ -754,6 +765,17 @@
             e.preventDefault();
 
             const teamName = document.getElementById('teamNameInput').value.trim();
+
+            // Check if team name already exists (case-insensitive)
+            const teamNameExists = allPredictions.some(p =>
+                p.teamName.toLowerCase() === teamName.toLowerCase()
+            );
+
+            if (teamNameExists) {
+                alert('This team name is already taken. Please choose a different name.');
+                return;
+            }
+
             currentTeamName = teamName;
 
             // Generate UUID for prediction

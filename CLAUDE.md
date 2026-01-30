@@ -33,13 +33,19 @@ The app uses InstantDB as a real-time database with two main entities:
 
 ### Application Flow
 1. **League Creation**: First visitor creates a league, gets a shareable URL with `?league=slug` parameter
+   - League names must be unique (case-insensitive via slug comparison)
 2. **Team Entry**: Users visiting the league URL enter their team name
+   - Team names must be unique within a league (case-insensitive)
 3. **Predictions**: Users submit predictions (stored/updated in InstantDB)
-4. **Admin Controls**: League creator has access to admin panel (separate tab) to:
+4. **Admin Controls**: League creator OR anyone with `?isAdmin=true` URL parameter has access to admin panel (separate tab) to:
    - Toggle submissions open/closed
    - Enter actual game results
    - Trigger automatic score calculation
 5. **Real-time Leaderboard**: All users see live-updating leaderboard via InstantDB subscriptions
+
+### URL Parameters
+- `?league=slug` - Join a specific league
+- `?isAdmin=true` - Grant admin access (overrides league creator check)
 
 ### State Management
 Global JavaScript variables track application state:
