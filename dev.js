@@ -75,16 +75,83 @@ if (fs.existsSync(faviconPath)) {
 console.log('✓ Build complete!');
 console.log('');
 console.log('🚀 Starting local server...');
+console.log('👀 Watching for changes to index.html and favicon.svg...');
+
+// Function to rebuild the app
+function rebuild() {
+  try {
+    console.log('');
+    console.log('📝 Change detected, rebuilding...');
+
+    // Read the template
+    let content = fs.readFileSync(templatePath, 'utf8');
+
+    // Replace placeholder with actual value
+    content = content.replace('__INSTANTDB_APP_ID__', instantDbAppId);
+
+    // Write the output file
+    fs.writeFileSync(outputPath, content, 'utf8');
+
+    // Copy favicon to dist
+    const faviconPath = path.join(__dirname, 'favicon.svg');
+    const faviconOutputPath = path.join(distDir, 'favicon.svg');
+    if (fs.existsSync(faviconPath)) {
+      fs.copyFileSync(faviconPath, faviconOutputPath);
+    }
+
+    const timestamp = new Date().toLocaleTimeString();
+    console.log(`✓ Rebuild complete at ${timestamp}`);
+    console.log('  Refresh your browser to see changes');
+    console.log('');
+  } catch (err) {
+    console.error('❌ Error rebuilding:', err.message);
+  }
+}
+
+// Watch index.html for changes
+fs.watch(templatePath, (eventType) => {
+  if (eventType === 'change') {
+    rebuild();
+  }
+});
+
+// Watch favicon.svg for changes (reuse faviconPath from above)
+if (fs.existsSync(faviconPath)) {
+  fs.watch(faviconPath, (eventType) => {
+    if (eventType === 'change') {
+      rebuild();
+    }
+  });
+}
 
 // Simple HTTP server
 const PORT = 8000;
 const server = http.createServer((req, res) => {
-  // Serve favicon.svg or index.html
+  // Parse URL to handle query strings
+  const urlPath = req.url.split('?')[0];
+
   let filePath, contentType;
 
-  if (req.url === '/favicon.svg') {
+  if (urlPath === '/favicon.svg') {
     filePath = path.join(distDir, 'favicon.svg');
     contentType = 'image/svg+xml';
+  } else if (urlPath.startsWith('/images/')) {
+    // Serve images from images folder (relative to project root)
+    filePath = path.join(__dirname, urlPath);
+    // Determine content type based on extension
+    if (urlPath.endsWith('.png')) {
+      contentType = 'image/png';
+    } else if (urlPath.endsWith('.jpg') || urlPath.endsWith('.jpeg')) {
+      contentType = 'image/jpeg';
+    } else if (urlPath.endsWith('.gif')) {
+      contentType = 'image/gif';
+    } else if (urlPath.endsWith('.webp')) {
+      contentType = 'image/webp';
+    } else if (urlPath.endsWith('.svg')) {
+      contentType = 'image/svg+xml';
+    } else {
+      contentType = 'application/octet-stream';
+    }
   } else {
     filePath = path.join(distDir, 'index.html');
     contentType = 'text/html';
@@ -92,8 +159,9 @@ const server = http.createServer((req, res) => {
 
   fs.readFile(filePath, (err, data) => {
     if (err) {
-      res.writeHead(500);
-      res.end('Error loading file');
+      console.error(`Error serving ${filePath}:`, err.message);
+      res.writeHead(404);
+      res.end('File not found');
       return;
     }
 
