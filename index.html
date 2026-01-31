@@ -1257,10 +1257,18 @@
         let hasShownCompletionCelebration = false; // Track if completion celebration has been shown
 
         // ========== SOUND MANAGER ==========
-        // Uses Web Audio API for synthesized sounds - no external files needed
+        // Uses Web Audio API for synthesized sounds and Seahawks audio clips
         const SoundManager = {
             enabled: false, // Default OFF for elderly users
             audioContext: null,
+            audioUrls: {
+                intro: 'https://www2.seahawks.com/soundboard/audio/here-come-the-seahawks.mp3',
+                random: [
+                    'https://www2.seahawks.com/soundboard/audio/touchdown-seahawks.mp3',
+                    'https://www2.seahawks.com/soundboard/audio/defensive-stop.mp3',
+                    'https://www2.seahawks.com/soundboard/audio/are-you-kidding-me.mp3'
+                ]
+            },
 
             init() {
                 // Load preference from localStorage
@@ -1287,10 +1295,40 @@
                 localStorage.setItem('soundEnabled', this.enabled.toString());
                 this.updateButton();
 
-                // Play a test sound when enabling
+                // Play a random Seahawks sound when enabling
                 if (this.enabled) {
-                    this.playClick();
+                    this.playRandomSound();
                 }
+            },
+
+            // Play an audio file from URL
+            playAudio(url) {
+                if (!this.enabled) return;
+                try {
+                    const audio = new Audio(url);
+                    audio.volume = 0.7;
+                    audio.play().catch(e => console.log('Audio play failed:', e));
+                } catch (e) {
+                    console.log('Audio not available');
+                }
+            },
+
+            // Play intro sound for team registration (always plays, regardless of sound setting)
+            playIntro() {
+                try {
+                    const audio = new Audio(this.audioUrls.intro);
+                    audio.volume = 0.7;
+                    audio.play().catch(e => console.log('Audio play failed:', e));
+                } catch (e) {
+                    console.log('Audio not available');
+                }
+            },
+
+            // Play random Seahawks sound for toggle feedback
+            playRandomSound() {
+                const sounds = this.audioUrls.random;
+                const randomIndex = Math.floor(Math.random() * sounds.length);
+                this.playAudio(sounds[randomIndex]);
             },
 
             updateButton() {
@@ -1496,8 +1534,8 @@
             teamNameEl.textContent = `Team: ${teamName}`;
             overlay.classList.remove('hidden');
 
-            // Play triumphant sound
-            SoundManager.playCheer();
+            // Play intro sound
+            SoundManager.playIntro();
 
             // Trigger confetti
             if (typeof confetti === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
