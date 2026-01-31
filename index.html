@@ -178,11 +178,22 @@
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease-out;
+            opacity: 0.7;
         }
 
         .collapsible-answers.active {
             max-height: 3000px;
             transition: max-height 0.5s ease-in;
+        }
+
+        /* Show/Hide answers toggle button - reduced contrast */
+        .btn.btn-ghost.btn-sm {
+            opacity: 0.65;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn.btn-ghost.btn-sm:hover {
+            opacity: 1;
         }
 
         .answer-item {
@@ -194,33 +205,33 @@
             display: flex !important;
             justify-content: space-between !important;
             align-items: center !important;
-            color: #FFFFFF !important;
-            border: 2px solid #9DA2A3 !important;
-            font-weight: 500 !important;
+            color: #A5ACAF !important;
+            border: 1px solid #6B7280 !important;
+            font-weight: 400 !important;
         }
 
         .answer-item span {
-            color: #FFFFFF !important;
+            color: #A5ACAF !important;
         }
 
         .answer-item.correct {
-            background-color: #003320 !important;
-            border: 2px solid #33F200 !important;
-            border-left: 6px solid #33F200 !important;
+            background-color: #002418 !important;
+            border: 1px solid #4A9D2A !important;
+            border-left: 4px solid #4A9D2A !important;
         }
 
         .answer-item.correct span {
-            color: #33F200 !important;
+            color: #6BBE42 !important;
         }
 
         .answer-item.incorrect {
-            background-color: #330a0a !important;
-            border: 2px solid #ff6b6b !important;
-            border-left: 6px solid #ff6b6b !important;
+            background-color: #250808 !important;
+            border: 1px solid #B85454 !important;
+            border-left: 4px solid #B85454 !important;
         }
 
         .answer-item.incorrect span {
-            color: #ff9999 !important;
+            color: #CC8888 !important;
         }
 
         /* Hidden utility */
@@ -267,6 +278,7 @@
         .app-header {
             position: relative;
             background: #00203B !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ctext x='20' y='40' font-family='Arial, sans-serif' font-size='22' font-weight='900' fill='%2333F200' fill-opacity='0.18'%3E12s%3C/text%3E%3Ctext x='120' y='90' font-family='Arial, sans-serif' font-size='24' fill='%23FFFFFF' fill-opacity='0.14'%3E🏈%3C/text%3E%3Ctext x='60' y='140' font-family='Arial, sans-serif' font-size='20' font-weight='900' fill='%2333F200' fill-opacity='0.15'%3E12s%3C/text%3E%3Ctext x='150' y='180' font-family='Arial, sans-serif' font-size='20' fill='%23FFFFFF' fill-opacity='0.14'%3E🏈%3C/text%3E%3Ctext x='10' y='190' font-family='Arial, sans-serif' font-size='18' fill='%23FFFFFF' fill-opacity='0.12'%3E🏈%3C/text%3E%3C/svg%3E") !important;
             color: #FFFFFF;
             padding: 16px;
             padding-bottom: 20px;
@@ -505,7 +517,7 @@
         /* Background styling with 12s and footballs pattern */
         body {
             background-color: #00203B;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ctext x='20' y='40' font-family='Arial, sans-serif' font-size='32' font-weight='900' fill='%2333F200' fill-opacity='0.04'%3E12%3C/text%3E%3Ctext x='120' y='90' font-family='Arial, sans-serif' font-size='24' fill='%23FFFFFF' fill-opacity='0.03'%3E🏈%3C/text%3E%3Ctext x='60' y='140' font-family='Arial, sans-serif' font-size='28' font-weight='900' fill='%2333F200' fill-opacity='0.03'%3E12%3C/text%3E%3Ctext x='150' y='180' font-family='Arial, sans-serif' font-size='20' fill='%23FFFFFF' fill-opacity='0.04'%3E🏈%3C/text%3E%3Ctext x='10' y='190' font-family='Arial, sans-serif' font-size='18' fill='%23FFFFFF' fill-opacity='0.02'%3E🏈%3C/text%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ctext x='20' y='40' font-family='Arial, sans-serif' font-size='22' font-weight='900' fill='%2333F200' fill-opacity='0.18'%3E12s%3C/text%3E%3Ctext x='120' y='90' font-family='Arial, sans-serif' font-size='24' fill='%23FFFFFF' fill-opacity='0.14'%3E🏈%3C/text%3E%3Ctext x='60' y='140' font-family='Arial, sans-serif' font-size='20' font-weight='900' fill='%2333F200' fill-opacity='0.15'%3E12s%3C/text%3E%3Ctext x='150' y='180' font-family='Arial, sans-serif' font-size='20' fill='%23FFFFFF' fill-opacity='0.14'%3E🏈%3C/text%3E%3Ctext x='10' y='190' font-family='Arial, sans-serif' font-size='18' fill='%23FFFFFF' fill-opacity='0.12'%3E🏈%3C/text%3E%3C/svg%3E");
             background-attachment: fixed;
         }
 
