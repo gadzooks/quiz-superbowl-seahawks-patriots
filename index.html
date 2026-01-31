@@ -84,7 +84,6 @@
         .radio-option {
             display: flex;
             align-items: center;
-            gap: 16px;
             padding: 18px 20px;
             margin: 10px 0;
             background-color: #002a4a;
@@ -93,6 +92,13 @@
             cursor: pointer;
             transition: all 0.2s ease;
             min-height: 60px;
+            position: relative;
+        }
+
+        .radio-option::after {
+            content: '';
+            width: 44px;
+            flex-shrink: 0;
         }
 
         .radio-option:hover {
@@ -112,12 +118,19 @@
             accent-color: #33F200;
             cursor: pointer;
             flex-shrink: 0;
+            margin: 0 16px 0 0;
         }
 
         .radio-option span {
             font-size: 18px;
             font-weight: 500;
             color: #FFFFFF;
+            line-height: 1;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* Question card styling - dark theme */
