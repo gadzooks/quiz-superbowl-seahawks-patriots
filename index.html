@@ -1246,12 +1246,12 @@
 
         /* ========== FEATURE 2: Team Name Edit ========== */
         .team-name-edit-btn {
-            background: rgba(0, 32, 59, 0.3);
-            border: 1px solid rgba(0, 32, 59, 0.5);
+            background: rgba(51, 242, 0, 0.15);
+            border: 1px solid #33F200;
             border-radius: 6px;
-            padding: 4px 8px;
-            font-size: 11px;
-            color: #00203B;
+            padding: 4px 10px;
+            font-size: 12px;
+            color: #33F200;
             cursor: pointer;
             transition: all 0.2s ease;
             margin-left: 8px;
@@ -1259,8 +1259,9 @@
         }
 
         .team-name-edit-btn:hover {
-            background: rgba(0, 32, 59, 0.5);
-            border-color: #00203B;
+            background: rgba(51, 242, 0, 0.3);
+            border-color: #33F200;
+            color: #FFFFFF;
         }
 
         .char-count {
@@ -1360,7 +1361,7 @@
             <div class="header-matchup">
                 <span class="matchup-text">Seahawks vs Pats</span>
             </div>
-            <img src="images/superbowl-lx-logo.svg" alt="Super Bowl LX" class="header-logo" />
+            <img src="images/superbowl-lx-logo.svg" alt="Super Bowl LX" class="header-logo" width="121" height="80" />
             <div class="header-title">
                 <span class="title-text">Predictions</span>
             </div>
@@ -1410,6 +1411,7 @@
                 <div class="card-body">
                     <h2 class="card-title text-2xl text-primary">Enter Your Team Name</h2>
                     <p class="text-base-content/80">Choose a unique name for your team in this league.</p>
+                    <p class="text-sm mt-2" style="color: #f59e0b;">⚠️ Choose carefully — only admins can change team names later.</p>
 
                     <form id="teamNameForm" class="space-y-4 mt-4">
                         <div class="form-control">
@@ -1445,7 +1447,7 @@
         <!-- Team Name Edit Modal -->
         <dialog id="teamNameModal" class="modal">
             <div class="modal-box bg-base-200">
-                <h3 class="font-bold text-lg text-primary mb-4">Edit Team Name</h3>
+                <h3 id="teamNameModalTitle" class="font-bold text-lg text-primary mb-4">Edit Team Name</h3>
                 <form id="teamNameEditForm" class="space-y-4">
                     <div class="form-control">
                         <label class="label" for="teamNameEditInput">
@@ -2384,8 +2386,8 @@
                 // Update tab labels with team name
                 const adminTab = document.getElementById('adminPredictionsTab');
                 const userTab = document.getElementById('userPredictionsTab');
-                if (adminTab) adminTab.innerHTML = `Team ${currentTeamName} <button class="team-name-edit-btn" onclick="event.stopPropagation(); openTeamNameModal();">Edit</button>`;
-                if (userTab) userTab.innerHTML = `Team ${currentTeamName} <button class="team-name-edit-btn" onclick="event.stopPropagation(); openTeamNameModal();">Edit</button>`;
+                if (adminTab) adminTab.innerHTML = `Team ${currentTeamName}`;
+                if (userTab) userTab.innerHTML = `Team ${currentTeamName}`;
 
                 // Show admin panel for creator
                 if (isLeagueCreator) {
@@ -2475,13 +2477,29 @@
 
         // ========== TEAM NAME EDITING ==========
 
-        // Open team name edit modal
-        function openTeamNameModal() {
+        // Track which prediction is being edited (for admin editing)
+        let editingPredictionId = null;
+        let editingPredictionName = null;
+
+        // Open team name edit modal (admin can edit any team by passing predictionId)
+        function openTeamNameModal(predictionId = null, teamName = null) {
             const modal = document.getElementById('teamNameModal');
             const input = document.getElementById('teamNameEditInput');
+            const title = document.getElementById('teamNameModalTitle');
 
-            // Pre-fill with current team name
-            input.value = currentTeamName || '';
+            // If predictionId provided (admin editing another user), store it
+            if (predictionId && teamName) {
+                editingPredictionId = predictionId;
+                editingPredictionName = teamName;
+                input.value = teamName;
+                title.textContent = `Edit Team: ${teamName}`;
+            } else {
+                // Editing own team name
+                editingPredictionId = null;
+                editingPredictionName = null;
+                input.value = currentTeamName || '';
+                title.textContent = 'Edit Team Name';
+            }
             updateTeamNameCharCount();
 
             // Set up form submit handler
@@ -2494,6 +2512,9 @@
         function closeTeamNameModal() {
             const modal = document.getElementById('teamNameModal');
             modal.close();
+            // Reset editing state
+            editingPredictionId = null;
+            editingPredictionName = null;
         }
 
         // Update character count display
@@ -2528,15 +2549,20 @@
                 return;
             }
 
+            // Determine if we're editing own team or another user's (admin)
+            const isAdminEdit = editingPredictionId !== null;
+            const oldName = isAdminEdit ? editingPredictionName : currentTeamName;
+
             // Check if same as current name
-            if (newName.toLowerCase() === currentTeamName.toLowerCase()) {
+            if (newName.toLowerCase() === oldName.toLowerCase()) {
                 closeTeamNameModal();
                 return;
             }
 
-            // Check if team name already exists (case-insensitive, excluding current user)
+            // Check if team name already exists (case-insensitive, excluding the team being edited)
+            const excludeId = isAdminEdit ? editingPredictionId : allPredictions.find(p => p.userId === currentUserId)?.id;
             const teamNameExists = allPredictions.some(p =>
-                p.userId !== currentUserId &&
+                p.id !== excludeId &&
                 p.teamName.toLowerCase() === newName.toLowerCase()
             );
 
@@ -2545,29 +2571,41 @@
                 return;
             }
 
-            // Find user's prediction and update
-            const userPrediction = allPredictions.find(p => p.userId === currentUserId);
-            if (!userPrediction) {
-                showToast('Error: Could not find your team');
+            // Get the prediction to update
+            let predictionToUpdate;
+            if (isAdminEdit) {
+                predictionToUpdate = allPredictions.find(p => p.id === editingPredictionId);
+            } else {
+                predictionToUpdate = allPredictions.find(p => p.userId === currentUserId);
+            }
+
+            if (!predictionToUpdate) {
+                showToast('Error: Could not find team');
                 return;
             }
 
             try {
                 await db.transact([
-                    db.tx.predictions[userPrediction.id].update({
+                    db.tx.predictions[predictionToUpdate.id].update({
                         teamName: newName
                     })
                 ]);
 
-                currentTeamName = newName;
+                // If editing own team, update currentTeamName and tabs
+                if (!isAdminEdit) {
+                    currentTeamName = newName;
+                    const adminTab = document.getElementById('adminPredictionsTab');
+                    const userTab = document.getElementById('userPredictionsTab');
+                    if (adminTab) adminTab.innerHTML = `Team ${currentTeamName}`;
+                    if (userTab) userTab.innerHTML = `Team ${currentTeamName}`;
+                }
+
                 closeTeamNameModal();
                 showToast('Team name updated!');
 
-                // Update tab labels
-                const adminTab = document.getElementById('adminPredictionsTab');
-                const userTab = document.getElementById('userPredictionsTab');
-                if (adminTab) adminTab.innerHTML = `Team ${currentTeamName} <button class="team-name-edit-btn" onclick="event.stopPropagation(); openTeamNameModal();">Edit</button>`;
-                if (userTab) userTab.innerHTML = `Team ${currentTeamName} <button class="team-name-edit-btn" onclick="event.stopPropagation(); openTeamNameModal();">Edit</button>`;
+                // Reset editing state
+                editingPredictionId = null;
+                editingPredictionName = null;
             } catch (error) {
                 console.error('Error updating team name:', error);
                 showToast('Error updating team name');
@@ -2668,7 +2706,7 @@
             // Update My Predictions tab with team name
             const userTab = document.getElementById('userPredictionsTab');
             if (userTab && currentTeamName) {
-                userTab.innerHTML = `Team ${currentTeamName} <button class="team-name-edit-btn" onclick="event.stopPropagation(); openTeamNameModal();">Edit</button>`;
+                userTab.innerHTML = `Team ${currentTeamName}`;
             }
         }
 
@@ -3869,7 +3907,10 @@
                         <div class="card-body p-4">
                             <div class="flex justify-between items-start">
                                 <div class="flex-1">
-                                    <h3 class="font-bold text-lg">${pred.teamName}</h3>
+                                    <h3 class="font-bold text-lg" style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" onclick="openTeamNameModal('${pred.id}', '${pred.teamName.replace(/'/g, "\\'")}')">
+                                        ${pred.teamName}
+                                        <span class="team-name-edit-btn" style="font-size: 12px;">Edit</span>
+                                    </h3>
                                     <p class="text-sm text-base-content/60 mt-1">
                                         ${answeredCount} of ${totalQuestions} questions answered
                                     </p>
