@@ -1,7 +1,7 @@
 <!-- index.html -->
 
 <!DOCTYPE html>
-<html lang="en" data-theme="seahawks">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,10 +14,8 @@
     <link rel="apple-touch-icon" href="favicon.svg">
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Defer DaisyUI - not critical for initial paint -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/daisyui@4.6.0/dist/full.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@4.6.0/dist/full.min.css"></noscript>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <!-- Confetti loaded on demand -->
+    <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script type="module">
         import { init } from 'https://cdn.jsdelivr.net/npm/@instantdb/core/+esm';
         window.InstantDBInit = init;
@@ -33,37 +31,17 @@
                         'seahawks-green': '#33F200',
                         'seahawks-grey': '#9DA2A3',
                         'seahawks-light': '#C4C4C4',
+                        'primary': '#33F200',
+                        'base-100': '#00203B',
+                        'base-200': '#001a30',
+                        'base-300': '#001525',
+                        'success': '#33F200',
+                        'error': '#ff6b6b',
+                        'info': '#60a5fa',
+                        'warning': '#fbbf24',
                     }
                 }
-            },
-            daisyui: {
-                themes: [
-                    {
-                        seahawks: {
-                            "primary": "#33F200",
-                            "primary-content": "#00203B",
-                            "secondary": "#9DA2A3",
-                            "secondary-content": "#00203B",
-                            "accent": "#33F200",
-                            "accent-content": "#00203B",
-                            "neutral": "#002a4a",
-                            "neutral-content": "#ffffff",
-                            "base-100": "#00203B",
-                            "base-200": "#001a30",
-                            "base-300": "#001525",
-                            "base-content": "#ffffff",
-                            "success": "#33F200",
-                            "success-content": "#00203B",
-                            "error": "#ff6b6b",
-                            "error-content": "#ffffff",
-                            "info": "#60a5fa",
-                            "info-content": "#00203B",
-                            "warning": "#fbbf24",
-                            "warning-content": "#00203B",
-                        },
-                    },
-                ],
-            },
+            }
         }
     </script>
     <style>
@@ -80,7 +58,249 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             font-size: 18px;
             line-height: 1.6;
+            background-color: #00203B;
+            color: #ffffff;
         }
+
+        /* === DaisyUI Replacement Components === */
+
+        /* Loading spinner */
+        .loading {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 3px solid #9DA2A3;
+            border-top-color: #33F200;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        .loading-spinner { border-style: solid; }
+        .loading-lg { width: 3rem; height: 3rem; border-width: 4px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Cards */
+        .card {
+            background: #001a30;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .card-body {
+            padding: 24px;
+        }
+        .card-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #33F200;
+            margin-bottom: 12px;
+        }
+
+        /* Inputs */
+        .input {
+            padding: 12px 16px;
+            font-size: 18px;
+            border-radius: 8px;
+            border: 2px solid #9DA2A3;
+            background: #002a4a;
+            color: #ffffff;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .input:focus {
+            border-color: #33F200;
+            box-shadow: 0 0 0 3px rgba(51, 242, 0, 0.3);
+        }
+        .input-bordered { border-style: solid; }
+        .input-primary:focus { border-color: #33F200; }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            gap: 8px;
+        }
+        .btn-primary {
+            background-color: #33F200;
+            color: #00203B;
+        }
+        .btn-primary:hover { background-color: #2ad600; }
+        .btn-ghost {
+            background: transparent;
+            color: #C4C4C4;
+        }
+        .btn-ghost:hover { background: rgba(255,255,255,0.1); }
+        .btn-lg { padding: 16px 32px; font-size: 18px; min-height: 56px; }
+        .btn-sm { padding: 8px 16px; font-size: 14px; }
+        .btn-xs { padding: 4px 10px; font-size: 12px; }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+        }
+        .modal[open] {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-box {
+            background: #001a30;
+            padding: 24px;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-action {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .modal-backdrop {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: #001a30;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .tab {
+            flex: 1;
+            padding: 12px 16px;
+            text-align: center;
+            cursor: pointer;
+            color: #C4C4C4;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .tab:hover { background: rgba(255,255,255,0.05); }
+        .tab-active, .tab.tab-active {
+            background-color: #33F200;
+            color: #00203B;
+            font-weight: 700;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+        }
+        .alert-info {
+            background: rgba(96, 165, 250, 0.2);
+            border: 1px solid #60a5fa;
+            color: #ffffff;
+        }
+        .alert-success {
+            background: rgba(51, 242, 0, 0.15);
+            border: 1px solid #33F200;
+            color: #ffffff;
+        }
+        .alert-warning {
+            background: rgba(251, 191, 36, 0.2);
+            border: 1px solid #fbbf24;
+            color: #ffffff;
+        }
+        .alert-error {
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid #ff6b6b;
+            color: #ffffff;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 9999px;
+            background: #9DA2A3;
+            color: #00203B;
+        }
+        .badge-lg { padding: 6px 14px; font-size: 14px; }
+        .badge-sm { padding: 2px 8px; font-size: 11px; }
+        .badge-primary { background: #33F200; color: #00203B; }
+        .badge-success { background: #33F200; color: #00203B; }
+        .badge-warning { background: #fbbf24; color: #00203B; }
+        .badge-error { background: #ff6b6b; color: #ffffff; }
+        .badge-ghost { background: rgba(255,255,255,0.1); color: #C4C4C4; }
+
+        /* Progress */
+        .progress {
+            height: 8px;
+            background: #002a4a;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+        .progress-primary::-webkit-progress-value { background: #33F200; }
+        .progress-primary::-moz-progress-bar { background: #33F200; }
+        .progress::-webkit-progress-bar { background: #002a4a; }
+
+        /* Radial progress */
+        .radial-progress {
+            --size: 3rem;
+            --thickness: 4px;
+            width: var(--size);
+            height: var(--size);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            background: conic-gradient(#33F200 calc(var(--value) * 1%), #002a4a 0);
+            position: relative;
+        }
+        .radial-progress::before {
+            content: '';
+            position: absolute;
+            inset: var(--thickness);
+            border-radius: 50%;
+            background: #001a30;
+        }
+        .radial-progress::after {
+            content: attr(style);
+            position: relative;
+        }
+
+        /* Utility classes */
+        .bg-base-100 { background-color: #00203B; }
+        .bg-base-200 { background-color: #001a30; }
+        .bg-base-300 { background-color: #001525; }
+        .text-primary { color: #33F200; }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3), 0 4px 6px -4px rgba(0,0,0,0.3); }
+        .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3), 0 8px 10px -6px rgba(0,0,0,0.3); }
+        .ring-2 { box-shadow: 0 0 0 2px var(--ring-color, #33F200); }
+        .ring-success { --ring-color: #33F200; }
+
+        /* === End DaisyUI Replacement === */
 
         /* Radio option styling - large and tappable */
         .radio-option {
