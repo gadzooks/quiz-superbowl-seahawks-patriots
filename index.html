@@ -101,6 +101,28 @@
             flex-shrink: 0;
         }
 
+        /* Mobile-friendly radio options */
+        @media (max-width: 480px) {
+            .radio-option {
+                padding: 14px 12px;
+                min-height: 52px;
+            }
+
+            .radio-option::after {
+                width: 32px;
+            }
+
+            .radio-option input[type="radio"] {
+                width: 24px;
+                height: 24px;
+                margin: 0 10px 0 0;
+            }
+
+            .radio-option span {
+                font-size: 16px;
+            }
+        }
+
         .radio-option:hover {
             background-color: #003355;
             border-color: #33F200;
@@ -140,6 +162,19 @@
             padding: 24px;
             margin-bottom: 20px;
             border: 1px solid #9DA2A3;
+        }
+
+        @media (max-width: 480px) {
+            .question-card {
+                padding: 16px;
+                border-radius: 12px;
+                margin-bottom: 16px;
+            }
+
+            .question-card label {
+                font-size: 16px;
+                margin-bottom: 14px;
+            }
         }
 
         /* Closed submissions styling */
@@ -273,6 +308,154 @@
 
         input[type="number"]::placeholder {
             color: #9DA2A3;
+        }
+
+        /* Number wheel picker styling */
+        .number-wheel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #002a4a;
+            border: 2px solid #9DA2A3;
+            border-radius: 12px;
+            padding: 12px 16px;
+            user-select: none;
+        }
+
+        .number-wheel.focused {
+            border-color: #33F200;
+            box-shadow: 0 0 0 3px rgba(51, 242, 0, 0.3);
+        }
+
+        .number-wheel-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 2px solid #9DA2A3;
+            background: #001a30;
+            color: #FFFFFF;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+        }
+
+        .number-wheel-btn:hover {
+            background: #003355;
+            border-color: #33F200;
+        }
+
+        .number-wheel-btn:active {
+            transform: scale(0.95);
+            background: #33F200;
+            color: #00203B;
+        }
+
+        .number-wheel-display {
+            position: relative;
+            height: 120px;
+            width: 80px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .number-wheel-scroll {
+            position: absolute;
+            width: 100%;
+            transition: transform 0.2s ease-out;
+        }
+
+        .number-wheel-item {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #9DA2A3;
+            opacity: 0.4;
+            transition: all 0.2s ease;
+        }
+
+        .number-wheel-item.selected {
+            font-size: 28px;
+            font-weight: 700;
+            color: #33F200;
+            opacity: 1;
+        }
+
+        .number-wheel-item.adjacent {
+            font-size: 22px;
+            opacity: 0.6;
+            color: #C4C4C4;
+        }
+
+        .number-wheel-highlight {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 44px;
+            transform: translateY(-50%);
+            border-top: 2px solid #33F200;
+            border-bottom: 2px solid #33F200;
+            pointer-events: none;
+            background: rgba(51, 242, 0, 0.05);
+        }
+
+        .number-wheel-input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .number-wheel.disabled {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .number-wheel.disabled .number-wheel-btn {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 480px) {
+            .number-wheel {
+                padding: 10px 12px;
+                gap: 6px;
+            }
+
+            .number-wheel-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 22px;
+            }
+
+            .number-wheel-display {
+                width: 70px;
+                height: 100px;
+            }
+
+            .number-wheel-item {
+                height: 33px;
+                font-size: 18px;
+            }
+
+            .number-wheel-item.selected {
+                font-size: 24px;
+            }
+
+            .number-wheel-item.adjacent {
+                font-size: 19px;
+            }
+
+            .number-wheel-highlight {
+                height: 38px;
+            }
         }
 
         /* Text inputs - dark theme */
@@ -1961,6 +2144,129 @@
             { id: 'totalPoints', label: 'TIEBREAKER: Total combined points', type: 'number', points: 0 },
         ];
 
+        // Number wheel component
+        function createNumberWheel(name, value, min = 0, max = 99, disabled = false) {
+            const currentValue = value !== '' && value !== undefined ? parseInt(value) : null;
+            const wheelId = `wheel-${name}`;
+
+            return `
+                <div class="number-wheel ${disabled ? 'disabled' : ''}" id="${wheelId}" data-name="${name}" data-value="${currentValue ?? ''}" data-min="${min}" data-max="${max}">
+                    <button type="button" class="number-wheel-btn" data-action="decrease" ${disabled ? 'disabled' : ''}>−</button>
+                    <div class="number-wheel-display">
+                        <div class="number-wheel-scroll" data-scroll>
+                            ${generateWheelItems(currentValue, min, max)}
+                        </div>
+                        <div class="number-wheel-highlight"></div>
+                    </div>
+                    <button type="button" class="number-wheel-btn" data-action="increase" ${disabled ? 'disabled' : ''}>+</button>
+                    <input type="hidden" name="${name}" value="${currentValue ?? ''}" class="number-wheel-input">
+                </div>
+            `;
+        }
+
+        function generateWheelItems(currentValue, min, max) {
+            let items = '';
+            // Show 5 items: 2 before, current, 2 after
+            const displayValue = currentValue ?? min;
+            for (let i = -2; i <= 2; i++) {
+                const num = displayValue + i;
+                const isSelected = i === 0;
+                const isAdjacent = Math.abs(i) === 1;
+                const isValid = num >= min && num <= max;
+                const displayNum = isValid ? num : '';
+                const classes = [
+                    'number-wheel-item',
+                    isSelected ? 'selected' : '',
+                    isAdjacent ? 'adjacent' : ''
+                ].filter(Boolean).join(' ');
+                items += `<div class="${classes}" data-value="${num}">${displayNum}</div>`;
+            }
+            return items;
+        }
+
+        function initNumberWheels() {
+            document.querySelectorAll('.number-wheel:not(.initialized)').forEach(wheel => {
+                wheel.classList.add('initialized');
+                const name = wheel.dataset.name;
+                const min = parseInt(wheel.dataset.min);
+                const max = parseInt(wheel.dataset.max);
+                let value = wheel.dataset.value !== '' ? parseInt(wheel.dataset.value) : null;
+
+                const scrollEl = wheel.querySelector('[data-scroll]');
+                const input = wheel.querySelector('input');
+
+                function updateWheel(newValue) {
+                    if (newValue !== null && (newValue < min || newValue > max)) return;
+                    value = newValue;
+                    wheel.dataset.value = value ?? '';
+                    input.value = value ?? '';
+                    scrollEl.innerHTML = generateWheelItems(value ?? min, min, max);
+
+                    // Trigger change event for auto-save
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+
+                // Button clicks
+                wheel.querySelectorAll('.number-wheel-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const action = btn.dataset.action;
+                        if (value === null) {
+                            updateWheel(min);
+                        } else if (action === 'increase' && value < max) {
+                            updateWheel(value + 1);
+                        } else if (action === 'decrease' && value > min) {
+                            updateWheel(value - 1);
+                        }
+                    });
+
+                    // Long press for continuous change
+                    let interval;
+                    btn.addEventListener('mousedown', () => {
+                        interval = setInterval(() => btn.click(), 100);
+                    });
+                    btn.addEventListener('mouseup', () => clearInterval(interval));
+                    btn.addEventListener('mouseleave', () => clearInterval(interval));
+                    btn.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        btn.click();
+                        interval = setInterval(() => btn.click(), 100);
+                    }, { passive: false });
+                    btn.addEventListener('touchend', () => clearInterval(interval));
+                });
+
+                // Touch/scroll on display
+                let startY = 0;
+                let startValue = 0;
+
+                scrollEl.addEventListener('touchstart', (e) => {
+                    startY = e.touches[0].clientY;
+                    startValue = value ?? min;
+                }, { passive: true });
+
+                scrollEl.addEventListener('touchmove', (e) => {
+                    const deltaY = startY - e.touches[0].clientY;
+                    const steps = Math.round(deltaY / 30);
+                    const newValue = Math.max(min, Math.min(max, startValue + steps));
+                    if (newValue !== value) {
+                        updateWheel(newValue);
+                    }
+                }, { passive: true });
+
+                // Mouse wheel
+                wheel.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    if (value === null) {
+                        updateWheel(min);
+                    } else if (e.deltaY > 0 && value < max) {
+                        updateWheel(value + 1);
+                    } else if (e.deltaY < 0 && value > min) {
+                        updateWheel(value - 1);
+                    }
+                }, { passive: false });
+            });
+        }
+
         // Get or create user ID
         function getUserId() {
             // Check for user ID in URL (for session recovery on different device)
@@ -2637,7 +2943,8 @@
                     });
                 } else {
                     const value = currentLeague.actualResults?.[q.id] ?? '';
-                    html += `<input type="number" name="result-${q.id}" value="${value}" min="0" placeholder="Enter number" style="background: #1a0f0f; border-color: #e5737360;">`;
+                    const maxVal = q.id === 'totalPoints' ? 150 : 20;
+                    html += createNumberWheel(`result-${q.id}`, value, 0, maxVal, false);
                 }
 
                 html += `</div>`;
@@ -2647,8 +2954,11 @@
 
             form.innerHTML = html;
 
+            // Initialize number wheel components
+            initNumberWheels();
+
             // Add auto-save event listeners
-            const inputs = form.querySelectorAll('input[type="radio"], input[type="number"]');
+            const inputs = form.querySelectorAll('input[type="radio"], .number-wheel-input');
             console.log('Adding auto-save listeners to', inputs.length, 'inputs');
             inputs.forEach(input => {
                 input.addEventListener('change', handleResultsAutoSave);
@@ -2804,7 +3114,7 @@
 
                 html += `<div class="question-card">`;
                 html += `<label>
-                    <span style="color: #33F200; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Question ${index + 1}</span><br>
+                    <span style="color: #33F200; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Question ${index + 1}</span>
                     <span style="color: #FFFFFF;">${q.label}</span>
                     ${q.points > 0 ? `<span style="display: inline-block; background: #33F200; color: #00203B; padding: 4px 12px; border-radius: 12px; font-size: 14px; font-weight: 700; margin-left: 10px;">${q.points} pts</span>` : '<span style="display: inline-block; background: #9DA2A3; color: #00203B; padding: 4px 12px; border-radius: 12px; font-size: 14px; font-weight: 600; margin-left: 10px;">Tiebreaker</span>'}
                 </label>`;
@@ -2832,7 +3142,9 @@
                     if (showCorrectAnswers && hasCorrectAnswer && value !== '') {
                         inputClass = isCorrect ? 'user-answer-correct' : 'user-answer-incorrect';
                     }
-                    html += `<input type="number" name="${q.id}" value="${value}" min="0" ${!currentLeague.isOpen ? 'disabled' : ''} placeholder="Enter number" class="${inputClass}">`;
+                    // Use number wheel for better mobile UX
+                    const maxVal = q.id === 'totalPoints' ? 150 : 20;
+                    html += createNumberWheel(q.id, value, 0, maxVal, !currentLeague.isOpen);
                 }
 
                 // Show correct answer indicator when submissions are closed and results exist
@@ -2864,9 +3176,12 @@
 
             form.innerHTML = html;
 
+            // Initialize number wheel components
+            initNumberWheels();
+
             // Add auto-save event listeners
             if (currentLeague.isOpen) {
-                form.querySelectorAll('input[type="radio"], input[type="number"]').forEach(input => {
+                form.querySelectorAll('input[type="radio"], .number-wheel-input').forEach(input => {
                     input.addEventListener('change', handleAutoSave);
                 });
             }
