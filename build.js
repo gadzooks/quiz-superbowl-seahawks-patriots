@@ -48,6 +48,14 @@ if (fs.existsSync(faviconPath)) {
   console.log('✓ Favicon copied to dist/');
 }
 
+// Copy _headers to dist (for Netlify)
+const headersPath = path.join(__dirname, '_headers');
+const headersOutputPath = path.join(__dirname, 'dist', '_headers');
+if (fs.existsSync(headersPath)) {
+  fs.copyFileSync(headersPath, headersOutputPath);
+  console.log('✓ _headers copied to dist/');
+}
+
 // Copy images folder to dist
 const imagesDir = path.join(__dirname, 'images');
 const imagesOutputDir = path.join(distDir, 'images');
