@@ -1182,6 +1182,25 @@
                     </div>
                 </div>
 
+                <!-- Recalculate Scores Section (collapsible) -->
+                <div class="card bg-base-200 shadow-xl">
+                    <div class="card-body p-0">
+                        <button onclick="toggleRecalculateScores()" class="w-full p-4 flex justify-between items-center cursor-pointer" style="background: transparent; border: none;">
+                            <h3 class="card-title text-primary m-0">🔄 Recalculate Scores</h3>
+                            <span id="recalculateScoresToggleIcon" style="color: #33F200; font-size: 18px;">▶</span>
+                        </button>
+                        <div id="recalculateScoresContent" class="px-4 pb-4" style="display: none;">
+                            <p class="text-sm mb-4" style="color: #9DA2A3;">
+                                Recalculate scores for all participants. Useful when someone submits predictions after results have been entered.
+                            </p>
+                            <button onclick="recalculateAllScores()" class="btn btn-primary w-full mb-4" id="recalculateScoresBtn">
+                                🔄 Recalculate All Scores
+                            </button>
+                            <div id="recalculateScoresStatus"></div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -3016,6 +3035,84 @@
             } else {
                 content.style.display = 'block';
                 icon.textContent = '▼';
+            }
+        }
+
+        // Toggle Recalculate Scores visibility
+        let recalculateScoresCollapsed = true; // Start collapsed
+        function toggleRecalculateScores() {
+            const content = document.getElementById('recalculateScoresContent');
+            const icon = document.getElementById('recalculateScoresToggleIcon');
+            recalculateScoresCollapsed = !recalculateScoresCollapsed;
+
+            if (recalculateScoresCollapsed) {
+                content.style.display = 'none';
+                icon.textContent = '▶';
+            } else {
+                content.style.display = 'block';
+                icon.textContent = '▼';
+            }
+        }
+
+        // Recalculate scores for all participants
+        async function recalculateAllScores() {
+            const statusDiv = document.getElementById('recalculateScoresStatus');
+            const btn = document.getElementById('recalculateScoresBtn');
+
+            // Check if results exist
+            if (!currentLeague.actualResults || Object.keys(currentLeague.actualResults).length === 0) {
+                statusDiv.innerHTML = '<div class="alert alert-warning"><span>⚠️ No results entered yet. Please enter actual results first.</span></div>';
+                return;
+            }
+
+            try {
+                // Disable button and show processing status
+                btn.disabled = true;
+                btn.textContent = '⏳ Recalculating...';
+                statusDiv.innerHTML = '<div style="color: #9DA2A3; text-align: center; padding: 10px;">Recalculating scores for all participants...</div>';
+
+                const updates = [];
+                const actualResults = currentLeague.actualResults;
+
+                // Recalculate scores for all predictions
+                allPredictions.forEach(pred => {
+                    if (pred.predictions) {
+                        const score = calculateScore(pred.predictions, actualResults);
+                        const tiebreakDiff = Math.abs((pred.predictions?.totalPoints || 0) - (actualResults.totalPoints || 0));
+
+                        updates.push(
+                            db.tx.predictions[pred.id].update({
+                                score,
+                                tiebreakDiff
+                            })
+                        );
+                    }
+                });
+
+                // Execute all updates
+                await db.transact(updates);
+
+                // Show success status
+                statusDiv.innerHTML = `<div class="alert alert-success"><span>✓ Successfully recalculated scores for ${updates.length} participant(s)</span></div>`;
+
+                // Update leaderboard immediately
+                renderLeaderboard();
+
+                // Re-enable button
+                btn.disabled = false;
+                btn.textContent = '🔄 Recalculate All Scores';
+
+                // Hide status after 3 seconds
+                setTimeout(() => {
+                    statusDiv.innerHTML = '';
+                }, 3000);
+            } catch (error) {
+                statusDiv.innerHTML = '<div class="alert alert-error"><span>✗ Error recalculating scores</span></div>';
+                console.error('Recalculate error:', error);
+
+                // Re-enable button
+                btn.disabled = false;
+                btn.textContent = '🔄 Recalculate All Scores';
             }
         }
 
