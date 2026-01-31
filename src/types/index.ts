@@ -42,6 +42,7 @@ export interface AppState {
   hasShownCompletionCelebration: boolean;
   previousActualResults: Record<string, string | number> | null;
   hasUnviewedScoreUpdate: boolean;
+  expectedLeagueSlug: string | null;
 }
 
 export type TabType = 'predictions' | 'scores' | 'results' | 'admin';

@@ -3,13 +3,14 @@
 
 import { SoundManager } from './sound/manager';
 import { getUserId } from './utils/user';
-import { getLeagueSlug, isAdminOverride, saveLeagueSlug } from './utils/url';
+import { getLeagueSlug, isAdminOverride, saveLeagueSlug, clearLeagueSlug } from './utils/url';
 import { subscribeToLeague } from './db/queries';
 import {
   setCurrentUserId,
   setCurrentLeague,
   setAllPredictions,
   setHasUnviewedScoreUpdate,
+  setExpectedLeagueSlug,
   getState,
   updateState,
 } from './state/store';
@@ -44,11 +45,10 @@ export function initApp(): void {
   const adminOverride = isAdminOverride();
 
   if (leagueSlug) {
-    // Save league to localStorage for future visits
-    saveLeagueSlug(leagueSlug);
-
-    // Subscribe to league data
-    subscribeToLeague(leagueSlug, handleLeagueUpdate(adminOverride));
+    // Track expected slug for "not found" handling
+    setExpectedLeagueSlug(leagueSlug);
+    // Subscribe to league data (save to localStorage only after confirming league exists)
+    subscribeToLeague(leagueSlug, handleLeagueUpdate(adminOverride, leagueSlug));
   } else {
     // No league parameter - the original code handles league creation
     // This will be migrated later
@@ -64,7 +64,7 @@ export function initApp(): void {
 /**
  * Create a handler for league subscription updates.
  */
-function handleLeagueUpdate(adminOverride: boolean) {
+function handleLeagueUpdate(adminOverride: boolean, expectedSlug: string) {
   return ({ league, predictions }: { league: League | null; predictions: Prediction[] }) => {
     console.log('=== LEAGUE UPDATE (Vite) ===');
     console.log('League:', league);
@@ -73,6 +73,9 @@ function handleLeagueUpdate(adminOverride: boolean) {
     const state = getState();
 
     if (league) {
+      // League found - save to localStorage
+      saveLeagueSlug(league.slug);
+
       // Detect actualResults changes
       const currentActualResults = league.actualResults;
       const previousResults = state.previousActualResults;
@@ -108,7 +111,9 @@ function handleLeagueUpdate(adminOverride: boolean) {
       console.log('Is league creator:', isCreator);
       console.log('Is manager:', isManager);
     } else {
-      console.log('No league found');
+      console.log('No league found with slug:', expectedSlug);
+      // Clear localStorage since this league doesn't exist
+      clearLeagueSlug();
       setCurrentLeague(null);
       setAllPredictions([]);
     }

@@ -1404,6 +1404,28 @@
             </div>
         </div>
 
+        <!-- League Not Found -->
+        <div id="leagueNotFound" class="hidden">
+            <div class="card bg-base-200 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-2xl text-primary">League Not Found</h2>
+                    <p class="text-base-content/80">The league you're looking for doesn't exist or has been deleted.</p>
+                    <p id="notFoundSlug" class="text-sm text-base-content/60 mt-2"></p>
+
+                    <div class="divider">What would you like to do?</div>
+
+                    <div class="space-y-3">
+                        <button onclick="showLeagueCreation()" class="btn btn-primary w-full btn-lg">
+                            Create a New League
+                        </button>
+                        <button onclick="clearLeagueAndReload()" class="btn btn-outline btn-secondary w-full">
+                            Enter a Different League
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- League URL stored for copy function -->
         <div id="shareUrl" class="hidden"></div>
 
@@ -1643,6 +1665,7 @@
         let hasShownCompletionCelebration = false; // Track if completion celebration has been shown
         let previousActualResults = null;
         let hasUnviewedScoreUpdate = false;
+        let expectedLeagueSlug = null; // Track the expected league slug when subscribed
 
         // ========== SOUND MANAGER ==========
         // Uses Web Audio API for synthesized sounds and Seahawks audio clips
@@ -2238,8 +2261,8 @@
             }
 
             if (leagueParam) {
-                // Save league to localStorage for future visits
-                localStorage.setItem('currentLeagueSlug', leagueParam);
+                // Track expected slug for "not found" handling
+                expectedLeagueSlug = leagueParam;
 
                 // Subscribe to this specific league by slug
                 db.subscribeQuery(
@@ -2285,8 +2308,10 @@
                             console.log('Is league creator:', isLeagueCreator, '(creatorId:', currentLeague.creatorId, ', userId:', currentUserId, ', adminOverride:', isAdminOverride, ')');
                             console.log('All predictions:', allPredictions);
                         } else {
-                            console.log('No league found with slug:', leagueParam);
+                            console.log('No league found with slug:', expectedLeagueSlug);
                             allPredictions = [];
+                            // Clear localStorage since this league doesn't exist
+                            localStorage.removeItem('currentLeagueSlug');
                         }
 
                         render();
@@ -2347,17 +2372,60 @@
             });
         }
 
+        // Show league not found screen
+        function showLeagueNotFound(slug) {
+            document.getElementById('leagueNotFound').classList.remove('hidden');
+            document.getElementById('notFoundSlug').textContent = `League slug: "${slug}"`;
+            // Hide other screens
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('leagueCreation').classList.add('hidden');
+            document.getElementById('teamNameEntry').classList.add('hidden');
+            document.getElementById('adminPanel').classList.add('hidden');
+            document.getElementById('userPanel').classList.add('hidden');
+        }
+
+        // Show the league creation form from the not found screen
+        function showLeagueCreation() {
+            document.getElementById('leagueNotFound').classList.add('hidden');
+            document.getElementById('leagueCreation').classList.remove('hidden');
+            document.getElementById('leagueForm').onsubmit = handleLeagueCreation;
+            // Clear expected slug so we don't show not found again
+            expectedLeagueSlug = null;
+            // Clear URL parameter
+            window.history.replaceState({}, '', window.location.pathname);
+        }
+
+        // Clear stored league and reload to show creation/join options
+        function clearLeagueAndReload() {
+            localStorage.removeItem('currentLeagueSlug');
+            expectedLeagueSlug = null;
+            // Clear URL and reload
+            window.history.replaceState({}, '', window.location.pathname);
+            window.location.reload();
+        }
+
         // Render UI
         function render() {
             console.log('=== RENDER CALLED ===');
             document.getElementById('loading').classList.add('hidden');
 
             if (!currentLeague) {
-                console.log('No current league, returning');
-                return; // League not found
+                console.log('No current league');
+                // If we expected a league but didn't find it, show the not found screen
+                if (expectedLeagueSlug) {
+                    console.log('Expected league slug:', expectedLeagueSlug, '- showing not found screen');
+                    showLeagueNotFound(expectedLeagueSlug);
+                }
+                return;
             }
 
             console.log('Rendering for league:', currentLeague.name);
+
+            // League found successfully - save to localStorage
+            localStorage.setItem('currentLeagueSlug', currentLeague.slug);
+
+            // Hide not found screen if it was showing
+            document.getElementById('leagueNotFound').classList.add('hidden');
 
             // Store league URL for copy function
             const shareUrl = `${window.location.origin}${window.location.pathname}?league=${currentLeague.slug}`;

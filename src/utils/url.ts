@@ -29,6 +29,7 @@ export function isAdminOverride(): boolean {
 
 /**
  * Save the current league slug to localStorage and update URL.
+ * Call this only after confirming the league exists in the database.
  */
 export function saveLeagueSlug(slug: string): void {
   localStorage.setItem('currentLeagueSlug', slug);
@@ -39,6 +40,13 @@ export function saveLeagueSlug(slug: string): void {
     const newUrl = `${window.location.pathname}?league=${slug}`;
     window.history.replaceState({}, '', newUrl);
   }
+}
+
+/**
+ * Clear the saved league slug from localStorage.
+ */
+export function clearLeagueSlug(): void {
+  localStorage.removeItem('currentLeagueSlug');
 }
 
 /**

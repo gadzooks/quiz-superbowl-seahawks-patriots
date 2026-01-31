@@ -12,6 +12,7 @@ const initialState: AppState = {
   hasShownCompletionCelebration: false,
   previousActualResults: null,
   hasUnviewedScoreUpdate: false,
+  expectedLeagueSlug: null,
 };
 
 // Private state object
@@ -98,6 +99,11 @@ export function setPreviousActualResults(
 
 export function setHasUnviewedScoreUpdate(hasUpdate: boolean): void {
   state = { ...state, hasUnviewedScoreUpdate: hasUpdate };
+  notifyListeners();
+}
+
+export function setExpectedLeagueSlug(slug: string | null): void {
+  state = { ...state, expectedLeagueSlug: slug };
   notifyListeners();
 }
 
