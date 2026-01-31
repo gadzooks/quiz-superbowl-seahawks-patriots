@@ -8,14 +8,14 @@
 # Quick Reference:
 #   - Production branch: prod → uses Production database
 #   - Other branches: master, feature/* → use QA database
-#   - Environment variables: Set INSTANTDB_APP_ID in Netlify dashboard
-#     or using Netlify CLI (recommended over storing in this file)
+#   - Environment variables: Set VITE_INSTANTDB_APP_ID in Netlify dashboard
+#     (Note: Vite requires the VITE_ prefix for client-side env vars)
 #
 
 [build]
-  # Build command runs validation, tests, then injects environment variables into index.html
-  command = "node validate-netlify-env.js && npm test && node build.js"
-  # Publish the dist directory created by build script
+  # Build command runs TypeScript check and Vite build
+  command = "yarn install && yarn build"
+  # Publish the dist directory created by Vite
   publish = "dist"
 
 # ============================================================================
@@ -25,17 +25,17 @@
 # Netlify uses "contexts" to determine which environment you're deploying to:
 #
 #   1. PRODUCTION - Deploys from the prod branch
-#      • Uses Production database (set INSTANTDB_APP_ID for production context)
+#      • Uses Production database (set VITE_INSTANTDB_APP_ID for production context)
 #      • Live site for real users
 #      • URL: https://your-site.netlify.app
 #
 #   2. BRANCH DEPLOY - Deploys from any other branch (master, feature/*, etc.)
-#      • Uses QA database (set INSTANTDB_APP_ID for branch-deploy context)
+#      • Uses QA database (set VITE_INSTANTDB_APP_ID for branch-deploy context)
 #      • Testing and QA environment
 #      • URL: https://master--your-site.netlify.app
 #
 #   3. DEPLOY PREVIEW - Deploys for pull requests
-#      • Uses QA database (set INSTANTDB_APP_ID for deploy-preview context)
+#      • Uses QA database (set VITE_INSTANTDB_APP_ID for deploy-preview context)
 #      • Code review and testing
 #      • URL: https://deploy-preview-123--your-site.netlify.app
 #
@@ -43,26 +43,30 @@
 
 # Production deployment from prod branch
 [context.production]
-  command = "node validate-netlify-env.js && npm test && node build.js"
+  command = "yarn install && yarn build"
   publish = "dist"
 
 # Branch deploys (e.g., master → QA)
 [context.branch-deploy]
-  command = "node validate-netlify-env.js && npm test && node build.js"
+  command = "yarn install && yarn build"
   publish = "dist"
 
 # Deploy previews (pull requests → QA)
 [context.deploy-preview]
-  command = "node validate-netlify-env.js && npm test && node build.js"
+  command = "yarn install && yarn build"
   publish = "dist"
 
 # ============================================================================
 # Environment Variables
 # ============================================================================
 #
+# IMPORTANT: Vite requires the VITE_ prefix for environment variables to be
+# exposed to the client-side code. Use VITE_INSTANTDB_APP_ID instead of
+# INSTANTDB_APP_ID.
+#
 # RECOMMENDED: Set environment variables in Netlify Dashboard or CLI
 #   - Netlify Dashboard: Site configuration → Environment variables
-#   - Netlify CLI: netlify env:set INSTANTDB_APP_ID "..." --context production
+#   - Netlify CLI: netlify env:set VITE_INSTANTDB_APP_ID "..." --context production
 #
 # This keeps sensitive values out of your repository and allows different
 # values per deploy context without code changes.
@@ -75,20 +79,15 @@
 #
 # Production context - Live database
 # [context.production.environment]
-#   INSTANTDB_APP_ID = "8b6d941d-edc0-4750-95ec-19660710b8d6"
+#   VITE_INSTANTDB_APP_ID = "your-production-app-id"
 #
 # Branch deploy context - QA database
 # [context.branch-deploy.environment]
-#   INSTANTDB_APP_ID = "a1b2c3d4-5678-90ab-cdef-1234567890ab"
+#   VITE_INSTANTDB_APP_ID = "your-qa-app-id"
 #
 # Deploy preview context - QA database
 # [context.deploy-preview.environment]
-#   INSTANTDB_APP_ID = "a1b2c3d4-5678-90ab-cdef-1234567890ab"
-#
-# To use these examples:
-#   1. Uncomment the sections above
-#   2. Replace the App IDs with your actual InstantDB App IDs
-#   3. Commit and push to your repository
+#   VITE_INSTANTDB_APP_ID = "your-qa-app-id"
 #
 # For detailed setup instructions, see: MULTI_ENV_SETUP.md
 
@@ -110,6 +109,12 @@
   for = "*.html"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+# Cache JS/CSS with long expiry (Vite adds content hashes)
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
 
 # Redirect rules (if needed in the future)
 # [[redirects]]
