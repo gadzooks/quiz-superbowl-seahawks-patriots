@@ -23,21 +23,18 @@
     <!-- Vite module entry point - sets window.VITE_APP_ID -->
     <script type="module" src="/src/main.ts"></script>
     <script>
-        // Configure Tailwind with official Seattle Seahawks theme colors
-        // Navy: #00203B, Neon Green: #33F200, Grey: #9DA2A3, White: #FFFFFF
+        // Configure Tailwind to use CSS custom properties for dynamic theming
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        'seahawks-navy': '#00203B',
-                        'seahawks-green': '#33F200',
-                        'seahawks-grey': '#9DA2A3',
-                        'seahawks-light': '#C4C4C4',
-                        'primary': '#33F200',
-                        'base-100': '#00203B',
-                        'base-200': '#001a30',
+                        // Dynamic theme colors via CSS variables
+                        'primary': 'var(--color-primary)',
+                        'base-100': 'var(--color-background)',
+                        'base-200': 'var(--color-background-alt)',
                         'base-300': '#001525',
-                        'success': '#33F200',
+                        // Static colors (not themed)
+                        'success': 'var(--color-primary)',
                         'error': '#ff6b6b',
                         'info': '#60a5fa',
                         'warning': '#fbbf24',
@@ -54,14 +51,29 @@
         :root,
         html {
             color-scheme: dark only;
+
+            /* Theme colors - set dynamically via JavaScript for team theming */
+            /* Defaults to Seattle Seahawks theme */
+            --color-primary: #33F200;
+            --color-secondary: #00203B;
+            --color-background: #00203B;
+            --color-background-alt: #001a30;
+            --color-text: #FFFFFF;
+            --color-text-muted: #9DA2A3;
+
+            /* Derived colors */
+            --color-input-bg: #002a4a;
+            --color-input-hover: #003355;
+            --color-primary-hover: #2ad600;
+            --color-primary-rgb: 51, 242, 0;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             font-size: 18px;
             line-height: 1.6;
-            background-color: #00203B;
-            color: #ffffff;
+            background-color: var(--color-background);
+            color: var(--color-text);
         }
 
         /* === DaisyUI Replacement Components === */
@@ -71,8 +83,8 @@
             display: inline-block;
             width: 1.5rem;
             height: 1.5rem;
-            border: 3px solid #9DA2A3;
-            border-top-color: #33F200;
+            border: 3px solid var(--color-text-muted);
+            border-top-color: var(--color-primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -82,7 +94,7 @@
 
         /* Cards */
         .card {
-            background: #001a30;
+            background: var(--color-background-alt);
             border-radius: 16px;
             overflow: hidden;
         }
@@ -92,7 +104,7 @@
         .card-title {
             font-size: 22px;
             font-weight: 700;
-            color: #33F200;
+            color: var(--color-primary);
             margin-bottom: 12px;
         }
 
@@ -101,18 +113,18 @@
             padding: 12px 16px;
             font-size: 18px;
             border-radius: 8px;
-            border: 2px solid #9DA2A3;
-            background: #002a4a;
-            color: #ffffff;
+            border: 2px solid var(--color-text-muted);
+            background: var(--color-input-bg);
+            color: var(--color-text);
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         .input:focus {
-            border-color: #33F200;
-            box-shadow: 0 0 0 3px rgba(51, 242, 0, 0.3);
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.3);
         }
         .input-bordered { border-style: solid; }
-        .input-primary:focus { border-color: #33F200; }
+        .input-primary:focus { border-color: var(--color-primary); }
 
         /* Buttons */
         .btn {
@@ -130,10 +142,10 @@
             gap: 8px;
         }
         .btn-primary {
-            background-color: #33F200;
-            color: #00203B;
+            background-color: var(--color-primary);
+            color: var(--color-background);
         }
-        .btn-primary:hover { background-color: #2ad600; }
+        .btn-primary:hover { background-color: var(--color-primary-hover); }
         .btn-ghost {
             background: transparent;
             color: #C4C4C4;
@@ -161,7 +173,7 @@
             visibility: visible;
         }
         .modal-box {
-            background: #001a30;
+            background: var(--color-background-alt);
             padding: 24px;
             border-radius: 16px;
             max-width: 500px;
@@ -184,7 +196,7 @@
         /* Tabs */
         .tabs {
             display: flex;
-            background: #001a30;
+            background: var(--color-background-alt);
             border-radius: 8px;
             overflow: hidden;
         }
@@ -193,15 +205,15 @@
             padding: 12px 16px;
             text-align: center;
             cursor: pointer;
-            color: #C4C4C4;
+            color: var(--color-text-muted);
             font-weight: 500;
             transition: all 0.2s;
             text-decoration: none;
         }
         .tab:hover { background: rgba(255,255,255,0.05); }
         .tab-active, .tab.tab-active {
-            background-color: #33F200;
-            color: #00203B;
+            background-color: var(--color-primary);
+            color: var(--color-background);
             font-weight: 700;
         }
 
@@ -220,9 +232,9 @@
             color: #ffffff;
         }
         .alert-success {
-            background: rgba(51, 242, 0, 0.15);
-            border: 1px solid #33F200;
-            color: #ffffff;
+            background: rgba(var(--color-primary-rgb), 0.15);
+            border: 1px solid var(--color-primary);
+            color: var(--color-text);
         }
         .alert-warning {
             background: rgba(251, 191, 36, 0.2);
@@ -243,13 +255,13 @@
             font-size: 12px;
             font-weight: 600;
             border-radius: 9999px;
-            background: #9DA2A3;
-            color: #00203B;
+            background: var(--color-text-muted);
+            color: var(--color-background);
         }
         .badge-lg { padding: 6px 14px; font-size: 14px; }
         .badge-sm { padding: 2px 8px; font-size: 11px; }
-        .badge-primary { background: #33F200; color: #00203B; }
-        .badge-success { background: #33F200; color: #00203B; }
+        .badge-primary { background: var(--color-primary); color: var(--color-background); }
+        .badge-success { background: var(--color-primary); color: var(--color-background); }
         .badge-warning { background: #fbbf24; color: #00203B; }
         .badge-error { background: #ff6b6b; color: #ffffff; }
         .badge-ghost { background: rgba(255,255,255,0.1); color: #C4C4C4; }
@@ -257,13 +269,13 @@
         /* Progress */
         .progress {
             height: 8px;
-            background: #002a4a;
+            background: var(--color-input-bg);
             border-radius: 9999px;
             overflow: hidden;
         }
-        .progress-primary::-webkit-progress-value { background: #33F200; }
-        .progress-primary::-moz-progress-bar { background: #33F200; }
-        .progress::-webkit-progress-bar { background: #002a4a; }
+        .progress-primary::-webkit-progress-value { background: var(--color-primary); }
+        .progress-primary::-moz-progress-bar { background: var(--color-primary); }
+        .progress::-webkit-progress-bar { background: var(--color-input-bg); }
 
         /* Radial progress */
         .radial-progress {
@@ -277,7 +289,7 @@
             justify-content: center;
             font-size: 12px;
             font-weight: 600;
-            background: conic-gradient(#33F200 calc(var(--value) * 1%), #002a4a 0);
+            background: conic-gradient(var(--color-primary) calc(var(--value) * 1%), var(--color-input-bg) 0);
             position: relative;
         }
         .radial-progress::before {
@@ -285,7 +297,7 @@
             position: absolute;
             inset: var(--thickness);
             border-radius: 50%;
-            background: #001a30;
+            background: var(--color-background-alt);
         }
         .radial-progress::after {
             content: attr(style);
@@ -293,14 +305,14 @@
         }
 
         /* Utility classes */
-        .bg-base-100 { background-color: #00203B; }
-        .bg-base-200 { background-color: #001a30; }
+        .bg-base-100 { background-color: var(--color-background); }
+        .bg-base-200 { background-color: var(--color-background-alt); }
         .bg-base-300 { background-color: #001525; }
-        .text-primary { color: #33F200; }
+        .text-primary { color: var(--color-primary); }
         .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3), 0 4px 6px -4px rgba(0,0,0,0.3); }
         .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3), 0 8px 10px -6px rgba(0,0,0,0.3); }
-        .ring-2 { box-shadow: 0 0 0 2px var(--ring-color, #33F200); }
-        .ring-success { --ring-color: #33F200; }
+        .ring-2 { box-shadow: 0 0 0 2px var(--ring-color, var(--color-primary)); }
+        .ring-success { --ring-color: var(--color-primary); }
 
         /* === End DaisyUI Replacement === */
 
@@ -311,8 +323,8 @@
             gap: 16px;
             padding: 18px 20px;
             margin: 10px 0;
-            background-color: #002a4a;
-            border: 2px solid #9DA2A3;
+            background-color: var(--color-input-bg);
+            border: 2px solid var(--color-text-muted);
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -320,20 +332,20 @@
         }
 
         .radio-option:hover {
-            background-color: #003355;
-            border-color: #33F200;
+            background-color: var(--color-input-hover);
+            border-color: var(--color-primary);
         }
 
         .radio-option:has(input:checked) {
-            background-color: #003355;
-            border-color: #33F200;
-            box-shadow: 0 0 0 3px rgba(51, 242, 0, 0.3);
+            background-color: var(--color-input-hover);
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.3);
         }
 
         .radio-option input[type="radio"] {
             width: 28px;
             height: 28px;
-            accent-color: #33F200;
+            accent-color: var(--color-primary);
             cursor: pointer;
             flex-shrink: 0;
         }
@@ -341,25 +353,25 @@
         .radio-option span {
             font-size: 18px;
             font-weight: 500;
-            color: #FFFFFF;
+            color: var(--color-text);
         }
 
         /* Question card styling - dark theme */
         .question-card {
-            background: #002a4a;
+            background: var(--color-input-bg);
             border-radius: 16px;
             padding: 24px;
             margin-bottom: 20px;
-            border: 1px solid #9DA2A3;
+            border: 1px solid var(--color-text-muted);
         }
 
         /* Closed submissions styling */
         .closed-banner {
             background: linear-gradient(135deg, #1a1520 0%, #2d1f2d 100%);
-            border: 2px solid #9DA2A3;
+            border: 2px solid var(--color-text-muted);
             border-radius: 12px;
             padding: 16px 20px;
-            color: #C4C4C4;
+            color: var(--color-text-muted);
             font-size: 16px;
             font-weight: 600;
             text-align: center;
@@ -372,18 +384,18 @@
         }
 
         .submissions-closed .question-card {
-            background: #001a30;
+            background: var(--color-background-alt);
             border-color: #5a5a5a;
         }
 
         .submissions-closed .radio-option {
-            background-color: #001a30;
+            background-color: var(--color-background-alt);
             border-color: #5a5a5a;
             cursor: default;
         }
 
         .submissions-closed input[type="number"] {
-            background: #001a30 !important;
+            background: var(--color-background-alt) !important;
             border-color: #5a5a5a !important;
             cursor: default;
         }
@@ -392,7 +404,7 @@
             display: block;
             font-size: 18px;
             font-weight: 600;
-            color: #FFFFFF;
+            color: var(--color-text);
             margin-bottom: 20px;
             line-height: 1.4;
         }
@@ -4179,8 +4191,14 @@
             document.getElementById('allPredictionsTable').innerHTML = html;
         }
 
-        // Start the app
-        window.addEventListener('DOMContentLoaded', initApp);
+        // Start the app after Vite module is ready (includes team picker)
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Wait for Vite app initialization (team picker, theme, etc.)
+            if (window.waitForAppReady) {
+                await window.waitForAppReady();
+            }
+            initApp();
+        });
     </script>
 </body>
 </html>

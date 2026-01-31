@@ -10,17 +10,18 @@ export { id };
 type TransactionUpdate = ReturnType<typeof db.tx.leagues[string]['update']>;
 
 /**
- * Subscribe to a league and its predictions by slug.
+ * Subscribe to a league and its predictions by slug within a specific game.
  * Returns an unsubscribe function.
  */
 export function subscribeToLeague(
+  gameId: string,
   slug: string,
   callback: (data: { league: League | null; predictions: Prediction[] }) => void
 ): () => void {
   return db.subscribeQuery(
     {
-      leagues: { $: { where: { slug } } },
-      predictions: {},
+      leagues: { $: { where: { gameId, slug } } },
+      predictions: { $: { where: { gameId } } },
     },
     (result) => {
       if (result.error) {
@@ -39,19 +40,20 @@ export function subscribeToLeague(
 }
 
 /**
- * Check if a league with the given slug exists.
+ * Check if a league with the given slug exists within a specific game.
  */
-export async function leagueExists(slug: string): Promise<boolean> {
+export async function leagueExists(gameId: string, slug: string): Promise<boolean> {
   const result = await db.queryOnce({
-    leagues: { $: { where: { slug } } },
+    leagues: { $: { where: { gameId, slug } } },
   });
   return result.data.leagues.length > 0;
 }
 
 /**
- * Create a new league.
+ * Create a new league within a specific game.
  */
 export async function createLeague(data: {
+  gameId: string;
   name: string;
   slug: string;
   creatorId: string;
@@ -59,6 +61,7 @@ export async function createLeague(data: {
   const leagueId = id();
   await db.transact([
     db.tx.leagues[leagueId].update({
+      gameId: data.gameId,
       slug: data.slug,
       name: data.name,
       creatorId: data.creatorId,
@@ -136,10 +139,11 @@ export async function clearResults(
 }
 
 /**
- * Create or update a prediction.
+ * Create or update a prediction within a specific game.
  */
 export async function savePrediction(data: {
   id?: string;
+  gameId: string;
   leagueId: string;
   userId: string;
   teamName: string;
@@ -157,6 +161,7 @@ export async function savePrediction(data: {
 
   await db.transact([
     db.tx.predictions[predictionId].update({
+      gameId: data.gameId,
       leagueId: data.leagueId,
       userId: data.userId,
       teamName: data.teamName,
