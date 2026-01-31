@@ -130,7 +130,7 @@ function rebuild() {
 
 // Watch index.html for changes
 fs.watch(templatePath, (eventType) => {
-  if (eventType === 'change') {
+  if (eventType === 'change' || eventType === 'rename') {
     rebuild();
   }
 });
@@ -138,7 +138,7 @@ fs.watch(templatePath, (eventType) => {
 // Watch favicon.svg for changes (reuse faviconPath from above)
 if (fs.existsSync(faviconPath)) {
   fs.watch(faviconPath, (eventType) => {
-    if (eventType === 'change') {
+    if (eventType === 'change' || eventType === 'rename') {
       rebuild();
     }
   });

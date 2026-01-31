@@ -539,8 +539,9 @@
             object-fit: cover;
             object-position: center top;
             opacity: 0;
-            transition: opacity 0.3s ease-in-out;
+            transition: all 0.15s ease-in-out;
             filter: brightness(0.5);
+            transform-origin: center center;
         }
 
         /* Desktop: constrain intro image to narrow centered column */
@@ -584,7 +585,7 @@
 
         .intro-football {
             font-size: 32px;
-            animation: footballBounce 0.6s ease-out;
+            animation: footballRoll 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         .intro-title {
@@ -602,6 +603,23 @@
             margin-top: 6px;
             opacity: 0;
             animation: slideUp 0.5s ease-out 0.5s forwards;
+        }
+
+        @keyframes footballRoll {
+            0% {
+                transform: translateX(-100vw) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(100vw) rotate(1080deg);
+                opacity: 0;
+            }
         }
 
         @keyframes footballBounce {
@@ -629,6 +647,37 @@
             to {
                 transform: translateY(0);
                 opacity: 1;
+            }
+        }
+
+        /* Scores tab notification badge */
+        .tab-scores-notify {
+            position: relative;
+        }
+
+        .tab-scores-notify::after {
+            content: '🏈';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #33F200;
+            color: #00203B;
+            font-size: 16px;
+            font-weight: 700;
+            padding: 4px 6px;
+            border-radius: 50%;
+            animation: pulseGlow 2s ease-in-out infinite;
+            box-shadow: 0 0 8px rgba(51, 242, 0, 0.6);
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 8px rgba(51, 242, 0, 0.6);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 16px rgba(51, 242, 0, 0.9);
             }
         }
 
@@ -821,7 +870,10 @@
 
         /* Respect reduced motion preferences */
         @media (prefers-reduced-motion: reduce) {
-            .intro-football,
+            .intro-football {
+                animation: footballBounce 0.6s ease-out !important;
+            }
+
             .intro-title,
             .intro-team-name,
             .trophy-bounce {
@@ -844,6 +896,11 @@
 
             .league-name-header {
                 animation: none !important;
+            }
+
+            .tab-scores-notify::after {
+                animation: none !important;
+                box-shadow: 0 0 8px rgba(51, 242, 0, 0.6) !important;
             }
         }
 
@@ -1274,6 +1331,8 @@
         let isManager = false;
         let currentTab = localStorage.getItem('currentTab') || 'predictions';
         let hasShownCompletionCelebration = false; // Track if completion celebration has been shown
+        let previousActualResults = null;
+        let hasUnviewedScoreUpdate = false;
 
         // ========== SOUND MANAGER ==========
         // Uses Web Audio API for synthesized sounds and Seahawks audio clips
@@ -1534,11 +1593,14 @@
             const teamNameEl = document.getElementById('introTeamName');
             const introImage = document.getElementById('introImage');
 
+            // ===== CONFIGURATION =====
+            const IMAGE_DURATION = 2000; // How long each image shows (in milliseconds)
+            const TRANSITION_SPEED = 150; // Transition animation speed (in milliseconds)
+            // =========================
+
             // Pick 5 random images (shuffled)
             const slideshowImages = shuffleArray(introImages).slice(0, 5);
             let currentIndex = 0;
-            const slideDuration = 2500; // 2.5 seconds per image
-            const totalDuration = slideshowImages.length * slideDuration;
 
             // Preload images for smooth slideshow
             slideshowImages.forEach(src => {
@@ -1553,32 +1615,63 @@
             teamNameEl.textContent = `Team: ${teamName}`;
             overlay.classList.remove('hidden');
 
-            // Play intro sound
-            SoundManager.playIntro();
+            // Calculate total duration based on image count and duration
+            const totalDuration = slideshowImages.length * IMAGE_DURATION;
 
-            // Trigger confetti
-            if (typeof confetti === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 },
-                    colors: ['#33F200', '#00203B', '#FFFFFF', '#FFD700'],
-                    disableForReducedMotion: true
-                });
+            // Update football animation duration to match total intro time
+            const footballEl = overlay.querySelector('.intro-football');
+            if (footballEl) {
+                const parent = footballEl.parentNode;
+                const clone = footballEl.cloneNode(true);
+                // Set custom animation duration to match total slideshow
+                clone.style.animation = `footballRoll ${totalDuration / 1000}s cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
+                parent.removeChild(footballEl);
+                // Force reflow
+                void parent.offsetWidth;
+                parent.insertBefore(clone, parent.firstChild);
             }
 
-            // Slideshow - cycle through images
+            // Play intro sound
+            const introAudio = new Audio(SoundManager.audioUrls.intro);
+            introAudio.volume = 0.7;
+            introAudio.play().catch(e => console.log('Audio play failed:', e));
+
+            // Cool transition effects to randomly apply
+            const transitions = [
+                // Fade with zoom in
+                { out: (img) => { img.style.opacity = '0'; img.style.transform = 'scale(1.1)'; },
+                  in: (img) => { img.style.opacity = '1'; img.style.transform = 'scale(1)'; } },
+                // Fade with zoom out
+                { out: (img) => { img.style.opacity = '0'; img.style.transform = 'scale(0.9)'; },
+                  in: (img) => { img.style.opacity = '1'; img.style.transform = 'scale(1)'; } },
+                // Slide from right
+                { out: (img) => { img.style.opacity = '0'; img.style.transform = 'translateX(-30px)'; },
+                  in: (img) => { img.style.opacity = '1'; img.style.transform = 'translateX(0)'; } },
+                // Slide from left
+                { out: (img) => { img.style.opacity = '0'; img.style.transform = 'translateX(30px)'; },
+                  in: (img) => { img.style.opacity = '1'; img.style.transform = 'translateX(0)'; } },
+                // Fade with slight rotation
+                { out: (img) => { img.style.opacity = '0'; img.style.transform = 'rotate(2deg) scale(0.95)'; },
+                  in: (img) => { img.style.opacity = '1'; img.style.transform = 'rotate(0deg) scale(1)'; } }
+            ];
+
+            // Start slideshow with random transitions
             const slideshowInterval = setInterval(() => {
                 currentIndex++;
                 if (currentIndex < slideshowImages.length) {
-                    // Fade transition
-                    introImage.style.opacity = '0';
+                    // Pick a random transition
+                    const transition = transitions[Math.floor(Math.random() * transitions.length)];
+
+                    // Apply exit transition
+                    transition.out(introImage);
+
                     setTimeout(() => {
                         introImage.src = slideshowImages[currentIndex];
-                        introImage.style.opacity = '1';
-                    }, 200);
+                        // Apply enter transition
+                        transition.in(introImage);
+                    }, TRANSITION_SPEED);
                 }
-            }, slideDuration);
+            }, IMAGE_DURATION);
 
             // Auto-dismiss after slideshow completes
             setTimeout(() => {
@@ -1590,8 +1683,20 @@
                     // Clear image src to free memory
                     introImage.src = '';
                     introImage.style.opacity = '';
+                    introImage.style.transform = '';
                 }, 500);
-            }, totalDuration + 500); // Add small buffer after last image
+            }, totalDuration);
+
+            // Trigger confetti
+            if (typeof confetti === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#33F200', '#00203B', '#FFFFFF', '#FFD700'],
+                    disableForReducedMotion: true
+                });
+            }
         }
 
         // Replay intro from header button
@@ -1840,6 +1945,25 @@
 
                         currentLeague = result.data.leagues[0];
                         console.log('Current league:', currentLeague);
+
+                        // Detect actualResults changes
+                        if (currentLeague) {
+                            const currentActualResults = currentLeague.actualResults;
+
+                            // Check if actualResults changed and user is not on scores tab
+                            if (previousActualResults !== null &&
+                                JSON.stringify(currentActualResults) !== JSON.stringify(previousActualResults) &&
+                                currentTab !== 'scores') {
+
+                                // Only show notification if results have content
+                                if (currentActualResults && Object.keys(currentActualResults).length > 0) {
+                                    hasUnviewedScoreUpdate = true;
+                                    updateScoresTabNotification();
+                                }
+                            }
+
+                            previousActualResults = currentActualResults ? JSON.parse(JSON.stringify(currentActualResults)) : null;
+                        }
 
                         // Filter predictions for this league
                         if (currentLeague) {
@@ -2172,6 +2296,7 @@
                 document.querySelectorAll('#adminPanel .tab')[1].classList.add('tab-active');
                 document.getElementById('leaderboardSection').classList.remove('hidden');
                 renderLeaderboard();
+                clearScoresNotification();
             } else if (tab === 'results') {
                 document.querySelectorAll('#adminPanel .tab')[2].classList.add('tab-active');
                 document.getElementById('resultsTab').classList.remove('hidden');
@@ -2212,6 +2337,7 @@
                 document.querySelectorAll('#userPanel .tab')[1].classList.add('tab-active');
                 document.getElementById('leaderboardSection').classList.remove('hidden');
                 renderLeaderboard();
+                clearScoresNotification();
             } else if (tab === 'results') {
                 // Results tab is at index 2 for managers
                 document.querySelectorAll('#userPanel .tab')[2].classList.add('tab-active');
@@ -2869,6 +2995,26 @@
                     console.error('Auto-save error:', error);
                 }
             }, 500); // Wait 500ms after last change
+        }
+
+        // Update Scores tab visual notification
+        function updateScoresTabNotification() {
+            const adminScoresTab = document.querySelector('#adminPanel .tab[onclick*="scores"]');
+            const userScoresTab = document.querySelector('#userPanel .tab[onclick*="scores"]');
+
+            if (hasUnviewedScoreUpdate) {
+                if (adminScoresTab) adminScoresTab.classList.add('tab-scores-notify');
+                if (userScoresTab) userScoresTab.classList.add('tab-scores-notify');
+            } else {
+                if (adminScoresTab) adminScoresTab.classList.remove('tab-scores-notify');
+                if (userScoresTab) userScoresTab.classList.remove('tab-scores-notify');
+            }
+        }
+
+        // Clear notification when viewing scores
+        function clearScoresNotification() {
+            hasUnviewedScoreUpdate = false;
+            updateScoresTabNotification();
         }
 
         // Render leaderboard
