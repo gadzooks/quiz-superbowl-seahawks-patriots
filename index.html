@@ -583,9 +583,29 @@
             }
         }
 
+        .intro-football-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+        }
+
         .intro-football {
             font-size: 32px;
-            animation: footballRoll 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            animation: footballBounceStop 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            position: relative;
+            z-index: 10;
+        }
+
+        .intro-football-shadow {
+            width: 30px;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 50%;
+            filter: blur(3px);
+            margin-top: 4px;
+            animation: shadowPulse 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
 
         .intro-title {
@@ -605,37 +625,82 @@
             animation: slideUp 0.5s ease-out 0.5s forwards;
         }
 
-        @keyframes footballRoll {
+        @keyframes footballBounceStop {
             0% {
-                transform: translateX(-100vw) rotate(0deg);
+                transform: translateX(-80px) translateY(-120px) rotate(-30deg);
                 opacity: 0;
             }
-            10% {
+            15% {
+                transform: translateX(-50px) translateY(80px) rotate(0deg);
                 opacity: 1;
             }
-            90% {
-                opacity: 1;
+            25% {
+                transform: translateX(-30px) translateY(30px) rotate(180deg);
+            }
+            35% {
+                transform: translateX(-10px) translateY(80px) rotate(360deg);
+            }
+            42% {
+                transform: translateX(5px) translateY(55px) rotate(450deg);
+            }
+            50% {
+                transform: translateX(20px) translateY(80px) rotate(540deg);
+            }
+            55% {
+                transform: translateX(30px) translateY(70px) rotate(580deg);
+            }
+            60% {
+                transform: translateX(40px) translateY(80px) rotate(600deg);
+            }
+            80% {
+                transform: translateX(60px) translateY(80px) rotate(720deg);
             }
             100% {
-                transform: translateX(100vw) rotate(1080deg);
-                opacity: 0;
+                transform: translateX(60px) translateY(80px) rotate(720deg);
+                opacity: 1;
             }
         }
 
-        @keyframes footballBounce {
+        @keyframes shadowPulse {
             0% {
-                transform: translateY(-100px) rotate(-20deg);
                 opacity: 0;
+                transform: translateX(-80px) translateY(80px) scale(0);
+            }
+            15% {
+                opacity: 0.5;
+                transform: translateX(-50px) translateY(80px) scale(1);
+            }
+            25% {
+                opacity: 0.2;
+                transform: translateX(-30px) translateY(80px) scale(0.5);
+            }
+            35% {
+                opacity: 0.5;
+                transform: translateX(-10px) translateY(80px) scale(1);
+            }
+            42% {
+                opacity: 0.3;
+                transform: translateX(5px) translateY(80px) scale(0.6);
             }
             50% {
-                transform: translateY(10px) rotate(10deg);
+                opacity: 0.5;
+                transform: translateX(20px) translateY(80px) scale(1);
             }
-            70% {
-                transform: translateY(-5px) rotate(-5deg);
+            55% {
+                opacity: 0.4;
+                transform: translateX(30px) translateY(80px) scale(0.8);
+            }
+            60% {
+                opacity: 0.5;
+                transform: translateX(40px) translateY(80px) scale(1);
+            }
+            80% {
+                opacity: 0.5;
+                transform: translateX(60px) translateY(80px) scale(1);
             }
             100% {
-                transform: translateY(0) rotate(0deg);
-                opacity: 1;
+                opacity: 0.5;
+                transform: translateX(60px) translateY(80px) scale(1);
             }
         }
 
@@ -1131,7 +1196,10 @@
         <div id="introOverlay" class="intro-overlay hidden">
             <img id="introImage" class="intro-image" src="" alt="Seahawks" />
             <div class="intro-content">
-                <div class="intro-football">🏈</div>
+                <div class="intro-football-container">
+                    <div class="intro-football">🏈</div>
+                    <div class="intro-football-shadow"></div>
+                </div>
                 <div class="intro-title">Welcome to the Game!</div>
                 <div id="introTeamName" class="intro-team-name"></div>
             </div>
@@ -1618,17 +1686,18 @@
             // Calculate total duration based on image count and duration
             const totalDuration = slideshowImages.length * IMAGE_DURATION;
 
-            // Update football animation duration to match total intro time
+            // Reset football and shadow animations for replay
             const footballEl = overlay.querySelector('.intro-football');
+            const shadowEl = overlay.querySelector('.intro-football-shadow');
             if (footballEl) {
-                const parent = footballEl.parentNode;
-                const clone = footballEl.cloneNode(true);
-                // Set custom animation duration to match total slideshow
-                clone.style.animation = `footballRoll ${totalDuration / 1000}s cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
-                parent.removeChild(footballEl);
-                // Force reflow
-                void parent.offsetWidth;
-                parent.insertBefore(clone, parent.firstChild);
+                footballEl.style.animation = 'none';
+                void footballEl.offsetWidth; // Force reflow
+                footballEl.style.animation = 'footballBounceStop 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards';
+            }
+            if (shadowEl) {
+                shadowEl.style.animation = 'none';
+                void shadowEl.offsetWidth; // Force reflow
+                shadowEl.style.animation = 'shadowPulse 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards';
             }
 
             // Play intro sound
