@@ -20,6 +20,8 @@
         import { init } from 'https://cdn.jsdelivr.net/npm/@instantdb/core/+esm';
         window.InstantDBInit = init;
     </script>
+    <!-- Vite module entry point - sets window.VITE_APP_ID -->
+    <script type="module" src="/src/main.ts"></script>
     <script>
         // Configure Tailwind with official Seattle Seahawks theme colors
         // Navy: #00203B, Neon Green: #33F200, Grey: #9DA2A3, White: #FFFFFF
@@ -1622,8 +1624,12 @@
 
     <script>
         // InstantDB Configuration
-        // APP_ID will be replaced at build time by Netlify env var
-        const APP_ID = '__INSTANTDB_APP_ID__';
+        // APP_ID is provided by Vite via import.meta.env.VITE_INSTANTDB_APP_ID
+        // The Vite entry point (main.ts) exposes it as window.VITE_APP_ID
+        // Using a getter function since modules load after inline scripts parse
+        function getAppId() {
+            return window.VITE_APP_ID || '__INSTANTDB_APP_ID__';
+        }
         let db;
 
         // Global state
@@ -2206,7 +2212,9 @@
             SoundManager.init();
 
             // Initialize InstantDB
-            db = window.InstantDBInit({ appId: APP_ID });
+            const appId = getAppId();
+            console.log('Using InstantDB App ID:', appId ? appId.substring(0, 8) + '...' : 'NOT SET');
+            db = window.InstantDBInit({ appId: appId });
             console.log('InstantDB initialized:', db);
 
             currentUserId = getUserId();
