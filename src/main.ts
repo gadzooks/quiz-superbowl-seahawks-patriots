@@ -26,6 +26,11 @@ const APP_ID = import.meta.env.VITE_INSTANTDB_APP_ID || '';
 (window as typeof window & { VITE_APP_ID?: string }).VITE_APP_ID = APP_ID;
 console.log('InstantDB App ID available:', APP_ID ? `${APP_ID.substring(0, 8)}...` : 'NOT SET');
 
+// Expose git commit for admin panel
+declare const __GIT_COMMIT__: string;
+(window as typeof window & { VITE_GIT_COMMIT?: string }).VITE_GIT_COMMIT = __GIT_COMMIT__;
+console.log('Git commit:', __GIT_COMMIT__);
+
 /**
  * Initialize the application.
  */

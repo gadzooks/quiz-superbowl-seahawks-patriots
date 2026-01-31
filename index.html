@@ -2850,6 +2850,13 @@
                         </div>
                     </div>
                 </div>
+
+                <div style="margin-top: 16px; padding: 12px; background: #001a33; border-radius: 6px; font-size: 12px; color: #6b7280;">
+                    <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                        <span>Commit: <code style="color: #9DA2A3;">${window.VITE_GIT_COMMIT || 'dev'}</code></span>
+                        <span>DB: <code style="color: #9DA2A3;">...${(window.VITE_APP_ID || '').slice(-5)}</code></span>
+                    </div>
+                </div>
             `;
 
             // Preserve collapsed state
