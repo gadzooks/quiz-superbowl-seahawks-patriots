@@ -9,6 +9,7 @@ export * from './render';
 export * from './teamPicker';
 export * from './screens';
 export * from './teamNameModal';
+export * from './themeMenu';
 
 import { showToast } from './toast';
 import {

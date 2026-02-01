@@ -10,6 +10,7 @@ import { getLeagueSlug, isAdminOverride, saveLeagueSlug, clearLeagueSlug } from 
 import { getCurrentGameId, getCurrentGameConfig } from './utils/game';
 import { initTheme } from './theme';
 import { needsTeamSelection, showTeamPicker } from './ui/teamPicker';
+import { initThemeMenu } from './ui/themeMenu';
 import { subscribeToLeague } from './db/queries';
 import {
   setCurrentUserId,
@@ -99,6 +100,9 @@ export async function initApp(): Promise<void> {
     window.USER_TEAM_ID = userTeamId;
     console.log('User theme:', userTeamId);
   }
+
+  // Initialize floating theme menu (FAB)
+  initThemeMenu();
 
   // Initialize Sound Manager
   SoundManager.init();
