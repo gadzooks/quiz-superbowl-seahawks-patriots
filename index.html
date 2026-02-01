@@ -65,10 +65,8 @@
                     <span class="team-name-large">Patriots</span>
                 </div>
             </div>
-            <div class="header-title">
-                <span class="title-text">Predictions</span>
-            </div>
             <div id="leagueNameHeader" class="hidden" style="margin-top: 6px;">
+                <span id="teamNameDisplay" class="team-name-display"></span>
                 <span class="league-name-header"></span>
             </div>
         </div>
@@ -216,7 +214,7 @@
         <!-- Admin Panel (for league creator) -->
         <div id="adminPanel" class="hidden">
             <div role="tablist" class="tabs tabs-boxed tabs-sticky mb-6">
-                <a role="tab" id="adminPredictionsTab" class="tab tab-active" onclick="switchTab('predictions')">My Predictions</a>
+                <a role="tab" id="adminPredictionsTab" class="tab tab-active" onclick="switchTab('predictions')">Questions</a>
                 <a role="tab" class="tab" onclick="switchTab('scores')">Scores</a>
                 <a role="tab" id="adminResultsTab" class="tab tab-results" onclick="switchTab('results')">Results</a>
                 <a role="tab" class="tab" onclick="switchTab('admin')">Admin</a>
@@ -274,7 +272,7 @@
         <!-- Regular User Panel (non-admin users) -->
         <div id="userPanel" class="hidden">
             <div id="userTabs" role="tablist" class="tabs tabs-boxed tabs-sticky mb-6">
-                <a role="tab" id="userPredictionsTab" class="tab tab-active" onclick="switchUserTab('predictions')">My Predictions</a>
+                <a role="tab" id="userPredictionsTab" class="tab tab-active" onclick="switchUserTab('predictions')">Questions</a>
                 <a role="tab" class="tab" onclick="switchUserTab('scores')">Scores</a>
             </div>
         </div>

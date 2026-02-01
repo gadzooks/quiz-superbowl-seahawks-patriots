@@ -85,14 +85,26 @@ function toggleRecalculateScores(): void {
 }
 
 /**
- * Render league name in header.
+ * Render league name and team name in header.
  */
 function renderLeagueName(): void {
-  const { currentLeague } = getState();
+  const { currentLeague, currentTeamName } = getState();
 
   const container = document.getElementById('leagueNameHeader');
   if (!container || !currentLeague) return;
 
+  // Set team name if available
+  const teamNameSpan = document.getElementById('teamNameDisplay');
+  if (teamNameSpan) {
+    if (currentTeamName) {
+      teamNameSpan.textContent = currentTeamName;
+      teamNameSpan.style.display = 'inline';
+    } else {
+      teamNameSpan.style.display = 'none';
+    }
+  }
+
+  // Set league name
   const nameSpan = container.querySelector('.league-name-header');
   if (nameSpan) {
     nameSpan.textContent = currentLeague.name;

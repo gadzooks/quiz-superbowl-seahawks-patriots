@@ -200,6 +200,22 @@
   transform: scale(0.95);
 }
 
+/* Team name display in header (next to league name) */
+.team-name-display {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin-right: 8px;
+}
+
+.team-name-display::after {
+  content: '•';
+  margin-left: 8px;
+  color: var(--color-text-muted);
+}
+
 /* League name in header */
 .league-name-header {
   font-size: 13px;
