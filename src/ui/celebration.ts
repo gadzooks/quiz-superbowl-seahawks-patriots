@@ -2,6 +2,14 @@ import { SoundManager } from '../sound/manager';
 import { getCurrentTeamId } from '../theme/apply';
 import { getState } from '../state/store';
 
+/**
+ * Call the main render function (exposed on window to avoid circular imports).
+ * This ensures UI is properly updated after celebration ends.
+ */
+function callRender(): void {
+  (window as Window & { render?: () => void }).render?.();
+}
+
 // Seahawks team colors
 const SEAHAWKS_COLORS = ['#33F200', '#00203B', '#FFFFFF', '#FFD700'];
 
@@ -226,9 +234,19 @@ export function showIntroOverlay(teamName: string): void {
   const numImages = isSeahawksTheme ? 5 : 3;
   const slideshowImages = shuffleArray(allImages).slice(0, Math.min(numImages, allImages.length));
 
-  // If no images available, skip slideshow
+  // If no images available, skip slideshow but still auto-dismiss
   if (slideshowImages.length === 0) {
     introImage.style.display = 'none';
+    // Auto-dismiss after a brief delay (3 seconds)
+    setTimeout(() => {
+      overlay.classList.add('fade-out');
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+        overlay.classList.remove('fade-out');
+        // Call render to ensure main panels are shown after celebration
+        callRender();
+      }, 500);
+    }, 3000);
   } else {
     introImage.style.display = 'block';
     let currentIndex = 0;
@@ -303,6 +321,8 @@ export function showIntroOverlay(teamName: string): void {
         introImage.src = '';
         introImage.style.opacity = '';
         introImage.style.transform = '';
+        // Call render to ensure main panels are shown after celebration
+        callRender();
       }, 500);
     }, totalDuration);
   }

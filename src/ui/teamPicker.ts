@@ -1,3 +1,5 @@
+// teamPicker.ts
+
 // Team Picker UI - Shows on first visit to select favorite team
 
 import { getTeamOptions, getTeamTheme, DEFAULT_TEAM_ID } from '../theme/teams';
@@ -242,7 +244,7 @@ function createTeamPickerHTML(): string {
     </style>
     <div class="team-picker-card">
       <div class="team-picker-title">🏈 Welcome!</div>
-      <div class="team-picker-subtitle">Pick your favorite NFL team to customize the app</div>
+      <div class="team-picker-subtitle">Pick your favorite team</div>
 
       <select id="team-select" class="team-picker-select">
         ${optionsHTML}
