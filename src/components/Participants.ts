@@ -120,6 +120,8 @@ declare global {
   interface Window {
     copyParticipantLink: typeof copyParticipantLink;
     openDeleteModal: (predictionId: string, teamName: string) => void;
+    closeDeleteModal: () => void;
+    confirmDeleteTeam: () => Promise<void>;
     toggleManager: (predictionId: string, makeManager: boolean) => void;
   }
 }
@@ -155,6 +157,37 @@ export function exposeParticipantFunctions(): void {
     } catch (error) {
       console.error('Error toggling manager status:', error);
       showToast('Error updating manager status');
+    }
+  };
+
+  window.closeDeleteModal = () => {
+    const modal = document.getElementById('deleteTeamModal') as HTMLDialogElement;
+    modal?.close();
+  };
+
+  window.confirmDeleteTeam = async () => {
+    const idInput = document.getElementById('deleteTeamId') as HTMLInputElement;
+    const nameSpan = document.getElementById('deleteTeamName');
+    const predictionId = idInput?.value;
+    const teamName = nameSpan?.textContent || 'Team';
+
+    if (!predictionId) {
+      const { showToast } = await import('../ui/toast');
+      showToast('Error: No team selected');
+      return;
+    }
+
+    try {
+      const { deletePrediction } = await import('../db/queries');
+      await deletePrediction(predictionId);
+
+      window.closeDeleteModal();
+      const { showToast } = await import('../ui/toast');
+      showToast(`${teamName} has been deleted`);
+    } catch (error) {
+      console.error('Error deleting team:', error);
+      const { showToast } = await import('../ui/toast');
+      showToast('Error deleting team');
     }
   };
 }

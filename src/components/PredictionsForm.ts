@@ -211,6 +211,10 @@ async function handleAutoSave(): Promise<void> {
           setTimeout(() => { statusDiv.textContent = ''; }, 2000);
         }
 
+        // Update participants list for immediate visual feedback
+        const { renderParticipants } = await import('./Participants');
+        renderParticipants();
+
         // Check for completion celebration
         const answeredCount = Object.keys(predictions).length;
         const { hasShownCompletionCelebration } = getState();
