@@ -1,10 +1,6 @@
 /* Main CSS Entry Point */
 /* This file imports all modular CSS files */
 
-/* Legacy styles migrated from inline index.html */
-/* TODO: Gradually merge into modular component files */
-@import './legacy.css';
-
 /* Base styles and CSS variables */
 @import './base.css';
 
