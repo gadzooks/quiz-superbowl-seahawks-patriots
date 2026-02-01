@@ -7,6 +7,7 @@ import { getState } from '../state/store';
 import { getCurrentGameConfig } from '../utils/game';
 import { getQuestionsForGame } from '../questions';
 import { showToast } from '../ui/toast';
+import { getDb } from '../app/init';
 
 /**
  * Handle results form submission.
@@ -146,7 +147,6 @@ export async function handleClearAllResults(): Promise<boolean> {
 
 /**
  * Recalculate scores for all participants.
- * TODO: Refactor to use db module instead of window.db
  */
 export async function recalculateAllScores(): Promise<void> {
   const { currentLeague, allPredictions } = getState();
@@ -162,9 +162,7 @@ export async function recalculateAllScores(): Promise<void> {
     return;
   }
 
-  // Get db from window (set by inline code)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db = (window as any).db;
+  const db = getDb();
   if (!db) {
     if (statusDiv) {
       statusDiv.innerHTML =

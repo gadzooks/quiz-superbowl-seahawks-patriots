@@ -1,5 +1,6 @@
 import { SoundManager } from '../sound/manager';
 import { getCurrentTeamId } from '../theme/apply';
+import { getState } from '../state/store';
 
 // Seahawks team colors
 const SEAHAWKS_COLORS = ['#33F200', '#00203B', '#FFFFFF', '#FFD700'];
@@ -335,10 +336,9 @@ export function showIntroOverlay(teamName: string): void {
 
 /**
  * Replay intro from header button.
- * TODO: Refactor to use state store instead of window.currentTeamName
  */
 export function replayIntro(): void {
-  const currentTeamName = (window as Window & { currentTeamName?: string }).currentTeamName;
+  const { currentTeamName } = getState();
   if (currentTeamName) {
     showIntroOverlay(currentTeamName);
   }

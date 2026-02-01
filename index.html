@@ -325,65 +325,8 @@
     </div>
 
     <script>
-        // ========== GLOBAL STATE COMPATIBILITY LAYER ==========
-        // These property definitions delegate to the AppState store
-        // They provide backward compatibility for any remaining inline code
-        // TODO: Remove once all code is migrated to use state store directly
-        // These getters/setters provide backward compatibility for inline code
-        // while using the centralized store as the single source of truth
-        Object.defineProperties(window, {
-            currentLeague: {
-                get() { return window.AppState?.getState().currentLeague ?? null; },
-                set(v) { window.AppState?.setCurrentLeague(v); }
-            },
-            allPredictions: {
-                get() { return window.AppState?.getState().allPredictions ?? []; },
-                set(v) { window.AppState?.setAllPredictions(v); }
-            },
-            currentUserId: {
-                get() { return window.AppState?.getState().currentUserId ?? null; },
-                set(v) { window.AppState?.setCurrentUserId(v); }
-            },
-            currentTeamName: {
-                get() { return window.AppState?.getState().currentTeamName ?? null; },
-                set(v) { window.AppState?.setCurrentTeamName(v); }
-            },
-            isLeagueCreator: {
-                get() { return window.AppState?.getState().isLeagueCreator ?? false; },
-                set(v) { window.AppState?.setIsLeagueCreator(v); }
-            },
-            isManager: {
-                get() { return window.AppState?.getState().isManager ?? false; },
-                set(v) { window.AppState?.setIsManager(v); }
-            },
-            currentTab: {
-                get() { return window.AppState?.getState().currentTab ?? 'predictions'; },
-                set(v) { window.AppState?.setCurrentTab(v); }
-            },
-            hasShownCompletionCelebration: {
-                get() { return window.AppState?.getState().hasShownCompletionCelebration ?? false; },
-                set(v) { window.AppState?.setHasShownCompletionCelebration(v); }
-            },
-            previousActualResults: {
-                get() { return window.AppState?.getState().previousActualResults ?? null; },
-                set(v) { window.AppState?.setPreviousActualResults(v); }
-            },
-            hasUnviewedScoreUpdate: {
-                get() { return window.AppState?.getState().hasUnviewedScoreUpdate ?? false; },
-                set(v) { window.AppState?.setHasUnviewedScoreUpdate(v); }
-            },
-            expectedLeagueSlug: {
-                get() { return window.AppState?.getState().expectedLeagueSlug ?? null; },
-                set(v) { window.AppState?.setExpectedLeagueSlug(v); }
-            }
-        });
-
-        // ========== APP INITIALIZATION ==========
-        // All functionality is now in TypeScript modules (src/).
-        // This script only contains:
-        // 1. State compatibility layer (above) - delegates to AppState store
-        // 2. DOMContentLoaded handler (below) - calls window.initApp from modules
-
+        // All functionality is in TypeScript modules (src/).
+        // This script only initializes the app after DOM is ready.
         window.addEventListener('DOMContentLoaded', async () => {
             // Wait for Vite module initialization (team picker, theme, etc.)
             if (window.waitForAppReady) {

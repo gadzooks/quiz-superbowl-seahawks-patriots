@@ -1,11 +1,11 @@
 /**
  * Team name modal functions.
  * Handles the modal dialog for editing team names.
- * TODO: Refactor to use state store instead of module-level variables
  */
 
 import { getState } from '../state/store';
 import { showToast } from './toast';
+import { getDb } from '../app/init';
 
 // Track which prediction is being edited (for admin editing)
 let editingPredictionId: string | null = null;
@@ -90,7 +90,6 @@ export function updateTeamNameCharCount(): void {
 
 /**
  * Handle team name change submission.
- * TODO: Refactor to use db module instead of window.db
  */
 async function handleTeamNameChange(e: Event): Promise<void> {
   e.preventDefault();
@@ -145,15 +144,7 @@ async function handleTeamNameChange(e: Event): Promise<void> {
   }
 
   try {
-    // Use window.db for database access
-    const db = (
-      window as Window & {
-        db?: {
-          transact: (ops: unknown[]) => Promise<void>;
-          tx: { predictions: Record<string, { update: (data: object) => unknown }> };
-        };
-      }
-    ).db;
+    const db = getDb();
     if (!db) {
       showToast('Database not available');
       return;
