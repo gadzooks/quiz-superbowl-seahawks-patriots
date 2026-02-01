@@ -1,0 +1,24 @@
+/* Main CSS Entry Point */
+/* This file imports all modular CSS files */
+
+/* Base styles and CSS variables */
+@import './base.css';
+
+/* Component styles */
+@import './components/loading.css';
+@import './components/buttons.css';
+@import './components/cards.css';
+@import './components/modals.css';
+@import './components/tabs.css';
+@import './components/inputs.css';
+@import './components/alerts.css';
+@import './components/badges.css';
+@import './components/progress.css';
+@import './components/tables.css';
+
+/* Feature-specific styles */
+@import './features/header.css';
+@import './features/question-card.css';
+@import './features/intro-overlay.css';
+@import './features/toast.css';
+@import './features/leaderboard.css';

@@ -1,0 +1,34 @@
+/* Alert component styles */
+
+.alert {
+  padding: 16px 20px !important;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px !important;
+}
+
+.alert-info {
+  background-color: rgba(96, 165, 250, 0.2) !important;
+  border: 1px solid #60a5fa !important;
+  color: #FFFFFF !important;
+}
+
+.alert-success {
+  background-color: rgba(51, 242, 0, 0.15) !important;
+  border: 1px solid #33F200 !important;
+  color: #FFFFFF !important;
+}
+
+.alert-warning {
+  background: rgba(251, 191, 36, 0.2);
+  border: 1px solid #fbbf24;
+  color: #ffffff;
+}
+
+.alert-error {
+  background: rgba(255, 107, 107, 0.2);
+  border: 1px solid #ff6b6b;
+  color: #ffffff;
+}

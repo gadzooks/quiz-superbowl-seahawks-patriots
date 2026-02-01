@@ -1666,18 +1666,55 @@
         }
         let db;
 
-        // Global state
-        let currentLeague = null;
-        let allPredictions = [];
-        let currentUserId = null;
-        let currentTeamName = null;
-        let isLeagueCreator = false;
-        let isManager = false;
-        let currentTab = localStorage.getItem('currentTab') || 'predictions';
-        let hasShownCompletionCelebration = false; // Track if completion celebration has been shown
-        let previousActualResults = null;
-        let hasUnviewedScoreUpdate = false;
-        let expectedLeagueSlug = null; // Track the expected league slug when subscribed
+        // Global state - delegates to AppState store when available
+        // These getters/setters provide backward compatibility for inline code
+        // while using the centralized store as the single source of truth
+        Object.defineProperties(window, {
+            currentLeague: {
+                get() { return window.AppState?.getState().currentLeague ?? null; },
+                set(v) { window.AppState?.setCurrentLeague(v); }
+            },
+            allPredictions: {
+                get() { return window.AppState?.getState().allPredictions ?? []; },
+                set(v) { window.AppState?.setAllPredictions(v); }
+            },
+            currentUserId: {
+                get() { return window.AppState?.getState().currentUserId ?? null; },
+                set(v) { window.AppState?.setCurrentUserId(v); }
+            },
+            currentTeamName: {
+                get() { return window.AppState?.getState().currentTeamName ?? null; },
+                set(v) { window.AppState?.setCurrentTeamName(v); }
+            },
+            isLeagueCreator: {
+                get() { return window.AppState?.getState().isLeagueCreator ?? false; },
+                set(v) { window.AppState?.setIsLeagueCreator(v); }
+            },
+            isManager: {
+                get() { return window.AppState?.getState().isManager ?? false; },
+                set(v) { window.AppState?.setIsManager(v); }
+            },
+            currentTab: {
+                get() { return window.AppState?.getState().currentTab ?? 'predictions'; },
+                set(v) { window.AppState?.setCurrentTab(v); }
+            },
+            hasShownCompletionCelebration: {
+                get() { return window.AppState?.getState().hasShownCompletionCelebration ?? false; },
+                set(v) { window.AppState?.setHasShownCompletionCelebration(v); }
+            },
+            previousActualResults: {
+                get() { return window.AppState?.getState().previousActualResults ?? null; },
+                set(v) { window.AppState?.setPreviousActualResults(v); }
+            },
+            hasUnviewedScoreUpdate: {
+                get() { return window.AppState?.getState().hasUnviewedScoreUpdate ?? false; },
+                set(v) { window.AppState?.setHasUnviewedScoreUpdate(v); }
+            },
+            expectedLeagueSlug: {
+                get() { return window.AppState?.getState().expectedLeagueSlug ?? null; },
+                set(v) { window.AppState?.setExpectedLeagueSlug(v); }
+            }
+        });
 
         // ========== SOUND MANAGER ==========
         // Uses Web Audio API for synthesized sounds and Seahawks audio clips
@@ -2275,12 +2312,13 @@
             if (leagueParam) {
                 // Track expected slug for "not found" handling
                 expectedLeagueSlug = leagueParam;
+                const gameId = window.GAME_ID || 'lx';
 
                 // Subscribe to this specific league by slug
                 db.subscribeQuery(
                     {
-                        leagues: { $: { where: { slug: leagueParam } } },
-                        predictions: {}
+                        leagues: { $: { where: { gameId, slug: leagueParam } } },
+                        predictions: { $: { where: { gameId } } }
                     },
                     (result) => {
                         console.log('=== INSTANTDB SUBSCRIPTION UPDATE ===');
@@ -2343,10 +2381,11 @@
 
             const leagueName = document.getElementById('leagueName').value.trim();
             const leagueSlug = leagueName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            const gameId = window.GAME_ID || 'lx';
 
             // Check if a league with this slug already exists
             const existingLeague = await db.queryOnce({
-                leagues: { $: { where: { slug: leagueSlug } } }
+                leagues: { $: { where: { gameId, slug: leagueSlug } } }
             });
 
             if (existingLeague.data.leagues && existingLeague.data.leagues.length > 0) {
@@ -2360,6 +2399,7 @@
             // Create league
             await db.transact([
                 db.tx.leagues[leagueId].update({
+                    gameId: gameId,
                     slug: leagueSlug,
                     name: leagueName,
                     creatorId: currentUserId,
@@ -2539,10 +2579,12 @@
 
             // Generate UUID for prediction
             const predictionId = crypto.randomUUID();
+            const gameId = window.GAME_ID || 'lx';
 
             // Create initial prediction entry
             await db.transact([
                 db.tx.predictions[predictionId].update({
+                    gameId: gameId,
                     leagueId: currentLeague.id,
                     userId: currentUserId,
                     teamName: teamName,

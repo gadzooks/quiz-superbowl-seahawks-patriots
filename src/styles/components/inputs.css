@@ -1,0 +1,125 @@
+/* Input and form component styles */
+
+.input {
+  padding: 12px 16px;
+  font-size: 18px;
+  border-radius: 8px;
+  border: 2px solid var(--color-text-muted);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.3);
+}
+
+.input-bordered {
+  border-style: solid;
+}
+
+.input-primary:focus {
+  border-color: var(--color-primary);
+}
+
+/* Number input styling */
+input[type="number"] {
+  width: 100%;
+  padding: 16px 20px;
+  font-size: 20px;
+  border: 2px solid #9DA2A3;
+  border-radius: 12px;
+  background: #002a4a;
+  color: #FFFFFF;
+  transition: all 0.2s ease;
+}
+
+input[type="number"]:focus {
+  outline: none;
+  border-color: #33F200;
+  box-shadow: 0 0 0 3px rgba(51, 242, 0, 0.3);
+  background: #003355;
+}
+
+input[type="number"]::placeholder {
+  color: #9DA2A3;
+}
+
+/* Text inputs */
+input[type="text"] {
+  background: #002a4a !important;
+  color: #FFFFFF !important;
+  border-color: #9DA2A3 !important;
+}
+
+input[type="text"]:focus {
+  border-color: #33F200 !important;
+  box-shadow: 0 0 0 3px rgba(51, 242, 0, 0.3) !important;
+}
+
+/* Radio option styling - large and tappable */
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  margin: 10px 0;
+  background-color: var(--color-input-bg);
+  border: 2px solid var(--color-text-muted);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 60px;
+}
+
+.radio-option:hover {
+  background-color: var(--color-input-hover);
+  border-color: var(--color-primary);
+}
+
+.radio-option:has(input:checked) {
+  background-color: var(--color-input-hover);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.3);
+}
+
+.radio-option input[type="radio"] {
+  width: 28px;
+  height: 28px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.radio-option span {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+@media (max-width: 640px) {
+  .radio-option span {
+    font-size: 16px;
+  }
+}
+
+/* Character count styling */
+.char-count {
+  font-size: 13px;
+  margin-top: 8px;
+  transition: color 0.2s ease;
+}
+
+.char-count-valid {
+  color: #33F200;
+}
+
+.char-count-warning {
+  color: #fbbf24;
+}
+
+.char-count-error {
+  color: #ff6b6b;
+}

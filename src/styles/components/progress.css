@@ -1,0 +1,71 @@
+/* Progress bar component styles */
+
+.progress {
+  height: 8px;
+  background: var(--color-input-bg);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-primary {
+  background-color: #002a4a;
+}
+
+.progress-primary::-webkit-progress-value {
+  background-color: #33F200;
+}
+
+.progress-primary::-moz-progress-bar {
+  background-color: #33F200;
+}
+
+.progress::-webkit-progress-bar {
+  background: var(--color-input-bg);
+}
+
+/* Radial progress */
+.radial-progress {
+  --size: 3rem;
+  --thickness: 4px;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  background: conic-gradient(var(--color-primary) calc(var(--value) * 1%), var(--color-input-bg) 0);
+  position: relative;
+}
+
+.radial-progress::before {
+  content: '';
+  position: absolute;
+  inset: var(--thickness);
+  border-radius: 50%;
+  background: var(--color-background-alt);
+}
+
+.radial-progress::after {
+  content: attr(style);
+  position: relative;
+}
+
+/* Header progress bar */
+.progress-bar-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(0, 32, 59, 0.8);
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #33F200 0%, #2ad600 50%, #33F200 100%);
+  transition: width 0.3s ease;
+  box-shadow: 0 0 8px rgba(51, 242, 0, 0.5);
+}

@@ -1,0 +1,24 @@
+/* Card component styles */
+
+.card {
+  background: #002a4a !important;
+  border: 1px solid #9DA2A3 !important;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.card-body {
+  padding: 24px;
+}
+
+.card-title {
+  font-size: 22px !important;
+  font-weight: 700;
+  color: #33F200 !important;
+  margin-bottom: 12px;
+}
+
+.card-body p {
+  color: #C4C4C4 !important;
+  font-size: 16px !important;
+}

@@ -1,6 +1,9 @@
 // Super Bowl Prediction Game - Entry Point
 // This module initializes the app and orchestrates all components
 
+// Import all CSS styles
+import './styles/index.css';
+
 import { SoundManager } from './sound/manager';
 import { getUserId } from './utils/user';
 import { getLeagueSlug, isAdminOverride, saveLeagueSlug, clearLeagueSlug } from './utils/url';
@@ -16,9 +19,12 @@ import {
   setExpectedLeagueSlug,
   getState,
   updateState,
+  exposeStoreToWindow,
 } from './state/store';
 import { initRender } from './ui/render';
 import { updateScoresTabNotification } from './ui/tabs';
+import { exposeHandlersToWindow } from './handlers';
+import { exposeComponentsToWindow } from './components';
 import type { League, Prediction } from './types';
 
 console.log('Vite + TypeScript app loading...');
@@ -110,6 +116,13 @@ export async function initApp(): Promise<void> {
     // This will be migrated later
     console.log('No league slug found - original code will handle league creation');
   }
+
+  // Expose state store to window for legacy inline scripts
+  exposeStoreToWindow();
+
+  // Expose handlers and components to window for legacy HTML onclick handlers
+  exposeHandlersToWindow();
+  exposeComponentsToWindow();
 
   // Initialize render system
   // Note: The original index.html script still handles most rendering
