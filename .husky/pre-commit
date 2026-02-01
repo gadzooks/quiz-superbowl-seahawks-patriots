@@ -1,0 +1,8 @@
+# Run lint-staged to check staged files
+npx lint-staged
+
+# Run type checking on entire project
+npm run type-check
+
+# Run all tests
+npm test

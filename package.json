@@ -16,7 +16,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "type-check": "tsc --noEmit",
-    "validate": "yarn lint && yarn format:check && yarn type-check && yarn test"
+    "validate": "yarn lint && yarn format:check && yarn type-check && yarn test",
+    "prepare": "husky"
   },
   "keywords": [
     "superbowl",
@@ -41,6 +42,8 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "happy-dom": "^20.4.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "prettier": "^3.8.1",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
@@ -48,5 +51,14 @@
   },
   "dependencies": {
     "@instantdb/core": "^0.22.119"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,jsx,json,css,md}": [
+      "prettier --write"
+    ]
   }
 }
