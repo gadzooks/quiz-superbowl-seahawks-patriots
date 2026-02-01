@@ -15,22 +15,23 @@ const introImages = [
 ];
 
 // Declare confetti as a global (loaded via CDN)
-declare const confetti: ((options: {
-  particleCount?: number;
-  spread?: number;
-  angle?: number;
-  origin?: { x?: number; y?: number };
-  colors?: string[];
-  disableForReducedMotion?: boolean;
-}) => void) | undefined;
+declare const confetti:
+  | ((options: {
+      particleCount?: number;
+      spread?: number;
+      angle?: number;
+      origin?: { x?: number; y?: number };
+      colors?: string[];
+      disableForReducedMotion?: boolean;
+    }) => void)
+  | undefined;
 
 /**
  * Check if confetti is available and motion is allowed.
  */
 function canShowConfetti(): boolean {
   return (
-    typeof confetti === 'function' &&
-    !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    typeof confetti === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
   );
 }
 
@@ -208,8 +209,7 @@ export function showIntroOverlay(teamName: string): void {
   if (shadowEl) {
     shadowEl.style.animation = 'none';
     void shadowEl.offsetWidth;
-    shadowEl.style.animation =
-      'shadowPulse 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards';
+    shadowEl.style.animation = 'shadowPulse 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards';
   }
 
   // Play intro sound

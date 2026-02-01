@@ -17,17 +17,17 @@ describe('utils/url', () => {
   });
 
   afterEach(() => {
-    window.location = originalLocation;
+    (window as any).location = originalLocation;
   });
 
   describe('getLeagueSlug', () => {
     it('should return league slug from path', () => {
       delete (window as any).location;
-      window.location = {
+      (window as any).location = {
         pathname: '/lx/test-league',
         search: '',
         origin: 'http://localhost',
-      } as Location;
+      } as unknown as Location;
 
       const slug = getLeagueSlug();
 
@@ -36,11 +36,11 @@ describe('utils/url', () => {
 
     it('should return null if no league in path', () => {
       delete (window as any).location;
-      window.location = {
+      (window as any).location = {
         pathname: '/lx',
         search: '',
         origin: 'http://localhost',
-      } as Location;
+      } as unknown as Location;
 
       const slug = getLeagueSlug();
 
@@ -49,11 +49,11 @@ describe('utils/url', () => {
 
     it('should fall back to URL query parameter (legacy)', () => {
       delete (window as any).location;
-      window.location = {
+      (window as any).location = {
         pathname: '/',
         search: '?league=legacy-league',
         origin: 'http://localhost',
-      } as Location;
+      } as unknown as Location;
 
       const slug = getLeagueSlug();
 
@@ -62,11 +62,11 @@ describe('utils/url', () => {
 
     it('should fall back to localStorage (legacy)', () => {
       delete (window as any).location;
-      window.location = {
+      (window as any).location = {
         pathname: '/',
         search: '',
         origin: 'http://localhost',
-      } as Location;
+      } as unknown as Location;
       localStorage.setItem('currentLeagueSlug', 'saved-league');
 
       const slug = getLeagueSlug();
@@ -76,11 +76,11 @@ describe('utils/url', () => {
 
     it('should prefer path over query param', () => {
       delete (window as any).location;
-      window.location = {
+      (window as any).location = {
         pathname: '/lx/path-league',
         search: '?league=query-league',
         origin: 'http://localhost',
-      } as Location;
+      } as unknown as Location;
 
       const slug = getLeagueSlug();
 
@@ -91,33 +91,33 @@ describe('utils/url', () => {
   describe('isAdminOverride', () => {
     it('should return true when isAdmin=true in URL', () => {
       delete (window as any).location;
-      window.location = {
+      (window as any).location = {
         pathname: '/lx',
         search: '?isAdmin=true',
         origin: 'http://localhost',
-      } as Location;
+      } as unknown as Location;
 
       expect(isAdminOverride()).toBe(true);
     });
 
     it('should return false when isAdmin is not true', () => {
       delete (window as any).location;
-      window.location = {
+      (window as any).location = {
         pathname: '/lx',
         search: '?isAdmin=false',
         origin: 'http://localhost',
-      } as Location;
+      } as unknown as Location;
 
       expect(isAdminOverride()).toBe(false);
     });
 
     it('should return false when isAdmin parameter is missing', () => {
       delete (window as any).location;
-      window.location = {
+      (window as any).location = {
         pathname: '/lx',
         search: '',
         origin: 'http://localhost',
-      } as Location;
+      } as unknown as Location;
 
       expect(isAdminOverride()).toBe(false);
     });
@@ -127,11 +127,11 @@ describe('utils/url', () => {
     it('should save league slug to localStorage', () => {
       delete (window as any).location;
       const mockHistory = { replaceState: vi.fn() };
-      window.location = {
+      (window as any).location = {
         pathname: '/lx',
         search: '',
         origin: 'http://localhost',
-      } as Location;
+      } as unknown as Location;
       window.history = mockHistory as any;
 
       saveLeagueSlug('test-league');
@@ -142,11 +142,11 @@ describe('utils/url', () => {
     it('should update URL path', () => {
       delete (window as any).location;
       const mockHistory = { replaceState: vi.fn() };
-      window.location = {
+      (window as any).location = {
         pathname: '/lx',
         search: '',
         origin: 'http://localhost',
-      } as Location;
+      } as unknown as Location;
       window.history = mockHistory as any;
 
       saveLeagueSlug('test-league');
@@ -157,11 +157,11 @@ describe('utils/url', () => {
     it('should preserve query parameters', () => {
       delete (window as any).location;
       const mockHistory = { replaceState: vi.fn() };
-      window.location = {
+      (window as any).location = {
         pathname: '/lx',
         search: '?isAdmin=true',
         origin: 'http://localhost',
-      } as Location;
+      } as unknown as Location;
       window.history = mockHistory as any;
 
       saveLeagueSlug('test-league');
@@ -189,11 +189,11 @@ describe('utils/url', () => {
   describe('getLeagueUrl', () => {
     it('should generate full URL for a league', () => {
       delete (window as any).location;
-      window.location = {
+      (window as any).location = {
         pathname: '/lx',
         search: '',
         origin: 'https://example.com',
-      } as Location;
+      } as unknown as Location;
 
       const url = getLeagueUrl('test-league');
 

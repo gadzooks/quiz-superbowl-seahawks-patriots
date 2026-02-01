@@ -12,7 +12,7 @@
   padding: 12px 16px;
   text-align: center;
   cursor: pointer;
-  color: #C4C4C4 !important;
+  color: #c4c4c4 !important;
   font-size: 16px !important;
   font-weight: 500 !important;
   transition: all 0.2s;
@@ -25,8 +25,8 @@
 
 .tab-active,
 .tab.tab-active {
-  background-color: #33F200 !important;
-  color: #00203B !important;
+  background-color: #33f200 !important;
+  color: #00203b !important;
   font-weight: 700 !important;
 }
 
@@ -39,7 +39,7 @@
 .tab-active.tab-results,
 .tab.tab-active.tab-results {
   background-color: #e57373 !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Scores tab notification badge */
@@ -52,8 +52,8 @@
   position: absolute;
   top: -8px;
   right: -8px;
-  background: #33F200;
-  color: #00203B;
+  background: #33f200;
+  color: #00203b;
   font-size: 16px;
   font-weight: 700;
   padding: 4px 6px;
@@ -63,7 +63,8 @@
 }
 
 @keyframes pulseGlow {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     box-shadow: 0 0 8px rgba(51, 242, 0, 0.6);
   }

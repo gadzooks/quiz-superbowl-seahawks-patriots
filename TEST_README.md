@@ -54,22 +54,23 @@ src/
 
 Current test coverage: **177 tests across 9 test suites**
 
-| Module | Tests | Coverage |
-|--------|-------|----------|
-| utils/user | 4 | User ID generation |
-| utils/url | 19 | URL parsing, league slugs |
-| utils/game | 18 | Game config, path parsing |
-| config/games | 18 | Game registry, validation |
-| questions | 16 | Question generation |
-| scoring/calculate | 22 | Score calculation, tiebreakers |
-| state/store | 22 | State management |
-| services/validation | 58 | Form validation |
-| ui/screens | 8 | Screen transitions |
-| ui/toast | 10 | Toast notifications |
+| Module              | Tests | Coverage                       |
+| ------------------- | ----- | ------------------------------ |
+| utils/user          | 4     | User ID generation             |
+| utils/url           | 19    | URL parsing, league slugs      |
+| utils/game          | 18    | Game config, path parsing      |
+| config/games        | 18    | Game registry, validation      |
+| questions           | 16    | Question generation            |
+| scoring/calculate   | 22    | Score calculation, tiebreakers |
+| state/store         | 22    | State management               |
+| services/validation | 58    | Form validation                |
+| ui/screens          | 8     | Screen transitions             |
+| ui/toast            | 10    | Toast notifications            |
 
 ## Key Test Patterns
 
 ### 1. Pure Function Testing
+
 ```typescript
 describe('calculateScore', () => {
   it('awards points for correct answer', () => {
@@ -81,11 +82,14 @@ describe('calculateScore', () => {
 ```
 
 ### 2. State Management Testing
+
 ```typescript
 describe('store', () => {
   beforeEach(() => {
     // Reset state before each test
-    updateState({ /* initial state */ });
+    updateState({
+      /* initial state */
+    });
   });
 
   it('should update state', () => {
@@ -96,6 +100,7 @@ describe('store', () => {
 ```
 
 ### 3. DOM Testing
+
 ```typescript
 describe('showToast', () => {
   beforeEach(() => {
@@ -111,6 +116,7 @@ describe('showToast', () => {
 ```
 
 ### 4. URL/Location Mocking
+
 ```typescript
 it('should parse game ID from URL', () => {
   delete (window as any).location;
@@ -123,6 +129,7 @@ it('should parse game ID from URL', () => {
 ## Coverage Thresholds
 
 Configured in `vitest.config.ts`:
+
 - Lines: 70%
 - Functions: 70%
 - Branches: 70%
@@ -131,6 +138,7 @@ Configured in `vitest.config.ts`:
 ## What's Tested
 
 ### ✅ Covered
+
 - User ID generation and persistence
 - URL parsing (path-based and query parameter)
 - Game configuration and validation
@@ -143,11 +151,13 @@ Configured in `vitest.config.ts`:
 - Screen transitions
 
 ### ⚠️ Partial Coverage
+
 - DOM manipulation functions (some rely on window globals)
 - Event handlers (tested indirectly)
 - Database queries (require InstantDB mock)
 
 ### ❌ Not Covered (Future Work)
+
 - Integration tests with InstantDB
 - E2E tests for user flows
 - Component rendering tests
@@ -175,6 +185,7 @@ When adding new functionality:
 6. Run tests to ensure they pass
 
 Example:
+
 ```typescript
 import { describe, it, expect, beforeEach } from 'vitest';
 import { myFunction } from './myModule';
@@ -196,6 +207,7 @@ describe('myModule', () => {
 ## Continuous Integration
 
 Tests should be run:
+
 - Before every commit
 - In CI/CD pipeline
 - Before deploying to production

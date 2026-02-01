@@ -15,7 +15,10 @@ let editingPredictionName: string | null = null;
  * Open team name edit modal.
  * Admin can edit any team by passing predictionId.
  */
-export function openTeamNameModal(predictionId: string | null = null, teamName: string | null = null): void {
+export function openTeamNameModal(
+  predictionId: string | null = null,
+  teamName: string | null = null
+): void {
   const modal = document.getElementById('teamNameModal') as HTMLDialogElement | null;
   const input = document.getElementById('teamNameEditInput') as HTMLInputElement | null;
   const title = document.getElementById('teamNameModalTitle');
@@ -143,7 +146,14 @@ async function handleTeamNameChange(e: Event): Promise<void> {
 
   try {
     // Use window.db for database access
-    const db = (window as Window & { db?: { transact: (ops: unknown[]) => Promise<void>; tx: { predictions: Record<string, { update: (data: object) => unknown }> } } }).db;
+    const db = (
+      window as Window & {
+        db?: {
+          transact: (ops: unknown[]) => Promise<void>;
+          tx: { predictions: Record<string, { update: (data: object) => unknown }> };
+        };
+      }
+    ).db;
     if (!db) {
       showToast('Database not available');
       return;

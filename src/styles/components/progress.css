@@ -12,11 +12,11 @@
 }
 
 .progress-primary::-webkit-progress-value {
-  background-color: #33F200;
+  background-color: #33f200;
 }
 
 .progress-primary::-moz-progress-bar {
-  background-color: #33F200;
+  background-color: #33f200;
 }
 
 .progress::-webkit-progress-bar {
@@ -65,7 +65,7 @@
 .progress-bar {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, #33F200 0%, #2ad600 50%, #33F200 100%);
+  background: linear-gradient(90deg, #33f200 0%, #2ad600 50%, #33f200 100%);
   transition: width 0.3s ease;
   box-shadow: 0 0 8px rgba(51, 242, 0, 0.5);
 }

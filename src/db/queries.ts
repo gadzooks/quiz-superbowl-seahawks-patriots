@@ -7,7 +7,7 @@ import { calculateScore, calculateTiebreakDiff } from '../scoring/calculate';
 export { id };
 
 // Type for InstantDB transaction updates
-type TransactionUpdate = ReturnType<typeof db.tx.leagues[string]['update']>;
+type TransactionUpdate = ReturnType<(typeof db.tx.leagues)[string]['update']>;
 
 /**
  * Subscribe to a league and its predictions by slug within a specific game.
@@ -77,20 +77,14 @@ export async function createLeague(data: {
 /**
  * Update league open/closed status.
  */
-export async function updateLeagueStatus(
-  leagueId: string,
-  isOpen: boolean
-): Promise<void> {
+export async function updateLeagueStatus(leagueId: string, isOpen: boolean): Promise<void> {
   await db.transact([db.tx.leagues[leagueId].update({ isOpen })]);
 }
 
 /**
  * Update league showAllPredictions setting.
  */
-export async function updateShowAllPredictions(
-  leagueId: string,
-  show: boolean
-): Promise<void> {
+export async function updateShowAllPredictions(leagueId: string, show: boolean): Promise<void> {
   await db.transact([db.tx.leagues[leagueId].update({ showAllPredictions: show })]);
 }
 
@@ -102,17 +96,13 @@ export async function saveResults(
   results: Record<string, string | number>,
   predictions: Prediction[]
 ): Promise<void> {
-  const updates: TransactionUpdate[] = [
-    db.tx.leagues[leagueId].update({ actualResults: results }),
-  ];
+  const updates: TransactionUpdate[] = [db.tx.leagues[leagueId].update({ actualResults: results })];
 
   // Recalculate scores for all predictions
   for (const pred of predictions) {
     const score = calculateScore(pred.predictions, results);
     const tiebreakDiff = calculateTiebreakDiff(pred.predictions, results);
-    updates.push(
-      db.tx.predictions[pred.id].update({ score, tiebreakDiff })
-    );
+    updates.push(db.tx.predictions[pred.id].update({ score, tiebreakDiff }));
   }
 
   await db.transact(updates);
@@ -121,18 +111,11 @@ export async function saveResults(
 /**
  * Clear results and reset all scores.
  */
-export async function clearResults(
-  leagueId: string,
-  predictions: Prediction[]
-): Promise<void> {
-  const updates: TransactionUpdate[] = [
-    db.tx.leagues[leagueId].update({ actualResults: null }),
-  ];
+export async function clearResults(leagueId: string, predictions: Prediction[]): Promise<void> {
+  const updates: TransactionUpdate[] = [db.tx.leagues[leagueId].update({ actualResults: null })];
 
   for (const pred of predictions) {
-    updates.push(
-      db.tx.predictions[pred.id].update({ score: 0, tiebreakDiff: 0 })
-    );
+    updates.push(db.tx.predictions[pred.id].update({ score: 0, tiebreakDiff: 0 }));
   }
 
   await db.transact(updates);
@@ -152,9 +135,7 @@ export async function savePrediction(data: {
   actualResults?: Record<string, string | number> | null;
 }): Promise<string> {
   const predictionId = data.id || id();
-  const score = data.actualResults
-    ? calculateScore(data.predictions, data.actualResults)
-    : 0;
+  const score = data.actualResults ? calculateScore(data.predictions, data.actualResults) : 0;
   const tiebreakDiff = data.actualResults
     ? calculateTiebreakDiff(data.predictions, data.actualResults)
     : 0;
@@ -179,20 +160,14 @@ export async function savePrediction(data: {
 /**
  * Update team name for a prediction.
  */
-export async function updateTeamName(
-  predictionId: string,
-  teamName: string
-): Promise<void> {
+export async function updateTeamName(predictionId: string, teamName: string): Promise<void> {
   await db.transact([db.tx.predictions[predictionId].update({ teamName })]);
 }
 
 /**
  * Toggle manager status for a prediction.
  */
-export async function toggleManager(
-  predictionId: string,
-  isManager: boolean
-): Promise<void> {
+export async function toggleManager(predictionId: string, isManager: boolean): Promise<void> {
   await db.transact([db.tx.predictions[predictionId].update({ isManager })]);
 }
 

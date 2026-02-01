@@ -16,7 +16,7 @@ describe('utils/game', () => {
   });
 
   afterEach(() => {
-    window.location = originalLocation;
+    (window as any).location = originalLocation;
   });
 
   describe('parseUrlPath', () => {
@@ -66,7 +66,7 @@ describe('utils/game', () => {
   describe('getCurrentGameId', () => {
     it('should get game ID from current URL', () => {
       delete (window as any).location;
-      window.location = { pathname: '/lx' } as Location;
+      (window as any).location = { pathname: '/lx' } as unknown as Location;
 
       const gameId = getCurrentGameId();
 
@@ -75,7 +75,7 @@ describe('utils/game', () => {
 
     it('should return default game ID for root path', () => {
       delete (window as any).location;
-      window.location = { pathname: '/' } as Location;
+      (window as any).location = { pathname: '/' } as unknown as Location;
 
       const gameId = getCurrentGameId();
 
@@ -86,7 +86,7 @@ describe('utils/game', () => {
   describe('getCurrentLeagueSlug', () => {
     it('should get league slug from current URL', () => {
       delete (window as any).location;
-      window.location = { pathname: '/lx/smith-family' } as Location;
+      (window as any).location = { pathname: '/lx/smith-family' } as unknown as Location;
 
       const slug = getCurrentLeagueSlug();
 
@@ -95,7 +95,7 @@ describe('utils/game', () => {
 
     it('should return null when no league in URL', () => {
       delete (window as any).location;
-      window.location = { pathname: '/lx' } as Location;
+      (window as any).location = { pathname: '/lx' } as unknown as Location;
 
       const slug = getCurrentLeagueSlug();
 
@@ -106,7 +106,7 @@ describe('utils/game', () => {
   describe('getCurrentGameConfig', () => {
     it('should return game configuration object', () => {
       delete (window as any).location;
-      window.location = { pathname: '/lx' } as Location;
+      (window as any).location = { pathname: '/lx' } as unknown as Location;
 
       const config = getCurrentGameConfig();
 
@@ -119,7 +119,7 @@ describe('utils/game', () => {
 
     it('should have valid teams array', () => {
       delete (window as any).location;
-      window.location = { pathname: '/lx' } as Location;
+      (window as any).location = { pathname: '/lx' } as unknown as Location;
 
       const config = getCurrentGameConfig();
 
@@ -131,7 +131,7 @@ describe('utils/game', () => {
 
     it('should return default config for invalid game ID', () => {
       delete (window as any).location;
-      window.location = { pathname: '/invalid-game' } as Location;
+      (window as any).location = { pathname: '/invalid-game' } as unknown as Location;
 
       const config = getCurrentGameConfig();
 
@@ -162,7 +162,7 @@ describe('utils/game', () => {
   describe('buildGameUrl', () => {
     it('should build full URL with game ID', () => {
       delete (window as any).location;
-      window.location = { origin: 'https://example.com' } as Location;
+      (window as any).location = { origin: 'https://example.com' } as unknown as Location;
 
       const url = buildGameUrl('lx');
 
@@ -171,7 +171,7 @@ describe('utils/game', () => {
 
     it('should build full URL with game ID and league slug', () => {
       delete (window as any).location;
-      window.location = { origin: 'https://example.com' } as Location;
+      (window as any).location = { origin: 'https://example.com' } as unknown as Location;
 
       const url = buildGameUrl('lx', 'smith-family');
 

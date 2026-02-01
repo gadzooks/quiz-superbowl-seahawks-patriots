@@ -63,7 +63,7 @@
 .intro-football-shadow {
   width: 60px;
   height: 15px;
-  background: radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.5) 0%, transparent 70%);
   margin-top: -10px;
   animation: shadowPulse 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
@@ -71,7 +71,7 @@
 .intro-title {
   font-size: 28px;
   font-weight: 800;
-  color: #33F200;
+  color: #33f200;
   margin: 20px 0 10px;
   animation: slideUp 0.6s ease-out 0.3s both;
   text-shadow: 0 0 20px rgba(51, 242, 0, 0.5);
@@ -80,7 +80,7 @@
 .intro-team-name {
   font-size: 24px;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #ffffff;
   margin-bottom: 30px;
   animation: slideUp 0.6s ease-out 0.5s both;
 }

@@ -6,12 +6,7 @@ export * from './team';
 export * from './predictions';
 export * from './results';
 
-import {
-  handleLeagueForm,
-  setSubmissions,
-  setShowPredictions,
-  copyLeagueUrl,
-} from './league';
+import { handleLeagueForm, setSubmissions, setShowPredictions, copyLeagueUrl } from './league';
 
 import {
   handleTeamNameForm,
@@ -20,10 +15,7 @@ import {
   handleToggleManager,
 } from './team';
 
-import {
-  handlePredictionsForm,
-  initPredictionAutoSave,
-} from './predictions';
+import { handlePredictionsForm, initPredictionAutoSave } from './predictions';
 
 import {
   handleResultsForm,

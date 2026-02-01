@@ -6,10 +6,10 @@
   left: 50%;
   transform: translateX(-50%) translateY(100px);
   background: linear-gradient(135deg, #003320 0%, #002a4a 100%);
-  border: 2px solid #33F200;
+  border: 2px solid #33f200;
   border-radius: 16px;
   padding: 16px 24px;
-  color: #FFFFFF;
+  color: #ffffff;
   font-size: 18px;
   font-weight: 600;
   z-index: 1001;

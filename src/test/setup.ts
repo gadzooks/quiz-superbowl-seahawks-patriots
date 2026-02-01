@@ -11,7 +11,9 @@ afterEach(() => {
 if (!global.crypto) {
   global.crypto = {} as Crypto;
 }
-(global.crypto as any).randomUUID = vi.fn(() => 'test-uuid-' + Math.random().toString(36).substring(7));
+(global.crypto as any).randomUUID = vi.fn(
+  () => 'test-uuid-' + Math.random().toString(36).substring(7)
+);
 
 // Extend expect with custom matchers if needed
 expect.extend({

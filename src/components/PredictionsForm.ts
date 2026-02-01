@@ -43,10 +43,11 @@ export function renderPredictionsForm(): void {
   }
 
   // Get existing predictions
-  const userPrediction = allPredictions.find(p => p.userId === currentUserId);
+  const userPrediction = allPredictions.find((p) => p.userId === currentUserId);
 
   // Check if results exist for showing correct answers
-  const hasResults = currentLeague.actualResults && Object.keys(currentLeague.actualResults).length > 0;
+  const hasResults =
+    currentLeague.actualResults && Object.keys(currentLeague.actualResults).length > 0;
   const showCorrectAnswers = !currentLeague.isOpen && hasResults;
 
   let html = '';
@@ -54,7 +55,8 @@ export function renderPredictionsForm(): void {
   questions.forEach((q, index) => {
     const userAnswer = userPrediction?.predictions?.[q.id];
     const correctAnswer = currentLeague.actualResults?.[q.id];
-    const hasCorrectAnswer = correctAnswer !== undefined && correctAnswer !== null && correctAnswer !== '';
+    const hasCorrectAnswer =
+      correctAnswer !== undefined && correctAnswer !== null && correctAnswer !== '';
 
     const isCorrect = hasCorrectAnswer && isAnswerCorrect(q, userAnswer, correctAnswer);
 
@@ -62,13 +64,15 @@ export function renderPredictionsForm(): void {
     html += `<label>
       <span style="color: var(--color-primary); font-size: 14px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Question ${index + 1}</span><br>
       <span style="color: var(--color-text);">${q.label}</span>
-      ${q.points > 0
-        ? `<span style="display: inline-block; background: var(--color-primary); color: var(--color-background); padding: 4px 12px; border-radius: 12px; font-size: 14px; font-weight: 700; margin-left: 10px;">${q.points} pts</span>`
-        : '<span style="display: inline-block; background: var(--color-text-muted); color: var(--color-background); padding: 4px 12px; border-radius: 12px; font-size: 14px; font-weight: 600; margin-left: 10px;">Tiebreaker</span>'}
+      ${
+        q.points > 0
+          ? `<span style="display: inline-block; background: var(--color-primary); color: var(--color-background); padding: 4px 12px; border-radius: 12px; font-size: 14px; font-weight: 700; margin-left: 10px;">${q.points} pts</span>`
+          : '<span style="display: inline-block; background: var(--color-text-muted); color: var(--color-background); padding: 4px 12px; border-radius: 12px; font-size: 14px; font-weight: 600; margin-left: 10px;">Tiebreaker</span>'
+      }
     </label>`;
 
     if (q.type === 'radio' && q.options) {
-      q.options.forEach(option => {
+      q.options.forEach((option) => {
         const value = option.toLowerCase().replace(/\s+/g, '-');
         const checked = userAnswer === value ? 'checked' : '';
         // Apply correct/incorrect styling when showing results
@@ -135,8 +139,10 @@ export function renderPredictionsForm(): void {
  * Attach auto-save listeners to form inputs.
  */
 function attachAutoSaveListeners(form: HTMLFormElement): void {
-  const inputs = form.querySelectorAll<HTMLInputElement>('input[type="radio"], input[type="number"]');
-  inputs.forEach(input => {
+  const inputs = form.querySelectorAll<HTMLInputElement>(
+    'input[type="radio"], input[type="number"]'
+  );
+  inputs.forEach((input) => {
     input.addEventListener('change', handleAutoSave);
   });
 }
@@ -173,7 +179,7 @@ async function handleAutoSave(): Promise<void> {
     const formData = new FormData(form);
     const predictions: Record<string, string | number> = {};
 
-    questions.forEach(q => {
+    questions.forEach((q) => {
       const value = formData.get(`prediction-${q.id}`);
       if (value !== null && value !== '') {
         if (q.type === 'number') {
@@ -185,7 +191,7 @@ async function handleAutoSave(): Promise<void> {
     });
 
     // Find user's prediction
-    const userPrediction = allPredictions.find(p => p.userId === currentUserId);
+    const userPrediction = allPredictions.find((p) => p.userId === currentUserId);
 
     if (userPrediction) {
       try {
@@ -208,7 +214,9 @@ async function handleAutoSave(): Promise<void> {
         if (statusDiv) {
           statusDiv.textContent = '✓ Saved';
           statusDiv.style.color = 'var(--color-primary)';
-          setTimeout(() => { statusDiv.textContent = ''; }, 2000);
+          setTimeout(() => {
+            statusDiv.textContent = '';
+          }, 2000);
         }
 
         // Update participants list for immediate visual feedback
@@ -246,7 +254,7 @@ export function updateProgressBar(): void {
   const gameConfig = getCurrentGameConfig();
   const questions = getQuestionsForGame(gameConfig);
 
-  const userPrediction = allPredictions.find(p => p.userId === currentUserId);
+  const userPrediction = allPredictions.find((p) => p.userId === currentUserId);
   const answered = countAnsweredQuestions(userPrediction?.predictions, questions);
   const percentage = questions.length > 0 ? Math.round((answered / questions.length) * 100) : 0;
 

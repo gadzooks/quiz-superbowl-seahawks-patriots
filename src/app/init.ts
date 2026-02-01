@@ -55,7 +55,9 @@ export function initApp(): void {
   const appId = getAppId();
   console.log('Using InstantDB App ID:', appId ? appId.substring(0, 8) + '...' : 'NOT SET');
 
-  const InstantDBInit = (window as Window & { InstantDBInit?: (config: { appId: string }) => unknown }).InstantDBInit;
+  const InstantDBInit = (
+    window as Window & { InstantDBInit?: (config: { appId: string }) => unknown }
+  ).InstantDBInit;
   if (!InstantDBInit) {
     console.error('InstantDB not loaded');
     return;
@@ -128,7 +130,9 @@ export function initApp(): void {
             if (currentActualResults && Object.keys(currentActualResults).length > 0) {
               setHasUnviewedScoreUpdate(true);
               // Call window version since it may have inline dependencies
-              (window as Window & { updateScoresTabNotification?: () => void }).updateScoresTabNotification?.();
+              (
+                window as Window & { updateScoresTabNotification?: () => void }
+              ).updateScoresTabNotification?.();
             }
           }
 
@@ -312,7 +316,9 @@ export function render(): void {
     if (state.isLeagueCreator) {
       (window as Window & { switchTab?: (tab: string) => void }).switchTab?.(state.currentTab);
     } else {
-      (window as Window & { switchUserTab?: (tab: string) => void }).switchUserTab?.(state.currentTab);
+      (window as Window & { switchUserTab?: (tab: string) => void }).switchUserTab?.(
+        state.currentTab
+      );
     }
   }
 

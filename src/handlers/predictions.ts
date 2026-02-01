@@ -34,7 +34,7 @@ export async function handlePredictionsSubmit(
   }
 
   // Find existing prediction
-  const existingPrediction = allPredictions.find(p => p.userId === currentUserId);
+  const existingPrediction = allPredictions.find((p) => p.userId === currentUserId);
 
   if (!existingPrediction) {
     return { success: false, error: 'Please enter your team name first' };
@@ -148,9 +148,11 @@ function updateProgressBar(form: HTMLFormElement): void {
  * Initialize auto-save listeners on a predictions form.
  */
 export function initPredictionAutoSave(form: HTMLFormElement): void {
-  const inputs = form.querySelectorAll<HTMLInputElement>('input[type="radio"], input[type="number"]');
+  const inputs = form.querySelectorAll<HTMLInputElement>(
+    'input[type="radio"], input[type="number"]'
+  );
 
-  inputs.forEach(input => {
+  inputs.forEach((input) => {
     input.addEventListener('change', () => handlePredictionAutoSave(form));
   });
 

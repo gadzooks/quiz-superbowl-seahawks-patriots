@@ -3,6 +3,7 @@
 This guide walks you through setting up separate InstantDB databases for QA (testing) and Production environments in Netlify.
 
 ## Table of Contents
+
 1. [Prerequisites](#prerequisites)
 2. [Understanding Deploy Contexts](#understanding-deploy-contexts)
 3. [Method 1: Netlify Dashboard (Recommended)](#method-1-netlify-dashboard-recommended)
@@ -34,11 +35,11 @@ Before starting, you need:
 
 Netlify has three types of deploy contexts that determine which environment your site is being deployed to:
 
-| Context | Triggered By | Use Case | Which DB? |
-|---------|-------------|----------|-----------|
-| **Production** | Pushes to your production branch (`prod`) | Live site for real users | Production DB |
-| **Branch Deploy** | Pushes to any other branch (`master`, etc.) | Testing and QA | QA DB |
-| **Deploy Preview** | Pull requests | Code review | QA DB |
+| Context            | Triggered By                                | Use Case                 | Which DB?     |
+| ------------------ | ------------------------------------------- | ------------------------ | ------------- |
+| **Production**     | Pushes to your production branch (`prod`)   | Live site for real users | Production DB |
+| **Branch Deploy**  | Pushes to any other branch (`master`, etc.) | Testing and QA           | QA DB         |
+| **Deploy Preview** | Pull requests                               | Code review              | QA DB         |
 
 The key insight: **You can set the SAME environment variable name (`INSTANTDB_APP_ID`) with DIFFERENT values for each context.**
 
@@ -99,19 +100,24 @@ Environment Variables Page
 ### Common Mistakes to Avoid
 
 ❌ **WRONG:** Creating two different variable names
+
 ```
 INSTANTDB_APP_ID_PROD = 8b6d941d...
 INSTANTDB_APP_ID_QA = a1b2c3d4...
 ```
+
 The build script looks for `INSTANTDB_APP_ID` specifically.
 
 ❌ **WRONG:** Setting the same value for all contexts
+
 ```
 INSTANTDB_APP_ID (all contexts) = 8b6d941d...
 ```
+
 Your QA and Production will share the same database.
 
 ✅ **CORRECT:** Same variable name, different values per context
+
 ```
 INSTANTDB_APP_ID (production) = 8b6d941d...
 INSTANTDB_APP_ID (other contexts) = a1b2c3d4...
@@ -153,6 +159,7 @@ netlify env:list
 ```
 
 You should see:
+
 ```
 INSTANTDB_APP_ID
 ├─ production: 8b6d941d-edc0-4750-95ec-19660710b8d6
@@ -206,6 +213,7 @@ git push origin master
 ```
 
 **Expected behavior:**
+
 - Netlify deploys from `master` branch
 - Build log shows: "Using InstantDB App ID: a1b2c3d4..."
 - The deployed site connects to your QA database
@@ -221,6 +229,7 @@ git push origin prod
 ```
 
 **Expected behavior:**
+
 - Netlify deploys from `prod` branch
 - Build log shows: "Using InstantDB App ID: 8b6d941d..."
 - The deployed site connects to your Production database
@@ -239,15 +248,18 @@ git push origin prod
 ### Problem: Both environments use the same database
 
 **Symptoms:**
+
 - Creating a league in QA shows up in Production
 - Both sites show the same data
 
 **Solution:**
+
 - Verify environment variables are scoped correctly in Netlify dashboard
 - Check build logs to see which App ID is being used
 - Make sure you followed the context scoping in Method 1 step 3-4
 
 **Debug command:**
+
 ```bash
 # Check what Netlify sees
 netlify env:list
@@ -256,16 +268,19 @@ netlify env:list
 ### Problem: Build fails with "INSTANTDB_APP_ID not set"
 
 **Symptoms:**
+
 - Build log shows: `Error: INSTANTDB_APP_ID environment variable not set`
 - Deploy fails
 
 **Solution:**
+
 1. Verify environment variable is set in Netlify dashboard
 2. Check variable name is exactly `INSTANTDB_APP_ID` (case-sensitive)
 3. Verify the context you're deploying to has the variable set
 4. Try Method 2 (CLI) as an alternative
 
 **Debug steps:**
+
 ```bash
 # Re-set the variable
 netlify env:set INSTANTDB_APP_ID "your-app-id" --context production
@@ -279,16 +294,19 @@ git push
 ### Problem: Wrong database is being used
 
 **Symptoms:**
+
 - Production site connects to QA database
 - Or vice versa
 
 **Solution:**
+
 1. Check which branch triggered the deploy
    - Go to Netlify dashboard → Deploys
    - Look at "Branch" column
 2. Verify branch is correctly configured
    - Production branch should be `prod` (check `netlify.toml`)
    - If using a different branch name, update `netlify.toml`:
+
      ```toml
      [build]
        publish = "dist"
@@ -297,11 +315,13 @@ git push
      [context.production]
        branch = "main"  # Change this to your production branch
      ```
+
 3. Check environment variable scoping matches your branch strategy
 
 ### Problem: App ID appears in built HTML file
 
 **Symptoms:**
+
 - View source of deployed site
 - See App ID hardcoded in the JavaScript
 
@@ -314,6 +334,7 @@ InstantDB App IDs are designed to be public. Access control is managed through I
 ### Problem: Local development uses production database
 
 **Symptoms:**
+
 - Running `npm run dev` connects to production database
 
 **Solution:**
@@ -325,6 +346,7 @@ INSTANTDB_APP_ID=a1b2c3d4-5678-90ab-cdef-1234567890ab
 ```
 
 Then run:
+
 ```bash
 npm run dev
 ```
@@ -334,6 +356,7 @@ The `dev.js` script will use the App ID from `.env`.
 ### Problem: Can't remember which App ID is which
 
 **Solution:**
+
 1. Open [InstantDB Dashboard](https://instantdb.com/dash)
 2. Your apps should be named:
    - "Superbowl QA" → QA App ID
@@ -357,33 +380,39 @@ prod (Production DB) ← Deploy to users
 ### Deployment Flow
 
 1. **Develop on feature branches**
+
    ```bash
    git checkout -b feature/new-questions
    # Make changes
    git commit -am "Add new questions"
    git push origin feature/new-questions
    ```
+
    - Creates a Deploy Preview with QA database
    - Safe to test without affecting QA
 
 2. **Merge to master for QA testing**
+
    ```bash
    # After PR approval
    git checkout master
    git merge feature/new-questions
    git push origin master
    ```
+
    - Deploys to `master--your-site.netlify.app`
    - Uses QA database
    - Share this URL with QA testers
 
 3. **Promote to production**
+
    ```bash
    # After QA sign-off
    git checkout prod
    git merge master
    git push origin prod
    ```
+
    - Deploys to `your-site.netlify.app`
    - Uses Production database
    - Live for real users

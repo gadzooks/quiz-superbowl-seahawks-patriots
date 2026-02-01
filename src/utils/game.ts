@@ -20,7 +20,10 @@ export function parseUrlPath(pathname: string = window.location.pathname): {
   leagueSlug: string | null;
 } {
   // Remove leading/trailing slashes and split
-  const parts = pathname.replace(/^\/|\/$/g, '').split('/').filter(Boolean);
+  const parts = pathname
+    .replace(/^\/|\/$/g, '')
+    .split('/')
+    .filter(Boolean);
 
   // No path segments - use default game
   if (parts.length === 0) {

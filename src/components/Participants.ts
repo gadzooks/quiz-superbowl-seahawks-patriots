@@ -81,9 +81,10 @@ export function renderParticipants(): void {
               </div>
             </div>
             <div class="ml-4">
-              ${isComplete
-                ? '<div class="badge badge-success badge-lg">✓</div>'
-                : `<div class="radial-progress text-primary" style="--value:${percentage}; --size:3rem;">${percentage}%</div>`
+              ${
+                isComplete
+                  ? '<div class="badge badge-success badge-lg">✓</div>'
+                  : `<div class="radial-progress text-primary" style="--value:${percentage}; --size:3rem;">${percentage}%</div>`
               }
             </div>
           </div>
@@ -105,14 +106,17 @@ export function copyParticipantLink(userId: string, teamName: string): void {
   const baseUrl = `${window.location.origin}${window.location.pathname}`;
   const link = `${baseUrl}?league=${currentLeague.slug}&user=${userId}`;
 
-  navigator.clipboard.writeText(link).then(() => {
-    import('../ui/toast').then(({ showToast }) => {
-      showToast(`Recovery link copied for ${teamName}!`);
+  navigator.clipboard
+    .writeText(link)
+    .then(() => {
+      import('../ui/toast').then(({ showToast }) => {
+        showToast(`Recovery link copied for ${teamName}!`);
+      });
+    })
+    .catch(() => {
+      // Fallback for older browsers
+      prompt(`Copy this recovery link for ${teamName}:`, link);
     });
-  }).catch(() => {
-    // Fallback for older browsers
-    prompt(`Copy this recovery link for ${teamName}:`, link);
-  });
 }
 
 // Expose to window
@@ -151,9 +155,11 @@ export function exposeParticipantFunctions(): void {
 
     try {
       await toggleManager(predictionId, makeManager);
-      const pred = allPredictions.find(p => p.id === predictionId);
+      const pred = allPredictions.find((p) => p.id === predictionId);
       const teamName = pred?.teamName || 'Team';
-      showToast(makeManager ? `${teamName} is now a manager!` : `${teamName} is no longer a manager.`);
+      showToast(
+        makeManager ? `${teamName} is now a manager!` : `${teamName} is no longer a manager.`
+      );
     } catch (error) {
       console.error('Error toggling manager status:', error);
       showToast('Error updating manager status');

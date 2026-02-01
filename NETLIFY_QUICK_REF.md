@@ -20,10 +20,12 @@ One-page cheat sheet for managing QA and Production databases in Netlify.
 ## Quick Setup (3 Steps)
 
 ### 1. Create Two InstantDB Apps
+
 - QA App → Copy App ID (e.g., `a1b2c3d4-...`)
 - Production App → Copy App ID (e.g., `8b6d941d-...`)
 
 ### 2. Set in Netlify Dashboard
+
 Go to: **Site configuration → Environment variables → Add a variable**
 
 ```
@@ -39,6 +41,7 @@ Variable 2:
 ```
 
 ### 3. Verify
+
 ```bash
 netlify env:list
 ```
@@ -66,6 +69,7 @@ Do you prefer command line?
 ## Common Commands
 
 ### Netlify CLI Setup
+
 ```bash
 # One-time setup
 npm install netlify-cli -g
@@ -74,6 +78,7 @@ netlify link
 ```
 
 ### Set Environment Variables
+
 ```bash
 # Production context
 netlify env:set INSTANTDB_APP_ID "8b6d941d-..." --context production
@@ -84,12 +89,14 @@ netlify env:set INSTANTDB_APP_ID "a1b2c3d4-..." --context deploy-preview
 ```
 
 ### Verify Configuration
+
 ```bash
 netlify env:list
 node validate-netlify-env.js
 ```
 
 ### Local Development
+
 ```bash
 # Create .env file
 echo "INSTANTDB_APP_ID=a1b2c3d4-..." > .env
@@ -102,11 +109,11 @@ npm run dev
 
 ## Deploy Contexts Explained
 
-| Context | Triggered By | Environment | Database |
-|---------|--------------|-------------|----------|
-| **production** | Push to `prod` branch | Production | Production DB |
-| **branch-deploy** | Push to any other branch (`master`, etc.) | QA | QA DB |
-| **deploy-preview** | Pull request created | QA | QA DB |
+| Context            | Triggered By                              | Environment | Database      |
+| ------------------ | ----------------------------------------- | ----------- | ------------- |
+| **production**     | Push to `prod` branch                     | Production  | Production DB |
+| **branch-deploy**  | Push to any other branch (`master`, etc.) | QA          | QA DB         |
+| **deploy-preview** | Pull request created                      | QA          | QA DB         |
 
 **Production Branch:** Defined in `netlify.toml` (currently: `prod`)
 
@@ -142,12 +149,12 @@ git push origin prod
 
 ## Environment Variable Scopes
 
-| Scope | Purpose | When Applied |
-|-------|---------|--------------|
-| **Production** | Live site | Deploys from `prod` branch |
-| **Deploy previews** | PR testing | Any pull request |
-| **Branch deploys** | Branch testing | Deploys from non-production branches |
-| **All** | Same value everywhere | Avoid for INSTANTDB_APP_ID |
+| Scope               | Purpose               | When Applied                         |
+| ------------------- | --------------------- | ------------------------------------ |
+| **Production**      | Live site             | Deploys from `prod` branch           |
+| **Deploy previews** | PR testing            | Any pull request                     |
+| **Branch deploys**  | Branch testing        | Deploys from non-production branches |
+| **All**             | Same value everywhere | Avoid for INSTANTDB_APP_ID           |
 
 ⚠️ **Common Mistake:** Setting "All" scope means QA and Production share the same database!
 
@@ -155,13 +162,13 @@ git push origin prod
 
 ## Troubleshooting at a Glance
 
-| Problem | Quick Fix |
-|---------|-----------|
-| **Both environments use same DB** | Check scopes in Netlify dashboard - Production should be separate |
+| Problem                                     | Quick Fix                                                          |
+| ------------------------------------------- | ------------------------------------------------------------------ |
+| **Both environments use same DB**           | Check scopes in Netlify dashboard - Production should be separate  |
 | **Build fails: "INSTANTDB_APP_ID not set"** | Run: `netlify env:set INSTANTDB_APP_ID "..." --context production` |
-| **Wrong database being used** | Verify branch name matches `netlify.toml` production branch |
-| **Local dev uses production DB** | Create `.env` file with QA App ID |
-| **Can't remember which App ID is which** | Check app names in InstantDB dashboard |
+| **Wrong database being used**               | Verify branch name matches `netlify.toml` production branch        |
+| **Local dev uses production DB**            | Create `.env` file with QA App ID                                  |
+| **Can't remember which App ID is which**    | Check app names in InstantDB dashboard                             |
 
 ---
 
@@ -209,16 +216,19 @@ Before going live, verify:
 ## Security Notes
 
 ✅ **Safe to commit:**
+
 - `netlify.toml` with branch configuration
 - `build.js` and `dev.js` scripts
 - Documentation files
 
 ❌ **Never commit:**
+
 - `.env` file (contains App IDs)
 - Actual App ID values in README/docs
 - Environment variables for private data
 
 ⚠️ **App IDs in netlify.toml:**
+
 - Only if repository is private
 - Otherwise use Netlify dashboard or CLI
 
@@ -236,24 +246,29 @@ Before going live, verify:
 ## Pro Tips
 
 💡 **Use descriptive App names in InstantDB**
-   - "Superbowl QA" and "Superbowl Production"
-   - Makes it obvious which is which
+
+- "Superbowl QA" and "Superbowl Production"
+- Makes it obvious which is which
 
 💡 **Protect your production branch**
-   - Enable branch protection on `prod` in GitHub
-   - Require PR reviews before merging
+
+- Enable branch protection on `prod` in GitHub
+- Require PR reviews before merging
 
 💡 **Check deploy logs**
-   - Build log shows which App ID is being used
-   - Look for: "Using InstantDB App ID: ..."
+
+- Build log shows which App ID is being used
+- Look for: "Using InstantDB App ID: ..."
 
 💡 **Test in QA first**
-   - Always test changes on `master` before promoting to `prod`
-   - Share `master--yoursite.netlify.app` with QA testers
+
+- Always test changes on `master` before promoting to `prod`
+- Share `master--yoursite.netlify.app` with QA testers
 
 💡 **Use different test data**
-   - Create obviously fake leagues in QA ("TEST LEAGUE")
-   - Makes it clear which environment you're in
+
+- Create obviously fake leagues in QA ("TEST LEAGUE")
+- Makes it clear which environment you're in
 
 ---
 

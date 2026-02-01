@@ -177,8 +177,19 @@ const sampleQuestions: Question[] = [
 ];
 
 describe('validateAnswer', () => {
-  const radioQuestion: Question = { id: 'winner', label: 'Who wins?', type: 'radio', options: ['Seahawks', 'Patriots'], points: 5 };
-  const numberQuestion: Question = { id: 'totalTDs', label: 'Total TDs?', type: 'number', points: 5 };
+  const radioQuestion: Question = {
+    id: 'winner',
+    label: 'Who wins?',
+    type: 'radio',
+    options: ['Seahawks', 'Patriots'],
+    points: 5,
+  };
+  const numberQuestion: Question = {
+    id: 'totalTDs',
+    label: 'Total TDs?',
+    type: 'number',
+    points: 5,
+  };
 
   it('rejects undefined value', () => {
     const result = validateAnswer(radioQuestion, undefined);
@@ -205,7 +216,13 @@ describe('validateAnswer', () => {
   });
 
   it('accepts radio answer with spaces converted to dashes', () => {
-    const q: Question = { id: 'margin', label: 'Margin?', type: 'radio', options: ['1-7', '8-14'], points: 5 };
+    const q: Question = {
+      id: 'margin',
+      label: 'Margin?',
+      type: 'radio',
+      options: ['1-7', '8-14'],
+      points: 5,
+    };
     expect(validateAnswer(q, '1-7')).toEqual({ valid: true });
   });
 

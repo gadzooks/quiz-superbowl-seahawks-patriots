@@ -52,7 +52,7 @@
   cursor: default;
 }
 
-.submissions-closed input[type="number"] {
+.submissions-closed input[type='number'] {
   background: var(--color-background-alt) !important;
   border-color: #5a5a5a !important;
   cursor: default;
@@ -72,8 +72,8 @@
 
 .correct-answer-indicator.correct {
   background: rgba(51, 242, 0, 0.15);
-  border: 2px solid #33F200;
-  color: #33F200;
+  border: 2px solid #33f200;
+  color: #33f200;
 }
 
 .correct-answer-indicator.incorrect {
@@ -89,7 +89,7 @@
 
 .user-answer-correct {
   background-color: #003320 !important;
-  border-color: #33F200 !important;
+  border-color: #33f200 !important;
   box-shadow: 0 0 0 3px rgba(51, 242, 0, 0.3) !important;
 }
 
@@ -115,49 +115,49 @@
 .answer-item {
   padding: 16px 20px !important;
   margin: 8px 0 !important;
-  background-color: #00203B !important;
+  background-color: #00203b !important;
   border-radius: 10px !important;
   font-size: 18px !important;
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  color: #A5ACAF !important;
-  border: 1px solid #6B7280 !important;
+  color: #a5acaf !important;
+  border: 1px solid #6b7280 !important;
   font-weight: 400 !important;
 }
 
 .answer-item span {
-  color: #A5ACAF !important;
+  color: #a5acaf !important;
 }
 
 .answer-item.correct {
   background-color: #002418 !important;
-  border: 1px solid #4A9D2A !important;
-  border-left: 4px solid #4A9D2A !important;
+  border: 1px solid #4a9d2a !important;
+  border-left: 4px solid #4a9d2a !important;
 }
 
 .answer-item.correct span {
-  color: #6BBE42 !important;
+  color: #6bbe42 !important;
 }
 
 .answer-item.incorrect {
   background-color: #250808 !important;
-  border: 1px solid #B85454 !important;
-  border-left: 4px solid #B85454 !important;
+  border: 1px solid #b85454 !important;
+  border-left: 4px solid #b85454 !important;
 }
 
 .answer-item.incorrect span {
-  color: #CC8888 !important;
+  color: #cc8888 !important;
 }
 
 /* Team name edit button */
 .team-name-edit-btn {
   background: rgba(51, 242, 0, 0.15);
-  border: 1px solid #33F200;
+  border: 1px solid #33f200;
   border-radius: 6px;
   padding: 4px 10px;
   font-size: 12px;
-  color: #33F200;
+  color: #33f200;
   cursor: pointer;
   transition: all 0.2s ease;
   margin-left: 8px;
@@ -166,8 +166,8 @@
 
 .team-name-edit-btn:hover {
   background: rgba(51, 242, 0, 0.3);
-  border-color: #33F200;
-  color: #FFFFFF;
+  border-color: #33f200;
+  color: #ffffff;
 }
 
 /* Delete team button */

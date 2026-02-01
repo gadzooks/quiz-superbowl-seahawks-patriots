@@ -2,13 +2,13 @@
 // Users can select their favorite team to personalize the app's appearance
 
 export interface TeamTheme {
-  name: string;        // Display name
-  primary: string;     // Main accent color (buttons, highlights)
-  secondary: string;   // Secondary color
-  background: string;  // Background color
+  name: string; // Display name
+  primary: string; // Main accent color (buttons, highlights)
+  secondary: string; // Secondary color
+  background: string; // Background color
   backgroundAlt: string; // Alternate background (cards, inputs)
-  text: string;        // Primary text color
-  textMuted: string;   // Secondary/muted text
+  text: string; // Primary text color
+  textMuted: string; // Secondary/muted text
 }
 
 /**

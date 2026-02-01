@@ -37,7 +37,8 @@ export function showLeagueCreation(): void {
   // Set up form handler using window-exposed function
   const form = document.getElementById('leagueForm') as HTMLFormElement | null;
   if (form) {
-    const handleLeagueCreation = (window as Window & { handleLeagueCreation?: (e: Event) => void }).handleLeagueCreation;
+    const handleLeagueCreation = (window as Window & { handleLeagueCreation?: (e: Event) => void })
+      .handleLeagueCreation;
     if (handleLeagueCreation) {
       form.onsubmit = handleLeagueCreation;
     }

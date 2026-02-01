@@ -1,11 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  getGameConfig,
-  isValidGameId,
-  getAvailableGameIds,
-  DEFAULT_GAME_ID,
-  GAMES,
-} from './games';
+import { getGameConfig, isValidGameId, getAvailableGameIds, DEFAULT_GAME_ID, GAMES } from './games';
 
 describe('config/games', () => {
   describe('GAMES registry', () => {

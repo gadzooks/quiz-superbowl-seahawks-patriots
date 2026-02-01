@@ -2,7 +2,12 @@
 // Handle league creation and management
 
 import { validateLeagueName, toLeagueSlug } from '../services/validation';
-import { createLeague, leagueExists, updateLeagueStatus, updateShowAllPredictions } from '../db/queries';
+import {
+  createLeague,
+  leagueExists,
+  updateLeagueStatus,
+  updateShowAllPredictions,
+} from '../db/queries';
 import { getState } from '../state/store';
 import { getCurrentGameId } from '../utils/game';
 import { showToast } from '../ui/toast';

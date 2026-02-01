@@ -8,12 +8,12 @@ html {
 
   /* Theme colors - set dynamically via JavaScript for team theming */
   /* Defaults to Seattle Seahawks theme */
-  --color-primary: #33F200;
-  --color-secondary: #00203B;
-  --color-background: #00203B;
+  --color-primary: #33f200;
+  --color-secondary: #00203b;
+  --color-background: #00203b;
   --color-background-alt: #001a30;
-  --color-text: #FFFFFF;
-  --color-text-muted: #9DA2A3;
+  --color-text: #ffffff;
+  --color-text-muted: #9da2a3;
 
   /* Derived colors */
   --color-input-bg: #002a4a;
@@ -34,14 +34,34 @@ body {
 }
 
 /* Utility classes */
-.bg-base-100 { background-color: var(--color-background); }
-.bg-base-200 { background-color: var(--color-background-alt); }
-.bg-base-300 { background-color: #001525; }
-.text-primary { color: var(--color-primary); }
-.shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3), 0 4px 6px -4px rgba(0,0,0,0.3); }
-.shadow-xl { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3), 0 8px 10px -6px rgba(0,0,0,0.3); }
-.ring-2 { box-shadow: 0 0 0 2px var(--ring-color, var(--color-primary)); }
-.ring-success { --ring-color: var(--color-primary); }
+.bg-base-100 {
+  background-color: var(--color-background);
+}
+.bg-base-200 {
+  background-color: var(--color-background-alt);
+}
+.bg-base-300 {
+  background-color: #001525;
+}
+.text-primary {
+  color: var(--color-primary);
+}
+.shadow-lg {
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.3),
+    0 4px 6px -4px rgba(0, 0, 0, 0.3);
+}
+.shadow-xl {
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.3),
+    0 8px 10px -6px rgba(0, 0, 0, 0.3);
+}
+.ring-2 {
+  box-shadow: 0 0 0 2px var(--ring-color, var(--color-primary));
+}
+.ring-success {
+  --ring-color: var(--color-primary);
+}
 
 /* Hidden utility */
 .hidden {

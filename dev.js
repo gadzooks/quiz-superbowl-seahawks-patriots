@@ -13,7 +13,7 @@ const http = require('http');
 const envPath = path.join(__dirname, '.env');
 if (fs.existsSync(envPath)) {
   const envContent = fs.readFileSync(envPath, 'utf8');
-  envContent.split('\n').forEach(line => {
+  envContent.split('\n').forEach((line) => {
     const match = line.match(/^([^=]+)=(.*)$/);
     if (match) {
       const key = match[1].trim();
@@ -82,7 +82,7 @@ if (fs.existsSync(imagesDir)) {
   }
   // Copy all files from images folder
   const imageFiles = fs.readdirSync(imagesDir);
-  imageFiles.forEach(file => {
+  imageFiles.forEach((file) => {
     const srcPath = path.join(imagesDir, file);
     const destPath = path.join(imagesOutputDir, file);
     if (fs.statSync(srcPath).isFile()) {

@@ -28,7 +28,7 @@
 
 .btn-ghost {
   background: transparent;
-  color: #C4C4C4;
+  color: #c4c4c4;
 }
 
 .btn-ghost:hover {
@@ -54,7 +54,7 @@
 /* Delete button variant */
 .btn-delete {
   background-color: #ff6b6b !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
   border: none !important;
 }
 

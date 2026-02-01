@@ -3,16 +3,19 @@
 ## Requested Features - All Completed ✅
 
 ### 1. ✅ Unique Team Names (Case-Insensitive)
+
 **Status:** Implemented in `index.html:752-777`
 
 Users cannot create duplicate team names within a league (case-insensitive).
 
 **How it works:**
+
 - Before saving a team name, checks all existing teams in the league
 - Comparison: `p.teamName.toLowerCase() === teamName.toLowerCase()`
 - Shows alert if duplicate: "This team name is already taken. Please choose a different name."
 
 **Example:**
+
 ```
 Existing: "Team One"
 Blocked:  "team one", "TEAM ONE", "Team ONE"
@@ -22,16 +25,19 @@ Allowed:  "Team Two"
 ---
 
 ### 2. ✅ Unique League Names (Case-Insensitive)
+
 **Status:** Implemented in `index.html:656-693`
 
 Prevents creating leagues with duplicate slugs.
 
 **How it works:**
+
 - League slug is created from name: `name.toLowerCase().replace(/[^a-z0-9]+/g, '-')`
 - Before creating, queries database for existing league with same slug
 - Shows alert if duplicate: "A league with this name already exists. Please choose a different name."
 
 **Example:**
+
 ```
 First league:  "Test League" → slug: "test-league" ✓
 Blocked:       "test league" → slug: "test-league" ✗
@@ -42,16 +48,19 @@ Allowed:       "Test League 2" → slug: "test-league-2" ✓
 ---
 
 ### 3. ✅ Admin Override Parameter
+
 **Status:** Implemented in `index.html:610-614, 636`
 
 Anyone can get admin access by adding `?isAdmin=true` to the URL.
 
 **How it works:**
+
 - Parses URL parameter: `urlParams.get('isAdmin') === 'true'`
 - Updates admin check: `isLeagueCreator = creatorId === userId || isAdminOverride`
 - Admin panel shows for league creator OR anyone with isAdmin=true
 
 **Usage:**
+
 ```
 Regular user:
 https://your-site.com?league=my-league
@@ -61,6 +70,7 @@ https://your-site.com?league=my-league&isAdmin=true
 ```
 
 **Use cases:**
+
 - Testing admin features without creating the league
 - Multiple administrators
 - Remote support/troubleshooting
@@ -69,16 +79,19 @@ https://your-site.com?league=my-league&isAdmin=true
 ---
 
 ### 4. ✅ Build Validation and Tests
+
 **Status:** Implemented in `netlify.toml:14-56` and `package.json:8`
 
 Build now validates environment before deploying.
 
 **Build command chain:**
+
 ```bash
 node validate-netlify-env.js && npm test && node build.js
 ```
 
 **What it does:**
+
 1. **Validation** (`validate-netlify-env.js`):
    - Checks INSTANTDB_APP_ID is set
    - Validates App ID format (UUID)
@@ -95,12 +108,14 @@ node validate-netlify-env.js && npm test && node build.js
    - Creates production files
 
 **Benefits:**
+
 - Catches configuration errors early
 - Clear error messages in build logs
 - Fails fast if something is wrong
 - Same validation across all environments
 
 **Applies to:**
+
 - Production deploys (prod branch)
 - Branch deploys (master, features)
 - Deploy previews (PRs)
@@ -110,6 +125,7 @@ node validate-netlify-env.js && npm test && node build.js
 ## Testing Instructions
 
 ### Test Unique Team Names
+
 1. Open league: `http://localhost:8080?league=test`
 2. Create team: "Seahawks Fans"
 3. Open in incognito/new browser
@@ -117,11 +133,13 @@ node validate-netlify-env.js && npm test && node build.js
 5. Should see: "This team name is already taken"
 
 ### Test Unique League Names
+
 1. Create league: "Super Bowl 2026"
 2. Create another: "super bowl 2026"
 3. Should see: "A league with this name already exists"
 
 ### Test Admin Override
+
 ```bash
 # Without admin (regular user view)
 http://localhost:8080?league=test
@@ -131,6 +149,7 @@ http://localhost:8080?league=test&isAdmin=true
 ```
 
 ### Test Build Validation
+
 ```bash
 # Test locally (should pass)
 node validate-netlify-env.js && npm test
@@ -180,6 +199,7 @@ All changes are **100% backwards compatible**:
 ✅ No breaking changes
 
 **Note on existing duplicates:**
+
 - If you already have duplicate team/league names, they will continue to work
 - New duplicates will be blocked
 - Consider manually renaming for clarity
@@ -191,6 +211,7 @@ All changes are **100% backwards compatible**:
 When you push these changes to Netlify:
 
 1. **Build will validate environment first**
+
    ```
    Building...
    ✓ INSTANTDB_APP_ID is set and valid
@@ -211,15 +232,18 @@ When you push these changes to Netlify:
 ## Security Notes
 
 ### Admin Parameter
+
 The `?isAdmin=true` parameter is intentionally simple for ease of use with trusted users (family/friends).
 
 **For production apps with sensitive data:**
+
 - Add authentication (OAuth, JWT, etc.)
 - Implement role-based access control
 - Use secure session management
 - Add admin password requirement
 
 **Current design is appropriate for:**
+
 - Private leagues among friends/family
 - Small trusted groups
 - Non-sensitive prediction games
@@ -260,6 +284,7 @@ Potential improvements for the future:
 ## Support
 
 For questions or issues:
+
 1. Check CHANGELOG.md for detailed behavior
 2. Review CLAUDE.md for architecture
 3. Run validation: `node validate-netlify-env.js`

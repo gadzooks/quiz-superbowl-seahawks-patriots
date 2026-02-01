@@ -90,9 +90,7 @@ export function setHasShownCompletionCelebration(shown: boolean): void {
   notifyListeners();
 }
 
-export function setPreviousActualResults(
-  results: Record<string, string | number> | null
-): void {
+export function setPreviousActualResults(results: Record<string, string | number> | null): void {
   state = { ...state, previousActualResults: results };
   notifyListeners();
 }

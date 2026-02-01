@@ -21,9 +21,10 @@ export function renderResultsForm(): void {
   let html = '';
 
   questions.forEach((q, index) => {
-    const hasValue = currentLeague.actualResults?.[q.id] !== undefined &&
-                     currentLeague.actualResults?.[q.id] !== null &&
-                     currentLeague.actualResults?.[q.id] !== '';
+    const hasValue =
+      currentLeague.actualResults?.[q.id] !== undefined &&
+      currentLeague.actualResults?.[q.id] !== null &&
+      currentLeague.actualResults?.[q.id] !== '';
 
     html += `<div class="question-card" style="background: #1a0f0f; border: 1px solid #e5737340; border-left: 4px solid #e57373;">`;
     html += `<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
@@ -36,7 +37,7 @@ export function renderResultsForm(): void {
     </div>`;
 
     if (q.type === 'radio' && q.options) {
-      q.options.forEach(option => {
+      q.options.forEach((option) => {
         const value = option.toLowerCase().replace(/\s+/g, '-');
         const checked = currentLeague.actualResults?.[q.id] === value ? 'checked' : '';
         const selectedStyle = checked
@@ -74,8 +75,10 @@ export function renderResultsForm(): void {
  * Attach auto-save listeners to results form inputs.
  */
 function attachResultsAutoSaveListeners(form: HTMLFormElement): void {
-  const inputs = form.querySelectorAll<HTMLInputElement>('input[type="radio"], input[type="number"]');
-  inputs.forEach(input => {
+  const inputs = form.querySelectorAll<HTMLInputElement>(
+    'input[type="radio"], input[type="number"]'
+  );
+  inputs.forEach((input) => {
     input.addEventListener('change', handleResultsAutoSave);
   });
 }
@@ -107,7 +110,7 @@ async function handleResultsAutoSave(): Promise<void> {
     const formData = new FormData(form);
     const actualResults: Record<string, string | number> = {};
 
-    questions.forEach(q => {
+    questions.forEach((q) => {
       const value = formData.get(`result-${q.id}`);
       if (value !== null && value !== '') {
         if (q.type === 'number') {
@@ -124,7 +127,9 @@ async function handleResultsAutoSave(): Promise<void> {
       if (statusDiv) {
         statusDiv.textContent = '✓ Saved & scores updated';
         statusDiv.style.color = 'var(--color-primary)';
-        setTimeout(() => { statusDiv.textContent = ''; }, 2000);
+        setTimeout(() => {
+          statusDiv.textContent = '';
+        }, 2000);
       }
 
       // Update leaderboard
@@ -159,7 +164,9 @@ export async function clearResult(questionId: string): Promise<void> {
     if (statusDiv) {
       statusDiv.textContent = '✓ Result cleared and scores updated';
       statusDiv.style.color = 'var(--color-primary)';
-      setTimeout(() => { statusDiv.textContent = ''; }, 2000);
+      setTimeout(() => {
+        statusDiv.textContent = '';
+      }, 2000);
     }
 
     // Re-render
@@ -183,7 +190,8 @@ export async function recalculateAllScores(): Promise<void> {
 
   if (!currentLeague?.actualResults || Object.keys(currentLeague.actualResults).length === 0) {
     if (statusDiv) {
-      statusDiv.innerHTML = '<div class="alert alert-warning"><span>⚠️ No results entered yet. Please enter actual results first.</span></div>';
+      statusDiv.innerHTML =
+        '<div class="alert alert-warning"><span>⚠️ No results entered yet. Please enter actual results first.</span></div>';
     }
     return;
   }
@@ -194,7 +202,8 @@ export async function recalculateAllScores(): Promise<void> {
       btn.textContent = '⏳ Recalculating...';
     }
     if (statusDiv) {
-      statusDiv.innerHTML = '<div style="color: var(--color-text-muted); text-align: center; padding: 10px;">Recalculating scores for all participants...</div>';
+      statusDiv.innerHTML =
+        '<div style="color: var(--color-text-muted); text-align: center; padding: 10px;">Recalculating scores for all participants...</div>';
     }
 
     const { recalculateAllScores: recalculate } = await import('../db/queries');
@@ -217,7 +226,8 @@ export async function recalculateAllScores(): Promise<void> {
     }, 3000);
   } catch (error) {
     if (statusDiv) {
-      statusDiv.innerHTML = '<div class="alert alert-error"><span>✗ Error recalculating scores</span></div>';
+      statusDiv.innerHTML =
+        '<div class="alert alert-error"><span>✗ Error recalculating scores</span></div>';
     }
     if (btn) {
       btn.disabled = false;

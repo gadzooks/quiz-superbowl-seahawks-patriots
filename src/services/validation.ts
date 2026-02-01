@@ -61,7 +61,7 @@ export function isTeamNameUnique(
 ): boolean {
   const normalizedName = name.trim().toLowerCase();
 
-  return !existingPredictions.some(p => {
+  return !existingPredictions.some((p) => {
     // Skip the excluded user (for editing own team name)
     if (excludeUserId && p.userId === excludeUserId) {
       return false;
@@ -108,11 +108,17 @@ export function validateLeagueName(name: string): ValidationResult {
   }
 
   if (trimmed.length < LEAGUE_NAME_MIN_LENGTH) {
-    return { valid: false, error: `League name must be at least ${LEAGUE_NAME_MIN_LENGTH} characters` };
+    return {
+      valid: false,
+      error: `League name must be at least ${LEAGUE_NAME_MIN_LENGTH} characters`,
+    };
   }
 
   if (trimmed.length > LEAGUE_NAME_MAX_LENGTH) {
-    return { valid: false, error: `League name must be at most ${LEAGUE_NAME_MAX_LENGTH} characters` };
+    return {
+      valid: false,
+      error: `League name must be at most ${LEAGUE_NAME_MAX_LENGTH} characters`,
+    };
   }
 
   return { valid: true };
@@ -137,7 +143,10 @@ export function toLeagueSlug(name: string): string {
  * @param question - The question being answered
  * @param value - The user's answer (string from form)
  */
-export function validateAnswer(question: Question, value: string | undefined | null): ValidationResult {
+export function validateAnswer(
+  question: Question,
+  value: string | undefined | null
+): ValidationResult {
   // Treat undefined, null, or empty string as unanswered
   if (value === undefined || value === null || value === '') {
     return { valid: false, error: 'This question is required' };
@@ -166,9 +175,7 @@ export function validateAnswer(question: Question, value: string | undefined | n
   if (question.type === 'radio' && question.options) {
     // Convert value to slug format for comparison
     const slug = trimmed.toLowerCase().replace(/\s+/g, '-');
-    const validOptions = question.options.map(opt =>
-      opt.toLowerCase().replace(/\s+/g, '-')
-    );
+    const validOptions = question.options.map((opt) => opt.toLowerCase().replace(/\s+/g, '-'));
     if (!validOptions.includes(slug)) {
       return { valid: false, error: 'Please select a valid option' };
     }

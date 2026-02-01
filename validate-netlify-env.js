@@ -262,13 +262,12 @@ function listAllEnvVars() {
     ];
 
     log('\nNetlify & Build Variables:', 'bright');
-    relevantVars.forEach(varName => {
+    relevantVars.forEach((varName) => {
       const value = process.env[varName];
       if (value) {
         // Mask sensitive values
-        const displayValue = varName === 'INSTANTDB_APP_ID'
-          ? `${value.substring(0, 8)}...[masked]`
-          : value;
+        const displayValue =
+          varName === 'INSTANTDB_APP_ID' ? `${value.substring(0, 8)}...[masked]` : value;
         log(`   ${varName}=${displayValue}`, 'cyan');
       }
     });

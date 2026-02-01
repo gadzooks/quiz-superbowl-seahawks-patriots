@@ -5,47 +5,55 @@
 ### New Features
 
 #### 1. Unique Team Names (Case-Insensitive)
+
 **Location:** `index.html:752-777`
 
 Team names must now be unique within a league (case-insensitive comparison).
 
 **Behavior:**
+
 - When a user submits a team name, the app checks if it already exists
 - Comparison is case-insensitive: "Team One" === "team one" === "TEAM ONE"
 - If duplicate found, shows alert: "This team name is already taken. Please choose a different name."
 - Prevents confusion and ensures leaderboard clarity
 
 **Implementation:**
+
 ```javascript
-const teamNameExists = allPredictions.some(p =>
-    p.teamName.toLowerCase() === teamName.toLowerCase()
+const teamNameExists = allPredictions.some(
+  (p) => p.teamName.toLowerCase() === teamName.toLowerCase()
 );
 ```
 
 #### 2. Unique League Names (Case-Insensitive)
+
 **Location:** `index.html:656-693`
 
 League names must now be unique (via slug comparison).
 
 **Behavior:**
+
 - When creating a league, checks if slug already exists
 - Slug is created by lowercasing name and replacing spaces with hyphens
 - If duplicate found, shows alert: "A league with this name already exists. Please choose a different name."
 - Prevents multiple leagues with same or similar names
 
 **Implementation:**
+
 ```javascript
 const existingLeague = await db.queryOnce({
-    leagues: { $: { where: { slug: leagueSlug } } }
+  leagues: { $: { where: { slug: leagueSlug } } },
 });
 ```
 
 #### 3. Admin Override URL Parameter
+
 **Location:** `index.html:610-614, 636`
 
 New URL parameter `?isAdmin=true` grants admin access to anyone.
 
 **Behavior:**
+
 - Add `?isAdmin=true` to any league URL to get admin access
 - Works alongside the league creator check
 - Useful for:
@@ -55,12 +63,14 @@ New URL parameter `?isAdmin=true` grants admin access to anyone.
   - Delegating admin duties
 
 **Usage:**
+
 ```
 Normal user: https://site.com?league=my-league
 Admin access: https://site.com?league=my-league&isAdmin=true
 ```
 
 **Implementation:**
+
 ```javascript
 const isAdminOverride = urlParams.get('isAdmin') === 'true';
 isLeagueCreator = currentLeague.creatorId === currentUserId || isAdminOverride;
@@ -71,16 +81,19 @@ isLeagueCreator = currentLeague.creatorId === currentUserId || isAdminOverride;
 ### Build Process Improvements
 
 #### 4. Environment Validation in Build
+
 **Location:** `netlify.toml:14-56`
 
 Build now runs validation before deploying.
 
 **Build Command:**
+
 ```bash
 node validate-netlify-env.js && npm test && node build.js
 ```
 
 **Benefits:**
+
 - Catches missing/invalid INSTANTDB_APP_ID before deploy
 - Validates environment configuration
 - Runs tests (when available)
@@ -88,21 +101,25 @@ node validate-netlify-env.js && npm test && node build.js
 - Clear error messages for debugging
 
 **Applies to all deploy contexts:**
+
 - Production (`prod` branch)
 - Branch deploys (`master`, feature branches)
 - Deploy previews (pull requests)
 
 #### 5. Improved Test Script
+
 **Location:** `package.json:8`
 
 Updated test command to exit cleanly.
 
 **Before:**
+
 ```json
 "test": "echo 'Open the app and go to Admin tab → Test Scoring Logic'"
 ```
 
 **After:**
+
 ```json
 "test": "echo 'No automated tests configured. Manual testing: Open app and go to Admin tab → Test Scoring Logic' && exit 0"
 ```
@@ -112,9 +129,11 @@ Updated test command to exit cleanly.
 ### Documentation Updates
 
 #### 6. Updated CLAUDE.md
+
 **Location:** `CLAUDE.md:33-43`
 
 Added documentation for new features:
+
 - Unique team names requirement
 - Unique league names requirement
 - `?isAdmin=true` URL parameter
@@ -123,6 +142,7 @@ Added documentation for new features:
 ## Testing the Changes
 
 ### Test Unique Team Names
+
 1. Open league: `?league=test-league`
 2. Enter team name: "Team One"
 3. Open in new browser (or incognito)
@@ -130,17 +150,20 @@ Added documentation for new features:
 5. Should show error: "This team name is already taken"
 
 ### Test Unique League Names
+
 1. Create league: "Test League"
 2. Try to create another: "test-league" or "Test League"
 3. Should show error: "A league with this name already exists"
 
 ### Test Admin Override
+
 1. Open league as non-creator: `?league=test-league`
 2. Should see user panel (no admin tab)
 3. Add admin parameter: `?league=test-league&isAdmin=true`
 4. Should see admin panel with admin tab
 
 ### Test Build Validation
+
 ```bash
 # Test full build chain
 node validate-netlify-env.js && npm test && echo "Build would succeed"
@@ -153,20 +176,26 @@ node validate-netlify-env.js  # Should fail with clear error
 ## Migration Notes
 
 ### No Breaking Changes
+
 All changes are backwards compatible:
+
 - Existing teams keep their names
 - Existing leagues keep their names
 - No database migrations needed
 - URLs work the same way
 
 ### Existing Duplicate Teams
+
 If you already have duplicate team names (e.g., created before this update):
+
 - They will continue to work
 - New users cannot create duplicates
 - Consider manually renaming duplicates for clarity
 
 ### Existing Duplicate Leagues
+
 If you already have duplicate league slugs:
+
 - They will continue to work
 - New leagues with same slug will be blocked
 - Each league has a unique ID, so they're technically separate
@@ -190,6 +219,7 @@ No Breaking Changes:
 ## Future Enhancements
 
 Potential future improvements:
+
 1. **Automated Tests**: Add proper unit/integration tests
 2. **Team Name Editing**: Allow users to change their team name (with uniqueness check)
 3. **League Name Editing**: Allow creators to rename leagues (with uniqueness check)
@@ -202,12 +232,14 @@ Potential future improvements:
 If you need to rollback these changes:
 
 1. **Revert index.html changes:**
+
    ```bash
    git log --oneline index.html  # Find commit before changes
    git checkout <commit-hash> index.html
    ```
 
 2. **Revert netlify.toml:**
+
    ```bash
    git checkout <commit-hash> netlify.toml
    ```

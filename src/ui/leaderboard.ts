@@ -106,8 +106,7 @@ export function renderLeaderboard(): void {
 
   // Check if any scores have been calculated
   const hasScores =
-    state.currentLeague.actualResults &&
-    Object.keys(state.currentLeague.actualResults).length > 0;
+    state.currentLeague.actualResults && Object.keys(state.currentLeague.actualResults).length > 0;
 
   // Sort by score (desc), then tiebreak diff (asc), then team name (alphabetic)
   const sorted = sortLeaderboard(teamsWithPredictions);
@@ -117,10 +116,7 @@ export function renderLeaderboard(): void {
   // Count how many questions admin has answered
   const gameConfig = getCurrentGameConfig();
   const questions = getQuestionsForGame(gameConfig);
-  const answeredCount = countAnsweredQuestions(
-    state.currentLeague.actualResults,
-    questions
-  );
+  const answeredCount = countAnsweredQuestions(state.currentLeague.actualResults, questions);
   const totalQuestions = questions.length;
 
   // Show status message about admin progress

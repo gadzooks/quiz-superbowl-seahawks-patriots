@@ -2,10 +2,10 @@
 // Each Super Bowl (LX, LXI, etc.) has its own configuration
 
 export interface GameConfig {
-  gameId: string;           // e.g., "lx", "lxi" - used in URLs and database
-  displayName: string;      // e.g., "Super Bowl LX" - shown in UI
-  year: number;             // e.g., 2026
-  teams: [string, string];  // e.g., ["Seahawks", "Patriots"]
+  gameId: string; // e.g., "lx", "lxi" - used in URLs and database
+  displayName: string; // e.g., "Super Bowl LX" - shown in UI
+  year: number; // e.g., 2026
+  teams: [string, string]; // e.g., ["Seahawks", "Patriots"]
 }
 
 /**

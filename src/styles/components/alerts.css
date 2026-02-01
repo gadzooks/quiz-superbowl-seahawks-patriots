@@ -12,13 +12,13 @@
 .alert-info {
   background-color: rgba(96, 165, 250, 0.2) !important;
   border: 1px solid #60a5fa !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 .alert-success {
   background-color: rgba(51, 242, 0, 0.15) !important;
-  border: 1px solid #33F200 !important;
-  color: #FFFFFF !important;
+  border: 1px solid #33f200 !important;
+  color: #ffffff !important;
 }
 
 .alert-warning {

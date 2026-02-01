@@ -3,13 +3,13 @@
 table,
 .table {
   font-size: 14px !important;
-  background-color: #00203B !important;
+  background-color: #00203b !important;
 }
 
 table th,
 .table th {
-  background-color: #33F200 !important;
-  color: #00203B !important;
+  background-color: #33f200 !important;
+  color: #00203b !important;
   font-weight: 700 !important;
   padding: 12px 8px !important;
   font-size: 13px !important;
@@ -18,15 +18,15 @@ table th,
 table td,
 .table td {
   background-color: #002a4a !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
   padding: 10px 8px !important;
-  border-color: #9DA2A3 !important;
+  border-color: #9da2a3 !important;
   font-size: 14px !important;
 }
 
 table thead,
 .table thead {
-  background-color: #33F200 !important;
+  background-color: #33f200 !important;
 }
 
 table tbody tr,

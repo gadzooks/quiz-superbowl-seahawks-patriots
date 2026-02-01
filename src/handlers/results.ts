@@ -83,9 +83,11 @@ export async function handleResultsAutoSave(form: HTMLFormElement): Promise<void
  * Initialize auto-save listeners on a results form.
  */
 export function initResultsAutoSave(form: HTMLFormElement): void {
-  const inputs = form.querySelectorAll<HTMLInputElement>('input[type="radio"], input[type="number"]');
+  const inputs = form.querySelectorAll<HTMLInputElement>(
+    'input[type="radio"], input[type="number"]'
+  );
 
-  inputs.forEach(input => {
+  inputs.forEach((input) => {
     input.addEventListener('change', () => handleResultsAutoSave(form));
   });
 }

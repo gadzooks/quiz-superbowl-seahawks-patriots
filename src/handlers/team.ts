@@ -51,7 +51,9 @@ export async function handleTeamNameSubmit(
 /**
  * Handle team name form submission.
  */
-export async function handleTeamNameForm(e: Event): Promise<{ success: boolean; teamName?: string }> {
+export async function handleTeamNameForm(
+  e: Event
+): Promise<{ success: boolean; teamName?: string }> {
   e.preventDefault();
 
   const form = e.target as HTMLFormElement;
@@ -94,10 +96,10 @@ export async function handleTeamNameChange(
   let oldName: string;
 
   if (predictionId && isAdminEdit) {
-    prediction = allPredictions.find(p => p.id === predictionId);
+    prediction = allPredictions.find((p) => p.id === predictionId);
     oldName = prediction?.teamName || '';
   } else {
-    prediction = allPredictions.find(p => p.userId === currentUserId);
+    prediction = allPredictions.find((p) => p.userId === currentUserId);
     oldName = currentTeamName;
   }
 
@@ -174,10 +176,7 @@ export async function handleTeamNameEditForm(
  * Delete a team (prediction).
  * Admin only - with confirmation.
  */
-export async function handleDeleteTeam(
-  predictionId: string,
-  teamName: string
-): Promise<boolean> {
+export async function handleDeleteTeam(predictionId: string, teamName: string): Promise<boolean> {
   const confirmMessage = `⚠️ Delete "${teamName}"?\n\nThis will permanently remove this team and all their predictions.\n\nThis cannot be undone.`;
 
   if (!confirm(confirmMessage)) {
@@ -206,7 +205,7 @@ export async function handleToggleManager(
   const newStatus = !currentIsManager;
   const action = newStatus ? 'grant manager access to' : 'remove manager access from';
 
-  const prediction = getState().allPredictions.find(p => p.id === predictionId);
+  const prediction = getState().allPredictions.find((p) => p.id === predictionId);
   const teamName = prediction?.teamName || 'this team';
 
   const confirmMessage = `${newStatus ? '👑' : '🔒'} ${action.charAt(0).toUpperCase() + action.slice(1)} "${teamName}"?\n\nManagers can enter game results but cannot modify other admin settings.`;

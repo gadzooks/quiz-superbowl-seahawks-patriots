@@ -22,27 +22,27 @@
 }
 
 .badge-primary {
-  background-color: #33F200 !important;
-  color: #00203B !important;
+  background-color: #33f200 !important;
+  color: #00203b !important;
   font-weight: 600 !important;
 }
 
 .badge-success {
-  background-color: #33F200 !important;
-  color: #00203B !important;
+  background-color: #33f200 !important;
+  color: #00203b !important;
 }
 
 .badge-warning {
   background: #fbbf24;
-  color: #00203B;
+  color: #00203b;
 }
 
 .badge-error {
   background-color: #ff6b6b !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 .badge-ghost {
   background: rgba(255, 255, 255, 0.1);
-  color: #C4C4C4;
+  color: #c4c4c4;
 }
