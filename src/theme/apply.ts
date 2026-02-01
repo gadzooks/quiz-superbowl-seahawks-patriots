@@ -3,8 +3,10 @@
 
 import { getTeamTheme, DEFAULT_TEAM_ID, type TeamTheme } from './teams';
 import { CSS_VAR_NAMES, calculateDerivedTokens, type ThemeTokens } from './tokens';
+import { getTeamLogoUrl, NFL_SHIELD_LOGO } from './logos';
 
 const STORAGE_KEY = 'supportedTeam';
+const HEADER_LOGO_ID = 'team-logo';
 
 /**
  * Apply a theme to the document by setting CSS custom properties.
@@ -57,7 +59,28 @@ export function applyTeamTheme(teamId: string): boolean {
   }
 
   applyTheme(theme);
+  updateHeaderLogo(teamId);
   return true;
+}
+
+/**
+ * Update the team logo in the header.
+ */
+function updateHeaderLogo(teamId: string): void {
+  const logoEl = document.getElementById(HEADER_LOGO_ID) as HTMLImageElement | null;
+  if (!logoEl) return;
+
+  const logoUrl = getTeamLogoUrl(teamId);
+  if (logoUrl) {
+    logoEl.src = logoUrl;
+    logoEl.alt = `${teamId} logo`;
+    logoEl.style.display = 'block';
+  } else {
+    // For neutral theme, show NFL shield or hide
+    logoEl.src = NFL_SHIELD_LOGO;
+    logoEl.alt = 'NFL';
+    logoEl.style.display = 'block';
+  }
 }
 
 /**

@@ -10,6 +10,25 @@
   border-bottom: none;
 }
 
+/* Team logo in header (top-left) */
+.team-logo-header {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.team-logo-header:hover {
+  transform: scale(1.1);
+}
+
 .header-content {
   display: flex;
   align-items: center;
@@ -95,18 +114,17 @@
 .sound-toggle {
   position: absolute;
   left: 16px;
-  top: 50%;
-  transform: translateY(-50%);
+  bottom: 24px;
   background: rgba(var(--color-primary-rgb), 0.1);
   border: 2px solid rgba(var(--color-primary-rgb), 0.3);
   border-radius: 50%;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 16px;
   transition: all 0.2s ease;
 }
 
@@ -116,25 +134,24 @@
 }
 
 .sound-toggle:active {
-  transform: translateY(-50%) scale(0.95);
+  transform: scale(0.95);
 }
 
 /* Intro replay button */
 .intro-replay-btn {
   position: absolute;
   right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
+  bottom: 24px;
   background: rgba(var(--color-primary-rgb), 0.1);
   border: 2px solid rgba(var(--color-primary-rgb), 0.3);
   border-radius: 50%;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 16px;
   transition: all 0.2s ease;
 }
 
@@ -144,7 +161,7 @@
 }
 
 .intro-replay-btn:active {
-  transform: translateY(-50%) scale(0.95);
+  transform: scale(0.95);
 }
 
 /* League name in header */
