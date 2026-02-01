@@ -86,6 +86,38 @@
   font-weight: 600;
 }
 
+/* Matchup row with teams on sides of logo */
+.header-matchup-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.header-team {
+  flex: 1;
+  max-width: 120px;
+}
+
+.header-team-left {
+  text-align: right;
+}
+
+.header-team-right {
+  text-align: left;
+}
+
+.team-name-large {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-primary);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(var(--color-primary-rgb), 0.4);
+}
+
+/* Legacy matchup styles (kept for backwards compatibility) */
 .header-matchup {
   width: 100%;
   text-align: center;
@@ -207,7 +239,18 @@
     gap: 4px;
   }
   .header-logo {
-    height: 70px;
+    height: 50px;
+    width: auto;
+  }
+  .header-matchup-row {
+    gap: 8px;
+  }
+  .header-team {
+    max-width: 80px;
+  }
+  .team-name-large {
+    font-size: 12px;
+    letter-spacing: 0.5px;
   }
   .matchup-text {
     font-size: 12px;
