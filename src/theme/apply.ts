@@ -4,6 +4,7 @@
 import { getTeamTheme, DEFAULT_TEAM_ID, type TeamTheme } from './teams';
 import { CSS_VAR_NAMES, calculateDerivedTokens, type ThemeTokens } from './tokens';
 import { getTeamLogoUrl, NFL_SHIELD_LOGO } from './logos';
+import { applyTeamBackground } from './backgrounds';
 
 const STORAGE_KEY = 'supportedTeam';
 const HEADER_LOGO_ID = 'team-logo';
@@ -60,6 +61,7 @@ export function applyTeamTheme(teamId: string): boolean {
 
   applyTheme(theme);
   updateHeaderLogo(teamId);
+  applyTeamBackground(teamId, theme.primary, theme.background);
   return true;
 }
 

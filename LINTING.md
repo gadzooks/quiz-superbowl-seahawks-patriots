@@ -35,12 +35,14 @@ yarn validate
 ### ESLint (`eslint.config.js`)
 
 Using flat config format (ESLint 9):
+
 - TypeScript support with `@typescript-eslint`
 - Prettier integration
 - Browser globals configured
 - Relaxed rules for test files
 
 **Key Rules:**
+
 - Unused vars: Warning (allows `_` prefix)
 - `any` type: Warning (not error)
 - Non-null assertions: Warning
@@ -50,6 +52,7 @@ Using flat config format (ESLint 9):
 ### Prettier (`.prettierrc.json`)
 
 **Settings:**
+
 - Single quotes
 - Semicolons: Yes
 - Print width: 100
@@ -64,11 +67,13 @@ Strict type checking enabled.
 ## Current Status
 
 ### Lint Results
+
 ```
 ✖ 20 problems (0 errors, 20 warnings)
 ```
 
 **Warnings** (acceptable):
+
 - Unused error variables in catch blocks (`_e`)
 - Non-null assertions (DOM elements we know exist)
 - Unused `any` in legacy compatibility code
@@ -76,16 +81,19 @@ Strict type checking enabled.
 All errors resolved! ✅
 
 ### Format Check
+
 ```
 All matched files use Prettier code style!
 ```
 
 ### Type Check
+
 ```
 No TypeScript errors
 ```
 
 ### Tests
+
 ```
 193 tests passed
 ```
@@ -103,12 +111,7 @@ Add to `.vscode/settings.json`:
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact"
-  ]
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"]
 }
 ```
 
@@ -151,13 +154,8 @@ Add to `package.json`:
 ```json
 {
   "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{js,jsx,json,css,md}": [
-      "prettier --write"
-    ]
+    "*.{ts,tsx}": ["eslint --fix", "prettier --write"],
+    "*.{js,jsx,json,css,md}": ["prettier --write"]
   }
 }
 ```
@@ -187,6 +185,7 @@ yarn format
 ### TypeScript errors in tests
 
 Test files have relaxed rules. Make sure test files match the pattern:
+
 - `**/*.test.ts`
 - `**/*.spec.ts`
 - `src/test/**/*.ts`
