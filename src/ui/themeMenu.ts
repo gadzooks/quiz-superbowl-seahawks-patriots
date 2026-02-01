@@ -1,8 +1,7 @@
 // Floating Theme Menu - FAB for changing theme at any time
 
-import { getTeamOptions, getTeamTheme, TEAM_THEMES } from '../theme/teams';
+import { getTeamOptions, getTeamTheme } from '../theme/teams';
 import { setTeamTheme, getCurrentTeamId } from '../theme/apply';
-import { NEUTRAL_THEME_ID } from '../theme/neutral';
 
 let isMenuOpen = false;
 
@@ -143,18 +142,6 @@ function createThemeMenuHTML(): string {
 
   // Build team options HTML
   let teamsHTML = '';
-
-  // Neutral option first
-  const neutralTheme = TEAM_THEMES[NEUTRAL_THEME_ID];
-  teamsHTML += `
-    <div class="theme-option" data-team-id="${NEUTRAL_THEME_ID}">
-      <div class="theme-option-swatch" style="background: ${neutralTheme.primary}"></div>
-      <span class="theme-option-name">No Preference</span>
-    </div>
-  `;
-
-  // Divider
-  teamsHTML += '<div class="theme-divider"></div>';
 
   // Teams by division
   for (const [division, divTeams] of Object.entries(divisions)) {

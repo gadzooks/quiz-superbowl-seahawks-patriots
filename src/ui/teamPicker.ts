@@ -1,8 +1,7 @@
 // Team Picker UI - Shows on first visit to select favorite team
 
-import { getTeamOptions, getTeamTheme } from '../theme/teams';
+import { getTeamOptions, getTeamTheme, DEFAULT_TEAM_ID } from '../theme/teams';
 import { setTeamTheme, getSavedTeamId } from '../theme/apply';
-import { NEUTRAL_THEME_ID } from '../theme/neutral';
 
 /**
  * Check if user needs to pick a team (first visit).
@@ -57,11 +56,11 @@ export function showTeamPicker(): Promise<string> {
       }
     });
 
-    // Skip button - use neutral theme
+    // Skip button - use default theme (Seahawks)
     skipBtn.addEventListener('click', () => {
-      setTeamTheme(NEUTRAL_THEME_ID);
+      setTeamTheme(DEFAULT_TEAM_ID);
       overlay.remove();
-      resolve(NEUTRAL_THEME_ID);
+      resolve(DEFAULT_TEAM_ID);
     });
   });
 }
@@ -256,7 +255,7 @@ function createTeamPickerHTML(): string {
       </button>
 
       <button id="team-skip-btn" class="team-picker-skip-btn">
-        Skip / No preference
+        Skip
       </button>
     </div>
   `;

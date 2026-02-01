@@ -187,8 +187,8 @@
 /* Sound toggle button */
 .sound-toggle {
   position: absolute;
-  left: 16px;
-  bottom: 24px;
+  right: 16px;
+  bottom: 68px;
   background: rgba(var(--color-primary-rgb), 0.1);
   border: 2px solid rgba(var(--color-primary-rgb), 0.3);
   border-radius: 50%;
