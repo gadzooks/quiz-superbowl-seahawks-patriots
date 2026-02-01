@@ -279,3 +279,14 @@ export function showIntroOverlay(teamName: string): void {
   // Trigger confetti
   triggerConfetti();
 }
+
+/**
+ * Replay intro from header button.
+ * TODO: Refactor to use state store instead of window.currentTeamName
+ */
+export function replayIntro(): void {
+  const currentTeamName = (window as Window & { currentTeamName?: string }).currentTeamName;
+  if (currentTeamName) {
+    showIntroOverlay(currentTeamName);
+  }
+}

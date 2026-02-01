@@ -141,3 +141,104 @@ export async function handleClearAllResults(): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * Recalculate scores for all participants.
+ * TODO: Refactor to use db module instead of window.db
+ */
+export async function recalculateAllScores(): Promise<void> {
+  const { currentLeague, allPredictions } = getState();
+  const statusDiv = document.getElementById('recalculateScoresStatus');
+  const btn = document.getElementById('recalculateScoresBtn') as HTMLButtonElement | null;
+
+  // Check if results exist
+  if (!currentLeague?.actualResults || Object.keys(currentLeague.actualResults).length === 0) {
+    if (statusDiv) {
+      statusDiv.innerHTML =
+        '<div class="alert alert-warning"><span>⚠️ No results entered yet. Please enter actual results first.</span></div>';
+    }
+    return;
+  }
+
+  // Get db from window (set by inline code)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = (window as any).db;
+  if (!db) {
+    if (statusDiv) {
+      statusDiv.innerHTML =
+        '<div class="alert alert-error"><span>✗ Database not available</span></div>';
+    }
+    return;
+  }
+
+  try {
+    // Disable button and show processing status
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = '⏳ Recalculating...';
+    }
+    if (statusDiv) {
+      statusDiv.innerHTML =
+        '<div style="color: #9DA2A3; text-align: center; padding: 10px;">Recalculating scores for all participants...</div>';
+    }
+
+    // Import calculateScore dynamically to avoid circular deps
+    const { calculateScore } = await import('../scoring/calculate');
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const updates: any[] = [];
+    const actualResults = currentLeague.actualResults;
+
+    // Recalculate scores for all predictions
+    allPredictions.forEach((pred) => {
+      if (pred.predictions) {
+        const score = calculateScore(pred.predictions, actualResults);
+        const predTotalPoints = Number(pred.predictions?.totalPoints) || 0;
+        const actualTotalPoints = Number(actualResults.totalPoints) || 0;
+        const tiebreakDiff = Math.abs(predTotalPoints - actualTotalPoints);
+
+        updates.push(
+          db.tx.predictions[pred.id].update({
+            score,
+            tiebreakDiff,
+          })
+        );
+      }
+    });
+
+    // Execute all updates
+    await db.transact(updates);
+
+    // Show success status
+    if (statusDiv) {
+      statusDiv.innerHTML = `<div class="alert alert-success"><span>✓ Successfully recalculated scores for ${updates.length} participant(s)</span></div>`;
+    }
+
+    // Update leaderboard immediately
+    const { renderLeaderboard } = await import('../ui/leaderboard');
+    renderLeaderboard();
+
+    // Re-enable button
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '🔄 Recalculate All Scores';
+    }
+
+    // Hide status after 3 seconds
+    setTimeout(() => {
+      if (statusDiv) statusDiv.innerHTML = '';
+    }, 3000);
+  } catch (error) {
+    if (statusDiv) {
+      statusDiv.innerHTML =
+        '<div class="alert alert-error"><span>✗ Error recalculating scores</span></div>';
+    }
+    console.error('Recalculate error:', error);
+
+    // Re-enable button
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '🔄 Recalculate All Scores';
+    }
+  }
+}

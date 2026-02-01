@@ -7,6 +7,8 @@ export * from './tabs';
 export * from './leaderboard';
 export * from './render';
 export * from './teamPicker';
+export * from './screens';
+export * from './teamNameModal';
 
 import { showToast } from './toast';
 import {
@@ -15,6 +17,7 @@ import {
   triggerConfetti,
   triggerWinnerCelebration,
   resetWinnerCelebration,
+  replayIntro,
 } from './celebration';
 import {
   renderTabs,
@@ -26,6 +29,8 @@ import {
   clearScoresNotificationInline,
 } from './tabs';
 import { renderLeaderboard, sortLeaderboard, renderAnswerDetails } from './leaderboard';
+import { showLeagueNotFound, showLeagueCreation, clearLeagueAndReload } from './screens';
+import { updateTeamNameCharCount } from './teamNameModal';
 
 // Type declarations for window extensions
 declare global {
@@ -39,6 +44,7 @@ declare global {
     triggerConfetti: typeof triggerConfetti;
     triggerWinnerCelebration: typeof triggerWinnerCelebration;
     resetWinnerCelebration: typeof resetWinnerCelebration;
+    replayIntro: typeof replayIntro;
 
     // Tabs (module approach)
     // switchTab: typeof switchTab; // Conflicts with inline, using switchAdminTab
@@ -55,6 +61,14 @@ declare global {
     renderLeaderboard: typeof renderLeaderboard;
     sortLeaderboard: typeof sortLeaderboard;
     renderAnswerDetails: typeof renderAnswerDetails;
+
+    // Screens
+    showLeagueNotFound: typeof showLeagueNotFound;
+    showLeagueCreation: typeof showLeagueCreation;
+    clearLeagueAndReload: typeof clearLeagueAndReload;
+
+    // Team name modal (note: openTeamNameModal and closeTeamNameModal declared in handlers/index.ts)
+    updateTeamNameCharCount: typeof updateTeamNameCharCount;
   }
 }
 
@@ -72,6 +86,7 @@ export function exposeUIToWindow(): void {
   window.triggerConfetti = triggerConfetti;
   window.triggerWinnerCelebration = triggerWinnerCelebration;
   window.resetWinnerCelebration = resetWinnerCelebration;
+  window.replayIntro = replayIntro;
 
   // Tabs - expose inline compatibility versions for existing HTML
   window.switchTab = switchAdminTab; // Admin panel uses switchTab()
@@ -85,6 +100,14 @@ export function exposeUIToWindow(): void {
   window.renderLeaderboard = renderLeaderboard;
   window.sortLeaderboard = sortLeaderboard;
   window.renderAnswerDetails = renderAnswerDetails;
+
+  // Screens
+  window.showLeagueNotFound = showLeagueNotFound;
+  window.showLeagueCreation = showLeagueCreation;
+  window.clearLeagueAndReload = clearLeagueAndReload;
+
+  // Team name modal (openTeamNameModal and closeTeamNameModal exposed by handlers/index.ts)
+  window.updateTeamNameCharCount = updateTeamNameCharCount;
 
   console.log('UI functions exposed to window');
 }

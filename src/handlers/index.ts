@@ -30,6 +30,7 @@ import {
   initResultsAutoSave,
   clearResult,
   handleClearAllResults,
+  recalculateAllScores,
 } from './results';
 
 // Type declaration for window extensions
@@ -58,6 +59,7 @@ declare global {
     initResultsAutoSave: typeof initResultsAutoSave;
     clearResult: typeof clearResult;
     handleClearAllResults: typeof handleClearAllResults;
+    recalculateAllScores: typeof recalculateAllScores;
   }
 }
 
@@ -122,6 +124,7 @@ export function exposeHandlersToWindow(): void {
   window.initResultsAutoSave = initResultsAutoSave;
   window.clearResult = clearResult;
   window.handleClearAllResults = handleClearAllResults;
+  window.recalculateAllScores = recalculateAllScores;
 
   console.log('Handlers exposed to window');
 }
