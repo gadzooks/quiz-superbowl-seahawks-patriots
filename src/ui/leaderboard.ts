@@ -96,6 +96,7 @@ export function renderLeaderboard(): void {
 
   if (!leaderboardDiv || !state.currentLeague) return;
 
+  const currentLeague = state.currentLeague;
   const teamsWithPredictions = state.allPredictions.filter((p) => p.predictions);
 
   if (teamsWithPredictions.length === 0) {
@@ -107,7 +108,7 @@ export function renderLeaderboard(): void {
 
   // Check if any scores have been calculated
   const hasScores =
-    state.currentLeague.actualResults && Object.keys(state.currentLeague.actualResults).length > 0;
+    currentLeague.actualResults && Object.keys(currentLeague.actualResults).length > 0;
 
   // Sort by score (desc), then tiebreak diff (asc), then team name (alphabetic)
   const sorted = sortLeaderboard(teamsWithPredictions);
@@ -117,7 +118,7 @@ export function renderLeaderboard(): void {
   // Count how many questions admin has answered
   const gameConfig = getCurrentGameConfig();
   const questions = getQuestionsForGame(gameConfig);
-  const answeredCount = countAnsweredQuestions(state.currentLeague.actualResults, questions);
+  const answeredCount = countAnsweredQuestions(currentLeague.actualResults, questions);
   const totalQuestions = questions.length;
 
   // Show status message about admin progress
@@ -136,8 +137,7 @@ export function renderLeaderboard(): void {
     const isSecond = index === 1 && pred.score > 0 && hasScores;
     const isThird = index === 2 && pred.score > 0 && hasScores;
     const uniqueId = `answers-${pred.id}`;
-    const canShowAnswers =
-      !state.currentLeague!.isOpen && state.currentLeague!.showAllPredictions === true;
+    const canShowAnswers = !currentLeague.isOpen && currentLeague.showAllPredictions === true;
 
     // Determine place styling
     let placeClass = '';
@@ -179,7 +179,7 @@ export function renderLeaderboard(): void {
               <span class="toggle-text">Show answers ▼</span>
             </button>
             <div id="${uniqueId}" class="collapsible-answers">
-              ${renderAnswerDetails(pred, state.currentLeague!.actualResults)}
+              ${renderAnswerDetails(pred, currentLeague.actualResults)}
             </div>
           `
               : ''

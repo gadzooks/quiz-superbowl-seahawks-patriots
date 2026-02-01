@@ -62,12 +62,13 @@ export function renderAllPredictions(): void {
   });
 
   // Add actual results row if available
-  if (currentLeague.actualResults && Object.keys(currentLeague.actualResults).length > 0) {
+  const actualResults = currentLeague.actualResults;
+  if (actualResults && Object.keys(actualResults).length > 0) {
     html += `<tr style="background-color: #003320;">
       <td style="background-color: #003320; color: var(--color-primary); font-weight: 700; padding: 10px 8px; border-top: 3px solid var(--color-primary); position: sticky; left: 0; z-index: 10;">✓ ACTUAL</td>`;
 
     questions.forEach((q) => {
-      const value = currentLeague.actualResults![q.id];
+      const value = actualResults[q.id];
       html += `<td style="background-color: #003320; color: var(--color-primary); font-weight: 600; padding: 10px 8px; border-top: 3px solid var(--color-primary);">${value !== undefined && value !== null ? value : '-'}</td>`;
     });
 

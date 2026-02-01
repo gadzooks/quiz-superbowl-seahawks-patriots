@@ -84,4 +84,8 @@ export const MAX_SCORE = questions
   .reduce((sum, q) => sum + q.points, 0);
 
 // Get tiebreaker question
-export const TIEBREAKER_QUESTION = questions.find((q) => q.id === 'totalPoints')!;
+const tiebreakerQuestion = questions.find((q) => q.id === 'totalPoints');
+if (!tiebreakerQuestion) {
+  throw new Error('Tiebreaker question (totalPoints) not found in questions array');
+}
+export const TIEBREAKER_QUESTION = tiebreakerQuestion;

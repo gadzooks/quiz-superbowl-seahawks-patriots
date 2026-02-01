@@ -76,6 +76,15 @@ function canShowConfetti(): boolean {
 }
 
 /**
+ * Safe confetti wrapper that handles the undefined check.
+ */
+function safeConfetti(options: Parameters<NonNullable<typeof confetti>>[0]): void {
+  if (typeof confetti === 'function') {
+    confetti(options);
+  }
+}
+
+/**
  * Shuffle an array (Fisher-Yates algorithm).
  */
 function shuffleArray<T>(array: T[]): T[] {
@@ -93,7 +102,7 @@ function shuffleArray<T>(array: T[]): T[] {
 export function triggerConfetti(): void {
   if (!canShowConfetti()) return;
 
-  confetti!({
+  safeConfetti({
     particleCount: 100,
     spread: 70,
     origin: { y: 0.6 },
@@ -118,7 +127,7 @@ export function triggerWinnerCelebration(): void {
   const colors = getConfettiColors();
 
   // First burst
-  confetti!({
+  safeConfetti({
     particleCount: 100,
     spread: 70,
     origin: { y: 0.6 },
@@ -128,7 +137,7 @@ export function triggerWinnerCelebration(): void {
 
   // Second burst from left
   setTimeout(() => {
-    confetti!({
+    safeConfetti({
       particleCount: 50,
       angle: 60,
       spread: 55,
@@ -140,7 +149,7 @@ export function triggerWinnerCelebration(): void {
 
   // Third burst from right
   setTimeout(() => {
-    confetti!({
+    safeConfetti({
       particleCount: 50,
       angle: 120,
       spread: 55,
@@ -167,7 +176,7 @@ export function showCompletionCelebration(): void {
   const colors = getConfettiColors();
 
   // Center burst
-  confetti!({
+  safeConfetti({
     particleCount: 100,
     spread: 80,
     origin: { y: 0.6 },
@@ -177,7 +186,7 @@ export function showCompletionCelebration(): void {
 
   // Left burst
   setTimeout(() => {
-    confetti!({
+    safeConfetti({
       particleCount: 50,
       angle: 60,
       spread: 55,
@@ -189,7 +198,7 @@ export function showCompletionCelebration(): void {
 
   // Right burst
   setTimeout(() => {
-    confetti!({
+    safeConfetti({
       particleCount: 50,
       angle: 120,
       spread: 55,
@@ -201,7 +210,7 @@ export function showCompletionCelebration(): void {
 
   // Final top burst
   setTimeout(() => {
-    confetti!({
+    safeConfetti({
       particleCount: 75,
       spread: 100,
       origin: { y: 0.3 },

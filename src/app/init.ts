@@ -17,6 +17,7 @@ import {
   setHasUnviewedScoreUpdate,
   setExpectedLeagueSlug,
 } from '../state/store';
+import type { Prediction } from '../types';
 import { showIntroOverlay } from '../ui/celebration';
 import { showLeagueNotFound } from '../ui/screens';
 import { showToast } from '../ui/toast';
@@ -355,7 +356,7 @@ export async function handleTeamNameSubmit(e: Event): Promise<void> {
   // Check if team name already exists (case-insensitive)
 
   const teamNameExists = allPredictions.some(
-    (p: any) => p.teamName.toLowerCase() === teamName.toLowerCase()
+    (p: Prediction) => p.teamName.toLowerCase() === teamName.toLowerCase()
   );
 
   if (teamNameExists) {

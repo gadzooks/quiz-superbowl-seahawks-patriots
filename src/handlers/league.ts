@@ -176,7 +176,7 @@ export async function copyLeagueUrl(): Promise<void> {
   try {
     await navigator.clipboard.writeText(url);
     showToast('Link copied to clipboard!');
-  } catch (error) {
+  } catch {
     // Fallback for older browsers
     const input = document.createElement('input');
     input.value = url;

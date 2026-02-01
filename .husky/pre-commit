@@ -1,8 +1,12 @@
-# Run lint-staged to check staged files
-npx lint-staged
+#!/bin/sh
 
-# Run type checking on entire project
-npm run type-check
+echo "🔧 Running lint-staged (auto-fix + verify)..."
+npx lint-staged || exit 1
 
-# Run all tests
-npm test
+echo "📝 Running TypeScript type check..."
+npm run type-check || exit 1
+
+echo "🧪 Running tests..."
+npm test || exit 1
+
+echo "✅ All checks passed!"
