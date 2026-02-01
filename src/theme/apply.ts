@@ -1,12 +1,13 @@
 // Theme application utility
 // Applies team colors via CSS custom properties for dynamic theming
 
-import { getTeamTheme, DEFAULT_TEAM_ID, type TeamTheme } from './teams';
-import { CSS_VAR_NAMES, calculateDerivedTokens, type ThemeTokens } from './tokens';
-import { getTeamLogoUrl, NFL_SHIELD_LOGO } from './logos';
-import { applyTeamBackground, applyGameTeamBackgrounds } from './backgrounds';
 import { getTeamIds, type GameConfig } from '../config/games';
 import { getCurrentGameConfig } from '../utils/game';
+
+import { applyTeamBackground, applyGameTeamBackgrounds } from './backgrounds';
+import { getTeamLogoUrl, NFL_SHIELD_LOGO } from './logos';
+import { getTeamTheme, DEFAULT_TEAM_ID, type TeamTheme } from './teams';
+import { CSS_VAR_NAMES, calculateDerivedTokens, type ThemeTokens } from './tokens';
 
 const STORAGE_KEY = 'supportedTeam';
 const HEADER_LOGO_ID = 'team-logo';

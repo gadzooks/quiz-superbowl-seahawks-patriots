@@ -1,11 +1,11 @@
 // Team handlers
 // Handle team name creation and editing
 
-import { validateTeamNameFull } from '../services/validation';
 import { savePrediction, updateTeamName, deletePrediction, toggleManager } from '../db/queries';
+import { validateTeamNameFull } from '../services/validation';
 import { getState, setCurrentTeamName } from '../state/store';
-import { getCurrentGameId } from '../utils/game';
 import { showToast } from '../ui/toast';
+import { getCurrentGameId } from '../utils/game';
 
 /**
  * Create a new team (prediction entry) for the current user.

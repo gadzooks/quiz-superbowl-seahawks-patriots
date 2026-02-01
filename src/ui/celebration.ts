@@ -1,6 +1,6 @@
 import { SoundManager } from '../sound/manager';
-import { getCurrentTeamId } from '../theme/apply';
 import { getState } from '../state/store';
+import { getCurrentTeamId } from '../theme/apply';
 
 /**
  * Call the main render function (exposed on window to avoid circular imports).

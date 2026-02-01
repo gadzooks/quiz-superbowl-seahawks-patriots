@@ -1,17 +1,17 @@
 // League handlers
 // Handle league creation and management
 
-import { validateLeagueName, toLeagueSlug } from '../services/validation';
 import {
   createLeague,
   leagueExists,
   updateLeagueStatus,
   updateShowAllPredictions,
 } from '../db/queries';
+import { validateLeagueName, toLeagueSlug } from '../services/validation';
 import { getState } from '../state/store';
+import { showToast } from '../ui/toast';
 import { getCurrentGameId, buildGamePath } from '../utils/game';
 import { getLeagueUrl } from '../utils/url';
-import { showToast } from '../ui/toast';
 
 /**
  * Handle league creation form submission.

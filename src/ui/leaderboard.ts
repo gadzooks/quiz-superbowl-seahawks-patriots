@@ -1,9 +1,10 @@
-import type { Prediction } from '../types';
-import { getState } from '../state/store';
-import { triggerWinnerCelebration } from './celebration';
-import { getQuestionsForGame } from '../questions';
-import { getCurrentGameConfig } from '../utils/game';
 import { countAnsweredQuestions } from '../components/helpers';
+import { getQuestionsForGame } from '../questions';
+import { getState } from '../state/store';
+import type { Prediction } from '../types';
+import { getCurrentGameConfig } from '../utils/game';
+
+import { triggerWinnerCelebration } from './celebration';
 
 /**
  * Sort predictions by score (desc), then tiebreak diff (asc), then team name (alphabetic).

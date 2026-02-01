@@ -11,7 +11,6 @@ export * from './screens';
 export * from './teamNameModal';
 export * from './themeMenu';
 
-import { showToast } from './toast';
 import {
   showIntroOverlay,
   showCompletionCelebration,
@@ -20,6 +19,8 @@ import {
   resetWinnerCelebration,
   replayIntro,
 } from './celebration';
+import { renderLeaderboard, sortLeaderboard, renderAnswerDetails } from './leaderboard';
+import { showLeagueNotFound, showLeagueCreation, clearLeagueAndReload } from './screens';
 import {
   renderTabs,
   updateScoresTabNotification,
@@ -29,9 +30,8 @@ import {
   updateScoresTabNotificationInline,
   clearScoresNotificationInline,
 } from './tabs';
-import { renderLeaderboard, sortLeaderboard, renderAnswerDetails } from './leaderboard';
-import { showLeagueNotFound, showLeagueCreation, clearLeagueAndReload } from './screens';
 import { updateTeamNameCharCount } from './teamNameModal';
+import { showToast } from './toast';
 
 // Type declarations for window extensions
 declare global {

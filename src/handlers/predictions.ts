@@ -1,17 +1,17 @@
 // Predictions handlers
 // Handle prediction form submission
 
+import { savePrediction } from '../db/queries';
+import { getQuestionsForGame } from '../questions';
 import {
   validatePredictions,
   parsePredictionsFromForm,
   getPredictionCompletion,
 } from '../services/validation';
-import { savePrediction } from '../db/queries';
 import { getState, setHasShownCompletionCelebration } from '../state/store';
-import { getCurrentGameId, getCurrentGameConfig } from '../utils/game';
-import { getQuestionsForGame } from '../questions';
-import { showToast } from '../ui/toast';
 import { showCompletionCelebration } from '../ui/celebration';
+import { showToast } from '../ui/toast';
+import { getCurrentGameId, getCurrentGameConfig } from '../utils/game';
 
 /**
  * Handle predictions form submission.
@@ -114,14 +114,16 @@ export function handlePredictionAutoSave(form: HTMLFormElement): void {
   }
 
   // Debounce: wait 500ms after last change before saving
-  autoSaveTimeout = setTimeout(async () => {
-    const formData = new FormData(form);
-    const result = await handlePredictionsSubmit(formData);
+  autoSaveTimeout = setTimeout(() => {
+    void (async () => {
+      const formData = new FormData(form);
+      const result = await handlePredictionsSubmit(formData);
 
-    if (result.success) {
-      // Update progress bar
-      updateProgressBar(form);
-    }
+      if (result.success) {
+        // Update progress bar
+        updateProgressBar(form);
+      }
+    })();
   }, 500);
 }
 

@@ -4,14 +4,11 @@
 // Import all CSS styles
 import './styles/index.css';
 
-import { SoundManager } from './sound/manager';
-import { getUserId } from './utils/user';
-import { getLeagueSlug, isAdminOverride, saveLeagueSlug, clearLeagueSlug } from './utils/url';
-import { getCurrentGameId, getCurrentGameConfig } from './utils/game';
-import { initTheme } from './theme';
-import { needsTeamSelection, showTeamPicker } from './ui/teamPicker';
-import { initThemeMenu } from './ui/themeMenu';
+import { exposeAppToWindow } from './app';
+import { exposeComponentsToWindow } from './components';
 import { subscribeToLeague } from './db/queries';
+import { exposeHandlersToWindow } from './handlers';
+import { SoundManager } from './sound/manager';
 import {
   setCurrentUserId,
   setCurrentLeague,
@@ -22,13 +19,16 @@ import {
   updateState,
   exposeStoreToWindow,
 } from './state/store';
+import { initTheme } from './theme';
+import type { League, Prediction } from './types';
+import { exposeUIToWindow } from './ui';
 import { initRender } from './ui/render';
 import { updateScoresTabNotification } from './ui/tabs';
-import { exposeHandlersToWindow } from './handlers';
-import { exposeComponentsToWindow } from './components';
-import { exposeUIToWindow } from './ui';
-import { exposeAppToWindow } from './app';
-import type { League, Prediction } from './types';
+import { needsTeamSelection, showTeamPicker } from './ui/teamPicker';
+import { initThemeMenu } from './ui/themeMenu';
+import { getCurrentGameId, getCurrentGameConfig } from './utils/game';
+import { getLeagueSlug, isAdminOverride, saveLeagueSlug, clearLeagueSlug } from './utils/url';
+import { getUserId } from './utils/user';
 
 console.log('Vite + TypeScript app loading...');
 
@@ -208,8 +208,8 @@ function handleLeagueUpdate(adminOverride: boolean, expectedSlug: string) {
 // Auto-initialize when DOM is ready
 // This runs before the legacy initApp, showing team picker if needed
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => initApp());
+  document.addEventListener('DOMContentLoaded', () => void initApp());
 } else {
   // DOM already loaded
-  initApp();
+  void initApp();
 }

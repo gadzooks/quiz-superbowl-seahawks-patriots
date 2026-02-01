@@ -1,9 +1,10 @@
 // Predictions Form Component
 // Renders the user's prediction form
 
+import { getQuestionsForGame } from '../questions';
 import { getState } from '../state/store';
 import { getCurrentGameConfig } from '../utils/game';
-import { getQuestionsForGame } from '../questions';
+
 import { isAnswerCorrect, formatSlugForDisplay, countAnsweredQuestions } from './helpers';
 
 /**
@@ -143,7 +144,7 @@ function attachAutoSaveListeners(form: HTMLFormElement): void {
     'input[type="radio"], input[type="number"]'
   );
   inputs.forEach((input) => {
-    input.addEventListener('change', handleAutoSave);
+    input.addEventListener('change', () => void handleAutoSave());
   });
 }
 
@@ -172,77 +173,79 @@ async function handleAutoSave(): Promise<void> {
   // Debounce to avoid too many saves
   if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
 
-  autoSaveTimeout = setTimeout(async () => {
-    const form = document.getElementById('predictionsForm') as HTMLFormElement;
-    if (!form) return;
+  autoSaveTimeout = setTimeout(() => {
+    void (async () => {
+      const form = document.getElementById('predictionsForm') as HTMLFormElement;
+      if (!form) return;
 
-    const formData = new FormData(form);
-    const predictions: Record<string, string | number> = {};
+      const formData = new FormData(form);
+      const predictions: Record<string, string | number> = {};
 
-    questions.forEach((q) => {
-      const value = formData.get(`prediction-${q.id}`);
-      if (value !== null && value !== '') {
-        if (q.type === 'number') {
-          predictions[q.id] = parseInt(String(value)) || 0;
-        } else {
-          predictions[q.id] = String(value);
+      questions.forEach((q) => {
+        const value = formData.get(`prediction-${q.id}`);
+        if (value !== null && value !== '') {
+          if (q.type === 'number') {
+            predictions[q.id] = parseInt(String(value)) || 0;
+          } else {
+            predictions[q.id] = String(value);
+          }
+        }
+      });
+
+      // Find user's prediction
+      const userPrediction = allPredictions.find((p) => p.userId === currentUserId);
+
+      if (userPrediction) {
+        try {
+          // Import db dynamically to avoid circular dependency
+          const { savePrediction } = await import('../db/queries');
+          const { getCurrentGameId } = await import('../utils/game');
+
+          await savePrediction({
+            id: userPrediction.id,
+            gameId: getCurrentGameId(),
+            leagueId: currentLeague.id,
+            userId: currentUserId,
+            teamName: userPrediction.teamName,
+            predictions,
+            isManager: userPrediction.isManager,
+            actualResults: currentLeague.actualResults,
+          });
+
+          // Show saved status
+          if (statusDiv) {
+            statusDiv.textContent = '✓ Saved';
+            statusDiv.style.color = 'var(--color-primary)';
+            setTimeout(() => {
+              statusDiv.textContent = '';
+            }, 2000);
+          }
+
+          // Update participants list for immediate visual feedback
+          const { renderParticipants } = await import('./Participants');
+          renderParticipants();
+
+          // Check for completion celebration
+          const answeredCount = Object.keys(predictions).length;
+          const { hasShownCompletionCelebration } = getState();
+
+          if (answeredCount === questions.length && !hasShownCompletionCelebration) {
+            const { setHasShownCompletionCelebration } = await import('../state/store');
+            const { showCompletionCelebration } = await import('../ui/celebration');
+
+            setHasShownCompletionCelebration(true);
+            localStorage.setItem(`completionCelebration-${currentLeague.id}`, 'true');
+            showCompletionCelebration();
+          }
+        } catch (error) {
+          if (statusDiv) {
+            statusDiv.textContent = '✗ Error saving';
+            statusDiv.style.color = '#dc2626';
+          }
+          console.error('Auto-save error:', error);
         }
       }
-    });
-
-    // Find user's prediction
-    const userPrediction = allPredictions.find((p) => p.userId === currentUserId);
-
-    if (userPrediction) {
-      try {
-        // Import db dynamically to avoid circular dependency
-        const { savePrediction } = await import('../db/queries');
-        const { getCurrentGameId } = await import('../utils/game');
-
-        await savePrediction({
-          id: userPrediction.id,
-          gameId: getCurrentGameId(),
-          leagueId: currentLeague.id,
-          userId: currentUserId,
-          teamName: userPrediction.teamName,
-          predictions,
-          isManager: userPrediction.isManager,
-          actualResults: currentLeague.actualResults,
-        });
-
-        // Show saved status
-        if (statusDiv) {
-          statusDiv.textContent = '✓ Saved';
-          statusDiv.style.color = 'var(--color-primary)';
-          setTimeout(() => {
-            statusDiv.textContent = '';
-          }, 2000);
-        }
-
-        // Update participants list for immediate visual feedback
-        const { renderParticipants } = await import('./Participants');
-        renderParticipants();
-
-        // Check for completion celebration
-        const answeredCount = Object.keys(predictions).length;
-        const { hasShownCompletionCelebration } = getState();
-
-        if (answeredCount === questions.length && !hasShownCompletionCelebration) {
-          const { setHasShownCompletionCelebration } = await import('../state/store');
-          const { showCompletionCelebration } = await import('../ui/celebration');
-
-          setHasShownCompletionCelebration(true);
-          localStorage.setItem(`completionCelebration-${currentLeague.id}`, 'true');
-          showCompletionCelebration();
-        }
-      } catch (error) {
-        if (statusDiv) {
-          statusDiv.textContent = '✗ Error saving';
-          statusDiv.style.color = '#dc2626';
-        }
-        console.error('Auto-save error:', error);
-      }
-    }
+    })();
   }, 500);
 }
 

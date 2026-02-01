@@ -1,11 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+
+import { updateState, resetState } from '../state/store';
+import type { League, Prediction } from '../types';
+
 import {
   renderParticipants,
   copyParticipantLink,
   exposeParticipantFunctions,
 } from './Participants';
-import { updateState, resetState } from '../state/store';
-import type { League, Prediction } from '../types';
 
 // Mock dependencies
 vi.mock('../utils/game', () => ({
@@ -442,12 +444,17 @@ describe('components/Participants', () => {
         writable: true,
       });
 
-      await copyParticipantLink('u123', 'Team A');
+      copyParticipantLink('u123', 'Team A');
 
-      expect(mockWriteText).toHaveBeenCalledWith('http://localhost:3000/lx/test-league?user=u123');
+      // Wait for the promise chain to complete
+      await vi.waitFor(() => {
+        expect(mockWriteText).toHaveBeenCalledWith(
+          'http://localhost:3000/lx/test-league?user=u123'
+        );
+      });
     });
 
-    it('should not copy if no current league', async () => {
+    it('should not copy if no current league', () => {
       updateState({ currentLeague: null });
 
       const mockWriteText = vi.fn().mockResolvedValue(undefined);
@@ -459,7 +466,7 @@ describe('components/Participants', () => {
         configurable: true,
       });
 
-      await copyParticipantLink('u123', 'Team A');
+      copyParticipantLink('u123', 'Team A');
 
       expect(mockWriteText).not.toHaveBeenCalled();
     });

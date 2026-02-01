@@ -1,6 +1,6 @@
-import type { TabType } from '../types';
-import { getState, setCurrentTab, setHasUnviewedScoreUpdate } from '../state/store';
 import { SoundManager } from '../sound/manager';
+import { getState, setCurrentTab, setHasUnviewedScoreUpdate } from '../state/store';
+import type { TabType } from '../types';
 
 /**
  * Switch to a different tab (module approach with data attributes).

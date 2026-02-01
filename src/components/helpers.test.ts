@@ -1,4 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+
+import type { Question, Prediction } from '../types';
+
 import {
   countAnsweredQuestions,
   formatSlugForDisplay,
@@ -9,7 +12,6 @@ import {
   escapeHtml,
   escapeForJs,
 } from './helpers';
-import type { Question, Prediction } from '../types';
 
 describe('components/helpers', () => {
   describe('countAnsweredQuestions', () => {

@@ -3,9 +3,10 @@
  * Handles the modal dialog for editing team names.
  */
 
-import { getState } from '../state/store';
-import { showToast } from './toast';
 import { getDb } from '../app/init';
+import { getState } from '../state/store';
+
+import { showToast } from './toast';
 
 // Track which prediction is being edited (for admin editing)
 let editingPredictionId: string | null = null;

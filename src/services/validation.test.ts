@@ -1,4 +1,7 @@
 import { describe, it, expect } from 'vitest';
+
+import type { Question, Prediction } from '../types';
+
 import {
   validateTeamName,
   isTeamNameUnique,
@@ -11,7 +14,6 @@ import {
   getPredictionCompletion,
   parsePredictionsFromForm,
 } from './validation';
-import type { Question, Prediction } from '../types';
 
 // ============ TEAM NAME VALIDATION ============
 

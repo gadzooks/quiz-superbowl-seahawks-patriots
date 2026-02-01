@@ -1,7 +1,7 @@
 // Floating Theme Menu - FAB for changing theme at any time
 
-import { getTeamOptions, getTeamTheme } from '../theme/teams';
 import { setTeamTheme, getCurrentTeamId } from '../theme/apply';
+import { getTeamOptions, getTeamTheme } from '../theme/teams';
 
 let isMenuOpen = false;
 

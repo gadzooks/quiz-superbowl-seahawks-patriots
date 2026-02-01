@@ -9,11 +9,12 @@ export * from './AdminPanel';
 export * from './AllPredictions';
 
 import { getState } from '../state/store';
-import { renderPredictionsForm, updateProgressBar } from './PredictionsForm';
-import { renderParticipants, exposeParticipantFunctions } from './Participants';
-import { renderResultsForm, exposeResultsFunctions } from './ResultsForm';
+
 import { renderAdminControls, exposeAdminFunctions } from './AdminPanel';
 import { renderAllPredictions } from './AllPredictions';
+import { renderParticipants, exposeParticipantFunctions } from './Participants';
+import { renderPredictionsForm, updateProgressBar } from './PredictionsForm';
+import { renderResultsForm, exposeResultsFunctions } from './ResultsForm';
 
 // Toggle state for collapsible sections
 let gameStatusCollapsed = false;

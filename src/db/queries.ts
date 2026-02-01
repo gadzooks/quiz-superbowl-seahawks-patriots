@@ -1,7 +1,9 @@
-import { db } from './client';
 import { id } from '@instantdb/core';
-import type { League, Prediction } from '../types';
+
 import { calculateScore, calculateTiebreakDiff } from '../scoring/calculate';
+import type { League, Prediction } from '../types';
+
+import { db } from './client';
 
 // Re-export id helper for generating IDs
 export { id };

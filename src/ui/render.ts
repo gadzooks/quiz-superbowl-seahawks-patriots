@@ -1,6 +1,7 @@
 import { getState, subscribe } from '../state/store';
-import { renderTabs } from './tabs';
+
 import { renderLeaderboard } from './leaderboard';
+import { renderTabs } from './tabs';
 
 /**
  * Main render function - called when state changes.

@@ -5,9 +5,6 @@
  */
 
 import { SoundManager } from '../sound/manager';
-import { getUserId } from '../utils/user';
-import { getCurrentGameId, buildGamePath } from '../utils/game';
-import { getLeagueUrl } from '../utils/url';
 import {
   getState,
   setCurrentLeague,
@@ -20,9 +17,12 @@ import {
   setHasUnviewedScoreUpdate,
   setExpectedLeagueSlug,
 } from '../state/store';
+import { showIntroOverlay } from '../ui/celebration';
 import { showLeagueNotFound } from '../ui/screens';
 import { showToast } from '../ui/toast';
-import { showIntroOverlay } from '../ui/celebration';
+import { getCurrentGameId, buildGamePath } from '../utils/game';
+import { getLeagueUrl } from '../utils/url';
+import { getUserId } from '../utils/user';
 
 // InstantDB instance - set during init
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

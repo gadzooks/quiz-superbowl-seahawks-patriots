@@ -1,11 +1,11 @@
 // Results Form Component
 // Renders the admin results entry form
 
-import { getState } from '../state/store';
-import { getCurrentGameConfig } from '../utils/game';
-import { getQuestionsForGame } from '../questions';
 import { saveResults } from '../db/queries';
+import { getQuestionsForGame } from '../questions';
+import { getState } from '../state/store';
 import { showToast } from '../ui/toast';
+import { getCurrentGameConfig } from '../utils/game';
 
 /**
  * Render the results form for entering actual game results.
@@ -79,7 +79,7 @@ function attachResultsAutoSaveListeners(form: HTMLFormElement): void {
     'input[type="radio"], input[type="number"]'
   );
   inputs.forEach((input) => {
-    input.addEventListener('change', handleResultsAutoSave);
+    input.addEventListener('change', () => void handleResultsAutoSave());
   });
 }
 
@@ -103,45 +103,47 @@ async function handleResultsAutoSave(): Promise<void> {
   // Debounce
   if (resultsAutoSaveTimeout) clearTimeout(resultsAutoSaveTimeout);
 
-  resultsAutoSaveTimeout = setTimeout(async () => {
-    const form = document.getElementById('resultsForm') as HTMLFormElement;
-    if (!form || !currentLeague) return;
+  resultsAutoSaveTimeout = setTimeout(() => {
+    void (async () => {
+      const form = document.getElementById('resultsForm') as HTMLFormElement;
+      if (!form || !currentLeague) return;
 
-    const formData = new FormData(form);
-    const actualResults: Record<string, string | number> = {};
+      const formData = new FormData(form);
+      const actualResults: Record<string, string | number> = {};
 
-    questions.forEach((q) => {
-      const value = formData.get(`result-${q.id}`);
-      if (value !== null && value !== '') {
-        if (q.type === 'number') {
-          actualResults[q.id] = parseInt(String(value)) || 0;
-        } else {
-          actualResults[q.id] = String(value);
+      questions.forEach((q) => {
+        const value = formData.get(`result-${q.id}`);
+        if (value !== null && value !== '') {
+          if (q.type === 'number') {
+            actualResults[q.id] = parseInt(String(value)) || 0;
+          } else {
+            actualResults[q.id] = String(value);
+          }
         }
-      }
-    });
+      });
 
-    try {
-      await saveResults(currentLeague.id, actualResults, allPredictions);
+      try {
+        await saveResults(currentLeague.id, actualResults, allPredictions);
 
-      if (statusDiv) {
-        statusDiv.textContent = '✓ Saved & scores updated';
-        statusDiv.style.color = 'var(--color-primary)';
-        setTimeout(() => {
-          statusDiv.textContent = '';
-        }, 2000);
-      }
+        if (statusDiv) {
+          statusDiv.textContent = '✓ Saved & scores updated';
+          statusDiv.style.color = 'var(--color-primary)';
+          setTimeout(() => {
+            statusDiv.textContent = '';
+          }, 2000);
+        }
 
-      // Update leaderboard
-      const { renderLeaderboard } = await import('../ui/leaderboard');
-      renderLeaderboard();
-    } catch (error) {
-      if (statusDiv) {
-        statusDiv.textContent = '✗ Error saving';
-        statusDiv.style.color = '#dc2626';
+        // Update leaderboard
+        const { renderLeaderboard } = await import('../ui/leaderboard');
+        renderLeaderboard();
+      } catch (error) {
+        if (statusDiv) {
+          statusDiv.textContent = '✗ Error saving';
+          statusDiv.style.color = '#dc2626';
+        }
+        console.error('Results auto-save error:', error);
       }
-      console.error('Results auto-save error:', error);
-    }
+    })();
   }, 500);
 }
 

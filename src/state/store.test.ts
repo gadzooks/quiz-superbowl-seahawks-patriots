@@ -1,4 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+
+import type { League, Prediction } from '../types';
+
 import {
   getState,
   updateState,
@@ -13,7 +16,6 @@ import {
   setHasUnviewedScoreUpdate,
   setExpectedLeagueSlug,
 } from './store';
-import type { League, Prediction } from '../types';
 
 describe('state/store', () => {
   beforeEach(() => {

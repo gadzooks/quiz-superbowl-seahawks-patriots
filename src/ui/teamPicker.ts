@@ -2,9 +2,9 @@
 
 // Team Picker UI - Shows on first visit to select favorite team
 
-import { getTeamOptions, getTeamTheme, DEFAULT_TEAM_ID } from '../theme/teams';
 import { setTeamTheme, getSavedTeamId } from '../theme/apply';
 import { getTeamLogoUrl } from '../theme/logos';
+import { getTeamOptions, getTeamTheme, DEFAULT_TEAM_ID } from '../theme/teams';
 
 /**
  * Check if user needs to pick a team (first visit).

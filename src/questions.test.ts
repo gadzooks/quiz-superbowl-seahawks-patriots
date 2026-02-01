@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest';
+
+import { getGameConfig } from './config/games';
 import {
   createQuestions,
   getQuestionsForGame,
@@ -6,7 +8,6 @@ import {
   getTiebreakerQuestion,
   questions,
 } from './questions';
-import { getGameConfig } from './config/games';
 import type { Question } from './types';
 
 describe('questions', () => {

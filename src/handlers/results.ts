@@ -1,13 +1,13 @@
 // Results handlers
 // Handle game results submission (admin/manager only)
 
-import { parseResultsFromForm } from '../services/validation';
-import { saveResults, clearResults } from '../db/queries';
-import { getState } from '../state/store';
-import { getCurrentGameConfig } from '../utils/game';
-import { getQuestionsForGame } from '../questions';
-import { showToast } from '../ui/toast';
 import { getDb } from '../app/init';
+import { saveResults, clearResults } from '../db/queries';
+import { getQuestionsForGame } from '../questions';
+import { parseResultsFromForm } from '../services/validation';
+import { getState } from '../state/store';
+import { showToast } from '../ui/toast';
+import { getCurrentGameConfig } from '../utils/game';
 
 /**
  * Handle results form submission.
@@ -70,13 +70,15 @@ export async function handleResultsAutoSave(form: HTMLFormElement): Promise<void
   }
 
   // Debounce: wait 800ms after last change before saving
-  resultsAutoSaveTimeout = setTimeout(async () => {
-    const formData = new FormData(form);
-    const result = await handleResultsSubmit(formData);
+  resultsAutoSaveTimeout = setTimeout(() => {
+    void (async () => {
+      const formData = new FormData(form);
+      const result = await handleResultsSubmit(formData);
 
-    if (result.success) {
-      console.log('Results auto-saved');
-    }
+      if (result.success) {
+        console.log('Results auto-saved');
+      }
+    })();
   }, 800);
 }
 
@@ -89,7 +91,7 @@ export function initResultsAutoSave(form: HTMLFormElement): void {
   );
 
   inputs.forEach((input) => {
-    input.addEventListener('change', () => handleResultsAutoSave(form));
+    input.addEventListener('change', () => void handleResultsAutoSave(form));
   });
 }
 

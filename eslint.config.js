@@ -15,6 +15,7 @@ export default [
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
+        project: './tsconfig.json',
       },
       globals: {
         // Browser globals
@@ -90,7 +91,20 @@ export default [
       '@typescript-eslint/no-non-null-assertion': 'warn',
       'no-console': 'off', // Allow console.log for this project
       'no-debugger': 'warn',
+      // Import rules
       'import-x/no-cycle': 'error', // Prevent circular dependencies
+      'import-x/order': [
+        'warn',
+        {
+          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+          'newlines-between': 'always',
+          alphabetize: { order: 'asc', caseInsensitive: true },
+        },
+      ],
+      // Stricter TypeScript rules (type-aware)
+      '@typescript-eslint/no-floating-promises': 'error', // Catch unhandled promises
+      '@typescript-eslint/await-thenable': 'error', // Prevent await on non-promises
+      '@typescript-eslint/no-misused-promises': 'error', // Catch promises in wrong contexts
     },
   },
   {

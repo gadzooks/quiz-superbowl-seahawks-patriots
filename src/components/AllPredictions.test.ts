@@ -1,7 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderAllPredictions, hideAllPredictions } from './AllPredictions';
+
 import { updateState } from '../state/store';
 import type { League, Prediction } from '../types';
+
+import { renderAllPredictions, hideAllPredictions } from './AllPredictions';
 
 // Mock dependencies
 vi.mock('../utils/game', () => ({

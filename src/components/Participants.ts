@@ -1,10 +1,11 @@
 // Participants Component
 // Renders the list of participants with their progress
 
+import { getQuestionsForGame } from '../questions';
 import { getState } from '../state/store';
 import { getCurrentGameConfig } from '../utils/game';
-import { getQuestionsForGame } from '../questions';
 import { getLeagueUrl } from '../utils/url';
+
 import {
   countAnsweredQuestions,
   getCompletionPercentage,
@@ -110,7 +111,7 @@ export function copyParticipantLink(userId: string, teamName: string): void {
   navigator.clipboard
     .writeText(link)
     .then(() => {
-      import('../ui/toast').then(({ showToast }) => {
+      void import('../ui/toast').then(({ showToast }) => {
         showToast(`Recovery link copied for ${teamName}!`);
       });
     })
@@ -127,7 +128,7 @@ declare global {
     openDeleteModal: (predictionId: string, teamName: string) => void;
     closeDeleteModal: () => void;
     confirmDeleteTeam: () => Promise<void>;
-    toggleManager: (predictionId: string, makeManager: boolean) => void;
+    toggleManager: (predictionId: string, makeManager: boolean) => Promise<void>;
   }
 }
 

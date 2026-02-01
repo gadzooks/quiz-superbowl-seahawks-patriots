@@ -1,8 +1,9 @@
 // Team-specific background patterns using team logos
 // Shows faint repeating team logos as background
 
-import { getTeamLogoUrl, NFL_SHIELD_LOGO } from './logos';
 import { getTeamIds, type GameConfig } from '../config/games';
+
+import { getTeamLogoUrl, NFL_SHIELD_LOGO } from './logos';
 import { getTeamTheme } from './teams';
 
 const LOGO_OPACITY = 0.04; // Very faint

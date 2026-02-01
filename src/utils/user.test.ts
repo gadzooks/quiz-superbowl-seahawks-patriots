@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+
 import { getUserId } from './user';
 
 describe('utils/user', () => {

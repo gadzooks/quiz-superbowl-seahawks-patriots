@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { getTeamBackground, LOGO_SIZE } from './backgrounds';
 
 describe('backgrounds', () => {

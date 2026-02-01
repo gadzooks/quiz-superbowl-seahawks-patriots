@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { TEAM_THEMES, getTeamOptions, getTeamTheme, DEFAULT_TEAM_ID } from './teams';
+
 import { NEUTRAL_THEME_ID } from './neutral';
+import { TEAM_THEMES, getTeamOptions, getTeamTheme, DEFAULT_TEAM_ID } from './teams';
 
 describe('teams', () => {
   describe('TEAM_THEMES', () => {

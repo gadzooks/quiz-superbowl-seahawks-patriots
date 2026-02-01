@@ -1,5 +1,5 @@
-import type { Question } from './types';
 import type { GameConfig } from './config/games';
+import type { Question } from './types';
 
 /**
  * Generate questions with dynamic team names from game config.

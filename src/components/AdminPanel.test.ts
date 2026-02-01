@@ -1,7 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderAdminControls } from './AdminPanel';
+
 import { updateState } from '../state/store';
 import type { League } from '../types';
+
+import { renderAdminControls } from './AdminPanel';
 
 describe('components/AdminPanel', () => {
   beforeEach(() => {

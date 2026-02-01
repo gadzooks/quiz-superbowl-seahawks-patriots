@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { calculateScore, calculateScoreWithDebug, calculateTiebreakDiff } from './calculate';
 
 describe('calculateScore', () => {

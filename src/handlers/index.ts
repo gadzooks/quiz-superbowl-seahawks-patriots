@@ -7,16 +7,7 @@ export * from './predictions';
 export * from './results';
 
 import { handleLeagueForm, setSubmissions, setShowPredictions, copyLeagueUrl } from './league';
-
-import {
-  handleTeamNameForm,
-  handleTeamNameEditForm,
-  handleDeleteTeam,
-  handleToggleManager,
-} from './team';
-
 import { handlePredictionsForm, initPredictionAutoSave } from './predictions';
-
 import {
   handleResultsForm,
   initResultsAutoSave,
@@ -24,6 +15,12 @@ import {
   handleClearAllResults,
   recalculateAllScores,
 } from './results';
+import {
+  handleTeamNameForm,
+  handleTeamNameEditForm,
+  handleDeleteTeam,
+  handleToggleManager,
+} from './team';
 
 // Type declaration for window extensions
 declare global {
@@ -89,7 +86,7 @@ export function exposeHandlersToWindow(): void {
       if (title) title.textContent = `Edit Team: ${teamName}`;
     } else {
       // Import dynamically to avoid circular dependency
-      import('../state/store').then(({ getState }) => {
+      void import('../state/store').then(({ getState }) => {
         const { currentTeamName } = getState();
         input.value = currentTeamName || '';
         if (title) title.textContent = 'Edit Team Name';

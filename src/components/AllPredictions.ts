@@ -1,9 +1,10 @@
 // All Predictions Component
 // Renders the table showing all predictions (admin/visible mode)
 
+import { getQuestionsForGame } from '../questions';
 import { getState } from '../state/store';
 import { getCurrentGameConfig } from '../utils/game';
-import { getQuestionsForGame } from '../questions';
+
 import { isAnswerCorrect } from './helpers';
 
 /**
