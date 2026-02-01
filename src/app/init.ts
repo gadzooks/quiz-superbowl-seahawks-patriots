@@ -292,11 +292,7 @@ export function render(): void {
     // Show the intro replay button for returning users
     document.getElementById('introReplayBtn')?.classList.remove('hidden');
 
-    // Update tab labels with team name
-    const adminTab = document.getElementById('adminPredictionsTab');
-    const userTab = document.getElementById('userPredictionsTab');
-    if (adminTab) adminTab.innerHTML = `Team ${userPrediction.teamName}`;
-    if (userTab) userTab.innerHTML = `Team ${userPrediction.teamName}`;
+    // Tab labels are static "Questions" - no need to update dynamically
 
     // Show admin panel for creator
     if (state.isLeagueCreator) {

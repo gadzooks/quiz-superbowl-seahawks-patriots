@@ -165,14 +165,7 @@ async function handleTeamNameChange(e: Event): Promise<void> {
       }),
     ]);
 
-    // If editing own team, update tabs
-    if (!isAdminEdit) {
-      // State will be updated by subscription
-      const adminTab = document.getElementById('adminPredictionsTab');
-      const userTab = document.getElementById('userPredictionsTab');
-      if (adminTab) adminTab.innerHTML = `Team ${newName}`;
-      if (userTab) userTab.innerHTML = `Team ${newName}`;
-    }
+    // Tab labels are static "Questions" - no need to update dynamically
 
     closeTeamNameModal();
     showToast('Team name updated!');
