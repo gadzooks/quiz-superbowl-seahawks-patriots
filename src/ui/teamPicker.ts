@@ -2,6 +2,7 @@
 
 import { getTeamOptions, getTeamTheme, DEFAULT_TEAM_ID } from '../theme/teams';
 import { setTeamTheme, getSavedTeamId } from '../theme/apply';
+import { getTeamLogoUrl } from '../theme/logos';
 
 /**
  * Check if user needs to pick a team (first visit).
@@ -33,12 +34,13 @@ export function showTeamPicker(): Promise<string> {
       if (teamId) {
         const theme = getTeamTheme(teamId);
         if (theme) {
+          const logoUrl = getTeamLogoUrl(teamId);
           // Update preview colors
           preview.style.background = theme.background;
           preview.style.borderColor = theme.primary;
           preview.innerHTML = `
+            ${logoUrl ? `<img src="${logoUrl}" alt="${theme.name}" style="width: 64px; height: 64px; object-fit: contain; margin-bottom: 8px;" />` : ''}
             <div style="color: ${theme.primary}; font-weight: 700; font-size: 18px;">${theme.name}</div>
-            <div style="color: ${theme.text}; font-size: 14px; margin-top: 4px;">Preview</div>
           `;
           confirmBtn.disabled = false;
           confirmBtn.style.opacity = '1';
