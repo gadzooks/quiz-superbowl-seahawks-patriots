@@ -23,7 +23,7 @@
 
 .badge-primary {
   background-color: var(--color-primary) !important;
-  color: var(--color-background) !important;
+  color: #ffffff !important;
   font-weight: 600 !important;
 }
 
