@@ -26,6 +26,7 @@ import { updateScoresTabNotification } from './ui/tabs';
 import { exposeHandlersToWindow } from './handlers';
 import { exposeComponentsToWindow } from './components';
 import { exposeUIToWindow } from './ui';
+import { exposeAppToWindow } from './app';
 import type { League, Prediction } from './types';
 
 console.log('Vite + TypeScript app loading...');
@@ -125,10 +126,11 @@ export async function initApp(): Promise<void> {
   // Expose state store to window for legacy inline scripts
   exposeStoreToWindow();
 
-  // Expose handlers, components, and UI to window for legacy HTML onclick handlers
+  // Expose handlers, components, UI, and app to window for legacy HTML onclick handlers
   exposeHandlersToWindow();
   exposeComponentsToWindow();
   exposeUIToWindow();
+  exposeAppToWindow();
 
   // Initialize render system
   // Note: The original index.html script still handles most rendering

@@ -34,10 +34,13 @@ export function showLeagueCreation(): void {
   hideElement('leagueNotFound');
   showElement('leagueCreation');
 
-  // Set up form handler
+  // Set up form handler using window-exposed function
   const form = document.getElementById('leagueForm') as HTMLFormElement | null;
   if (form) {
-    // Handler will be set by the caller or use the existing one
+    const handleLeagueCreation = (window as Window & { handleLeagueCreation?: (e: Event) => void }).handleLeagueCreation;
+    if (handleLeagueCreation) {
+      form.onsubmit = handleLeagueCreation;
+    }
   }
 
   // Clear expected slug so we don't show not found again
