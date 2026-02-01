@@ -18,7 +18,6 @@ import { renderAllPredictions } from './AllPredictions';
 // Toggle state for collapsible sections
 let gameStatusCollapsed = false;
 let participantsCollapsed = true;
-let testScoringCollapsed = true;
 let recalculateScoresCollapsed = true;
 
 /**
@@ -72,20 +71,6 @@ function toggleParticipants(): void {
 }
 
 /**
- * Toggle test scoring visibility.
- */
-function toggleTestScoring(): void {
-  const content = document.getElementById('testScoringContent');
-  const icon = document.getElementById('testScoringToggleIcon');
-  testScoringCollapsed = !testScoringCollapsed;
-
-  if (content && icon) {
-    content.style.display = testScoringCollapsed ? 'none' : 'block';
-    icon.textContent = testScoringCollapsed ? '▶' : '▼';
-  }
-}
-
-/**
  * Toggle recalculate scores visibility.
  */
 function toggleRecalculateScores(): void {
@@ -122,7 +107,6 @@ declare global {
     toggleAnswers: typeof toggleAnswers;
     toggleGameStatus: typeof toggleGameStatus;
     toggleParticipants: typeof toggleParticipants;
-    toggleTestScoring: typeof toggleTestScoring;
     toggleRecalculateScores: typeof toggleRecalculateScores;
 
     // Render functions
@@ -144,7 +128,6 @@ export function exposeComponentsToWindow(): void {
   window.toggleAnswers = toggleAnswers;
   window.toggleGameStatus = toggleGameStatus;
   window.toggleParticipants = toggleParticipants;
-  window.toggleTestScoring = toggleTestScoring;
   window.toggleRecalculateScores = toggleRecalculateScores;
 
   // Render functions
