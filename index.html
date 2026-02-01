@@ -380,249 +380,10 @@
         });
 
         // ========== SOUND MANAGER ==========
-        // Uses Web Audio API for synthesized sounds and Seahawks audio clips
-        const SoundManager = {
-            enabled: false, // Default OFF for elderly users
-            audioContext: null,
-            audioUrls: {
-                intro: 'https://www2.seahawks.com/soundboard/audio/here-come-the-seahawks.mp3',
-                random: [
-                    'https://www2.seahawks.com/soundboard/audio/touchdown-seahawks.mp3',
-                    'https://www2.seahawks.com/soundboard/audio/defensive-stop.mp3',
-                    'https://www2.seahawks.com/soundboard/audio/are-you-kidding-me.mp3'
-                ]
-            },
-
-            init() {
-                // Load preference from localStorage
-                const saved = localStorage.getItem('soundEnabled');
-                this.enabled = saved === 'true';
-                this.updateButton();
-
-                // Check for reduced motion preference
-                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                    this.enabled = false;
-                    localStorage.setItem('soundEnabled', 'false');
-                }
-            },
-
-            getContext() {
-                if (!this.audioContext) {
-                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                return this.audioContext;
-            },
-
-            toggle() {
-                this.enabled = !this.enabled;
-                localStorage.setItem('soundEnabled', this.enabled.toString());
-                this.updateButton();
-
-                // Play a random Seahawks sound when enabling
-                if (this.enabled) {
-                    this.playRandomSound();
-                }
-            },
-
-            // Play an audio file from URL
-            playAudio(url) {
-                if (!this.enabled) return;
-                try {
-                    const audio = new Audio(url);
-                    audio.volume = 0.7;
-                    audio.play().catch(e => console.log('Audio play failed:', e));
-                } catch (e) {
-                    console.log('Audio not available');
-                }
-            },
-
-            // Play intro sound for team registration (always plays, regardless of sound setting)
-            playIntro() {
-                try {
-                    const audio = new Audio(this.audioUrls.intro);
-                    audio.volume = 0.7;
-                    audio.play().catch(e => console.log('Audio play failed:', e));
-                } catch (e) {
-                    console.log('Audio not available');
-                }
-            },
-
-            // Play random Seahawks sound for toggle feedback
-            playRandomSound() {
-                const sounds = this.audioUrls.random;
-                const randomIndex = Math.floor(Math.random() * sounds.length);
-                this.playAudio(sounds[randomIndex]);
-            },
-
-            updateButton() {
-                const btn = document.getElementById('soundToggle');
-                if (btn) {
-                    btn.textContent = this.enabled ? '🔊' : '🔇';
-                    btn.title = this.enabled ? 'Sound on - click to mute' : 'Sound off - click to enable';
-                }
-            },
-
-            // Simple click sound for feedback
-            playClick() {
-                if (!this.enabled) return;
-                try {
-                    const ctx = this.getContext();
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-
-                    osc.frequency.setValueAtTime(800, ctx.currentTime);
-                    gain.gain.setValueAtTime(0.1, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
-
-                    osc.start(ctx.currentTime);
-                    osc.stop(ctx.currentTime + 0.1);
-                } catch (e) {
-                    console.log('Sound not available');
-                }
-            },
-
-            // Triumphant chord for team registration
-            playCheer() {
-                if (!this.enabled) return;
-                try {
-                    const ctx = this.getContext();
-
-                    // Play a triumphant chord (C major with added notes)
-                    const frequencies = [261.63, 329.63, 392.00, 523.25]; // C4, E4, G4, C5
-                    const duration = 0.8;
-
-                    frequencies.forEach((freq, i) => {
-                        const osc = ctx.createOscillator();
-                        const gain = ctx.createGain();
-
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-
-                        osc.type = 'sine';
-                        osc.frequency.setValueAtTime(freq, ctx.currentTime);
-
-                        // Stagger the start slightly for a richer sound
-                        const startTime = ctx.currentTime + i * 0.05;
-                        gain.gain.setValueAtTime(0, startTime);
-                        gain.gain.linearRampToValueAtTime(0.15, startTime + 0.1);
-                        gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
-
-                        osc.start(startTime);
-                        osc.stop(startTime + duration);
-                    });
-                } catch (e) {
-                    console.log('Sound not available');
-                }
-            },
-
-            // Ascending fanfare for winners
-            playWinner() {
-                if (!this.enabled) return;
-                try {
-                    const ctx = this.getContext();
-
-                    // Ascending fanfare notes
-                    const notes = [
-                        { freq: 392.00, time: 0 },      // G4
-                        { freq: 493.88, time: 0.15 },   // B4
-                        { freq: 587.33, time: 0.30 },   // D5
-                        { freq: 783.99, time: 0.45 }    // G5
-                    ];
-
-                    notes.forEach(note => {
-                        const osc = ctx.createOscillator();
-                        const gain = ctx.createGain();
-
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-
-                        osc.type = 'triangle';
-                        osc.frequency.setValueAtTime(note.freq, ctx.currentTime + note.time);
-
-                        gain.gain.setValueAtTime(0, ctx.currentTime + note.time);
-                        gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + note.time + 0.05);
-                        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + note.time + 0.3);
-
-                        osc.start(ctx.currentTime + note.time);
-                        osc.stop(ctx.currentTime + note.time + 0.35);
-                    });
-
-                    // Add a final sustain chord
-                    setTimeout(() => {
-                        const chordFreqs = [392.00, 493.88, 587.33]; // G major
-                        chordFreqs.forEach(freq => {
-                            const osc = ctx.createOscillator();
-                            const gain = ctx.createGain();
-
-                            osc.connect(gain);
-                            gain.connect(ctx.destination);
-
-                            osc.type = 'sine';
-                            osc.frequency.setValueAtTime(freq, ctx.currentTime);
-
-                            gain.gain.setValueAtTime(0.1, ctx.currentTime);
-                            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1);
-
-                            osc.start(ctx.currentTime);
-                            osc.stop(ctx.currentTime + 1);
-                        });
-                    }, 600);
-                } catch (e) {
-                    console.log('Sound not available');
-                }
-            },
-
-            // Small success sound for completion
-            playSuccess() {
-                if (!this.enabled) return;
-                try {
-                    const ctx = this.getContext();
-
-                    // Two-note success jingle
-                    const notes = [
-                        { freq: 523.25, time: 0 },    // C5
-                        { freq: 659.25, time: 0.1 }   // E5
-                    ];
-
-                    notes.forEach(note => {
-                        const osc = ctx.createOscillator();
-                        const gain = ctx.createGain();
-
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-
-                        osc.type = 'sine';
-                        osc.frequency.setValueAtTime(note.freq, ctx.currentTime + note.time);
-
-                        gain.gain.setValueAtTime(0.15, ctx.currentTime + note.time);
-                        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + note.time + 0.2);
-
-                        osc.start(ctx.currentTime + note.time);
-                        osc.stop(ctx.currentTime + note.time + 0.25);
-                    });
-                } catch (e) {
-                    console.log('Sound not available');
-                }
-            }
-        };
+        // SoundManager - now provided by window.SoundManager from modules (src/sound/manager.ts)
 
         // ========== CELEBRATION FUNCTIONS ==========
-
-        // Show intro overlay after team registration
-        // Seahawks intro images (bundled locally)
-        const introImages = [
-            'images/seahawks-1.png',
-            'images/seahawks-2.jpg',
-            'images/seahawks-3.png',
-            'images/seahawks-4.jpg',
-            'images/seahawks-5.jpg',
-            'images/seahawks-6.jpg',
-            'images/seahawks-7.png'
-        ];
-
+        // introImages - now in ui/celebration.ts
         // shuffleArray - now in ui/celebration.ts
         // showIntroOverlay - now provided by window.showIntroOverlay from modules
         // replayIntro - now provided by window.replayIntro from modules
@@ -649,37 +410,13 @@
             { id: 'totalPoints', label: 'TIEBREAKER: Total combined points', type: 'number', points: 0 },
         ];
 
-        // Get or create user ID
-        function getUserId() {
-            // Check for user ID in URL (for session recovery on different device)
-            const urlParams = new URLSearchParams(window.location.search);
-            const urlUserId = urlParams.get('user');
-
-            if (urlUserId) {
-                // Use the URL user ID and save to localStorage
-                localStorage.setItem('userId', urlUserId);
-                // Clean up URL to remove user parameter (keeps it private)
-                urlParams.delete('user');
-                const newUrl = urlParams.toString()
-                    ? `${window.location.pathname}?${urlParams.toString()}`
-                    : window.location.pathname;
-                window.history.replaceState({}, '', newUrl);
-                return urlUserId;
-            }
-
-            let userId = localStorage.getItem('userId');
-            if (!userId) {
-                userId = 'user-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
-                localStorage.setItem('userId', userId);
-            }
-            return userId;
-        }
+        // getUserId - now provided by window.getUserId from modules (src/utils/user.ts)
 
         // Initialize app
         function initApp() {
             console.log('=== INITIALIZING APP ===');
 
-            // Initialize Sound Manager
+            // Initialize Sound Manager (now uses module version)
             SoundManager.init();
 
             // Initialize InstantDB
@@ -688,7 +425,7 @@
             db = window.InstantDBInit({ appId: appId });
             console.log('InstantDB initialized:', db);
 
-            currentUserId = getUserId();
+            currentUserId = window.getUserId();
             console.log('Current user ID:', currentUserId);
 
             // Check for league parameter and admin override

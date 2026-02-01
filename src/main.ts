@@ -45,7 +45,7 @@ console.log('Git commit:', __GIT_COMMIT__);
 const gameConfig = getCurrentGameConfig();
 const gameId = getCurrentGameId();
 
-// Extend window type for game config
+// Extend window type for game config, SoundManager, and utilities
 declare global {
   interface Window {
     VITE_APP_ID?: string;
@@ -53,11 +53,15 @@ declare global {
     GAME_ID: string;
     GAME_CONFIG: typeof gameConfig;
     USER_TEAM_ID: string;
+    SoundManager: typeof SoundManager;
+    getUserId: typeof getUserId;
   }
 }
 
 window.GAME_ID = gameId;
 window.GAME_CONFIG = gameConfig;
+window.SoundManager = SoundManager;
+window.getUserId = getUserId;
 console.log('Game ID:', gameId);
 console.log('Game Config:', gameConfig);
 
