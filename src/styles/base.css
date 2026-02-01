@@ -66,6 +66,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 18px;
   line-height: 1.6;
+  /* Background follows user's selected team theme */
   background-color: var(--color-background);
   color: var(--color-text);
 }

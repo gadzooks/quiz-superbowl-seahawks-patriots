@@ -95,7 +95,7 @@ export async function initApp(): Promise<void> {
     window.USER_TEAM_ID = selectedTeamId;
     console.log('User selected team:', selectedTeamId);
   } else {
-    // Initialize theme from saved preference
+    // Initialize theme from saved preference (also applies header team colors)
     const userTeamId = initTheme();
     window.USER_TEAM_ID = userTeamId;
     console.log('User theme:', userTeamId);

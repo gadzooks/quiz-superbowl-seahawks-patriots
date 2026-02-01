@@ -61,6 +61,12 @@ export const CSS_VAR_NAMES = {
   primaryRgb: '--color-primary-rgb',
   surface: '--color-surface',
   border: '--color-border',
+
+  // Header team colors (from game config)
+  headerLeftBg: '--header-left-bg',
+  headerRightBg: '--header-right-bg',
+  headerLeftAccent: '--header-left-accent',
+  headerRightAccent: '--header-right-accent',
 } as const;
 
 /**

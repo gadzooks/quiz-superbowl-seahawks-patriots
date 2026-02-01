@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { getGameConfig, isValidGameId, getAvailableGameIds, DEFAULT_GAME_ID, GAMES } from './games';
+import {
+  getGameConfig,
+  isValidGameId,
+  getAvailableGameIds,
+  DEFAULT_GAME_ID,
+  GAMES,
+  getTeamIds,
+} from './games';
 
 describe('config/games', () => {
   describe('GAMES registry', () => {
@@ -109,6 +116,25 @@ describe('config/games', () => {
       const gameKeys = Object.keys(GAMES);
 
       expect(ids.sort()).toEqual(gameKeys.sort());
+    });
+  });
+
+  describe('getTeamIds', () => {
+    it('should derive team IDs by lowercasing team names', () => {
+      const config = GAMES.lx;
+      const teamIds = getTeamIds(config);
+
+      expect(teamIds).toEqual(['seahawks', 'patriots']);
+    });
+
+    it('should return a tuple of two strings', () => {
+      const config = GAMES.lx;
+      const teamIds = getTeamIds(config);
+
+      expect(Array.isArray(teamIds)).toBe(true);
+      expect(teamIds.length).toBe(2);
+      expect(typeof teamIds[0]).toBe('string');
+      expect(typeof teamIds[1]).toBe('string');
     });
   });
 });

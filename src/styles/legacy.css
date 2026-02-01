@@ -532,16 +532,8 @@ input[type='text']:focus {
   box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.3) !important;
 }
 
-/* App header */
-.app-header {
-  position: relative;
-  background: var(--color-background) !important;
-  color: var(--color-text);
-  padding: 16px;
-  padding-bottom: 20px;
-  text-align: center;
-  border-bottom: none;
-}
+/* App header - styles moved to features/header.css */
+/* Background is set via JavaScript for split team colors */
 
 .header-content {
   display: flex;

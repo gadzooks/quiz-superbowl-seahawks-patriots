@@ -2,11 +2,8 @@
 
 .app-header {
   position: relative;
+  /* Background set via JavaScript applyGameTeamBackgrounds() */
   background: var(--color-background);
-  background-size:
-    100% 100%,
-    80px 80px;
-  background-position: center, center;
   color: var(--color-text);
   padding: 16px;
   padding-bottom: 20px;
@@ -111,10 +108,51 @@
 .team-name-large {
   font-size: 16px;
   font-weight: 800;
-  color: var(--color-primary);
   letter-spacing: 1px;
   text-transform: uppercase;
-  text-shadow: 0 0 10px rgba(var(--color-primary-rgb), 0.4);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: teamShimmer 3s ease-in-out infinite;
+}
+
+/* Left team (Seahawks) - uses green accent */
+.header-team-left .team-name-large {
+  background: linear-gradient(
+    90deg,
+    var(--header-left-accent, var(--color-primary)) 0%,
+    #ffffff 50%,
+    var(--header-left-accent, var(--color-primary)) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Right team (Patriots) - uses red accent */
+.header-team-right .team-name-large {
+  background: linear-gradient(
+    90deg,
+    var(--header-right-accent, var(--color-primary)) 0%,
+    #ffffff 50%,
+    var(--header-right-accent, var(--color-primary)) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes teamShimmer {
+  0%,
+  100% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 0%;
+  }
 }
 
 /* Legacy matchup styles (kept for backwards compatibility) */
@@ -283,7 +321,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .league-name-header {
+  .league-name-header,
+  .team-name-large {
     animation: none !important;
   }
 }

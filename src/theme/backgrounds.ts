@@ -2,6 +2,8 @@
 // Shows faint repeating team logos as background
 
 import { getTeamLogoUrl, NFL_SHIELD_LOGO } from './logos';
+import { getTeamIds, type GameConfig } from '../config/games';
+import { getTeamTheme } from './teams';
 
 const LOGO_OPACITY = 0.04; // Very faint
 const LOGO_SIZE = 120; // Size of each logo in the pattern
@@ -32,55 +34,91 @@ export function getTeamBackground(
 }
 
 /**
- * Apply background to document body
+ * Apply background to document body (no-op, uses CSS variables now)
+ * @deprecated Background is now controlled via CSS custom properties
  */
 export function applyTeamBackground(
-  teamId: string,
-  primaryColor: string,
-  backgroundColor: string
+  _teamId: string,
+  _primaryColor: string,
+  _backgroundColor: string
 ): void {
-  const background = getTeamBackground(teamId, primaryColor, backgroundColor);
-
-  // Apply to body
-  document.body.style.background = background;
-  document.body.style.backgroundColor = backgroundColor;
-  document.body.style.backgroundSize = `${LOGO_SIZE}px ${LOGO_SIZE}px`;
-  document.body.style.backgroundAttachment = 'fixed';
-
-  // Apply to header
-  applyHeaderBackground(teamId, backgroundColor);
+  // No-op: background is now controlled by CSS variables set in applyGameTeamBackgrounds
+  // This function is kept for backwards compatibility
 }
 
 /**
- * Apply background to header section
+ * Blend a color with a tint color at a given opacity.
+ * Creates a subtle tinted version of the base color.
  */
-function applyHeaderBackground(teamId: string, backgroundColor: string): void {
+function blendWithTint(baseHex: string, tintHex: string, tintOpacity: number): string {
+  const base = hexToRgb(baseHex);
+  const tint = hexToRgb(tintHex);
+
+  const r = Math.round(base.r * (1 - tintOpacity) + tint.r * tintOpacity);
+  const g = Math.round(base.g * (1 - tintOpacity) + tint.g * tintOpacity);
+  const b = Math.round(base.b * (1 - tintOpacity) + tint.b * tintOpacity);
+
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
+
+/**
+ * Parse hex color to RGB components.
+ */
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const cleanHex = hex.replace('#', '');
+  return {
+    r: parseInt(cleanHex.substring(0, 2), 16),
+    g: parseInt(cleanHex.substring(2, 4), 16),
+    b: parseInt(cleanHex.substring(4, 6), 16),
+  };
+}
+
+/**
+ * Apply split background colors to HEADER ONLY based on game config teams.
+ * Left side shows first team's colors, right side shows second team's colors.
+ * Body background follows the user's selected theme.
+ */
+export function applyGameTeamBackgrounds(gameConfig: GameConfig): void {
+  const [leftTeamId, rightTeamId] = getTeamIds(gameConfig);
+  const leftTheme = getTeamTheme(leftTeamId);
+  const rightTheme = getTeamTheme(rightTeamId);
+
+  if (!leftTheme || !rightTheme) {
+    console.warn('Could not find themes for game teams:', leftTeamId, rightTeamId);
+    return;
+  }
+
+  // Blend background with primary color to create a tinted version (15% tint)
+  const leftBg = blendWithTint(leftTheme.background, leftTheme.primary, 0.15);
+  const rightBg = blendWithTint(rightTheme.background, rightTheme.primary, 0.15);
+
+  console.log('Applying header split background:', { leftBg, rightBg, leftTeamId, rightTeamId });
+
+  // Apply split gradient to header ONLY
+  applyHeaderSplitBackground(leftBg, rightBg);
+}
+
+/**
+ * Apply split background to header section
+ */
+function applyHeaderSplitBackground(leftBg: string, rightBg: string): void {
   const header = document.querySelector('.app-header') as HTMLElement | null;
-  if (!header) return;
+  if (!header) {
+    console.warn('Header element .app-header not found');
+    return;
+  }
 
-  const logoUrl = getTeamLogoUrl(teamId) || NFL_SHIELD_LOGO;
+  // Simple split gradient for header
+  const gradient = `linear-gradient(to right, ${leftBg} 0%, ${leftBg} 45%, ${rightBg} 55%, ${rightBg} 100%)`;
+  header.style.setProperty('background', gradient, 'important');
 
-  // Darken the background color slightly for header
-  const headerBg = adjustBrightness(backgroundColor, -5);
+  // Clear any other background properties that might interfere
+  header.style.backgroundSize = '';
+  header.style.backgroundPosition = '';
+  header.style.backgroundRepeat = '';
+  header.style.backgroundColor = '';
 
-  header.style.background = `
-    linear-gradient(135deg, ${headerBg}f5 0%, ${headerBg}f0 50%, ${headerBg}f5 100%),
-    url("${logoUrl}")
-  `.trim();
-  header.style.backgroundSize = `100% 100%, 80px 80px`;
-  header.style.backgroundPosition = `center, center`;
-  header.style.backgroundColor = headerBg;
-}
-
-/**
- * Adjust brightness of a hex color
- */
-function adjustBrightness(hex: string, percent: number): string {
-  const num = parseInt(hex.replace('#', ''), 16);
-  const r = Math.min(255, Math.max(0, (num >> 16) + Math.round(2.55 * percent)));
-  const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00ff) + Math.round(2.55 * percent)));
-  const b = Math.min(255, Math.max(0, (num & 0x0000ff) + Math.round(2.55 * percent)));
-  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+  console.log('Applied header split background:', gradient);
 }
 
 // Export for backwards compatibility

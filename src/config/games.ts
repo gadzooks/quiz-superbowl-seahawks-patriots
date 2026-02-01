@@ -5,7 +5,15 @@ export interface GameConfig {
   gameId: string; // e.g., "lx", "lxi" - used in URLs and database
   displayName: string; // e.g., "Super Bowl LX" - shown in UI
   year: number; // e.g., 2026
-  teams: [string, string]; // e.g., ["Seahawks", "Patriots"]
+  teams: [string, string]; // Display names e.g., ["Seahawks", "Patriots"]
+}
+
+/**
+ * Get team theme IDs from a game config.
+ * Derives IDs by lowercasing team names.
+ */
+export function getTeamIds(config: GameConfig): [string, string] {
+  return [config.teams[0].toLowerCase(), config.teams[1].toLowerCase()];
 }
 
 /**

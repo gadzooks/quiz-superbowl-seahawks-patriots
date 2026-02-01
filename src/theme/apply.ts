@@ -4,7 +4,9 @@
 import { getTeamTheme, DEFAULT_TEAM_ID, type TeamTheme } from './teams';
 import { CSS_VAR_NAMES, calculateDerivedTokens, type ThemeTokens } from './tokens';
 import { getTeamLogoUrl, NFL_SHIELD_LOGO } from './logos';
-import { applyTeamBackground } from './backgrounds';
+import { applyTeamBackground, applyGameTeamBackgrounds } from './backgrounds';
+import { getTeamIds, type GameConfig } from '../config/games';
+import { getCurrentGameConfig } from '../utils/game';
 
 const STORAGE_KEY = 'supportedTeam';
 const HEADER_LOGO_ID = 'team-logo';
@@ -66,6 +68,32 @@ export function applyTeamTheme(teamId: string): boolean {
 }
 
 /**
+ * Apply header team colors based on game config.
+ * Creates a split header/background with left team colors and right team colors.
+ */
+export function applyHeaderTeamColors(gameConfig: GameConfig): void {
+  const root = document.documentElement;
+  const [leftTeamId, rightTeamId] = getTeamIds(gameConfig);
+
+  const leftTheme = getTeamTheme(leftTeamId);
+  const rightTheme = getTeamTheme(rightTeamId);
+
+  // Set CSS variables for accent colors (used by team names in header)
+  if (leftTheme) {
+    root.style.setProperty(CSS_VAR_NAMES.headerLeftBg, leftTheme.background);
+    root.style.setProperty(CSS_VAR_NAMES.headerLeftAccent, leftTheme.primary);
+  }
+
+  if (rightTheme) {
+    root.style.setProperty(CSS_VAR_NAMES.headerRightBg, rightTheme.background);
+    root.style.setProperty(CSS_VAR_NAMES.headerRightAccent, rightTheme.primary);
+  }
+
+  // Apply split background to body and header (inline styles to override user theme)
+  applyGameTeamBackgrounds(gameConfig);
+}
+
+/**
  * Update the team logo in the header.
  */
 function updateHeaderLogo(teamId: string): void {
@@ -109,6 +137,7 @@ export function clearTeamPreference(): void {
 /**
  * Initialize theme on app load.
  * Uses saved preference, falls back to default.
+ * Also applies header team colors from game config.
  */
 export function initTheme(): string {
   const savedTeamId = getSavedTeamId();
@@ -117,7 +146,12 @@ export function initTheme(): string {
   if (!applyTeamTheme(teamId)) {
     // Fallback to default if saved team is invalid
     applyTeamTheme(DEFAULT_TEAM_ID);
-    return DEFAULT_TEAM_ID;
+  }
+
+  // Apply header team colors (always show game teams, not user's theme)
+  const gameConfig = getCurrentGameConfig();
+  if (gameConfig) {
+    applyHeaderTeamColors(gameConfig);
   }
 
   return teamId;
@@ -125,10 +159,16 @@ export function initTheme(): string {
 
 /**
  * Set a new team theme and save preference.
+ * Also re-applies header team colors to ensure they're not overridden.
  */
 export function setTeamTheme(teamId: string): boolean {
   if (applyTeamTheme(teamId)) {
     saveTeamPreference(teamId);
+    // Re-apply header team colors (they should always show game teams, not user's theme)
+    const gameConfig = getCurrentGameConfig();
+    if (gameConfig) {
+      applyHeaderTeamColors(gameConfig);
+    }
     return true;
   }
   return false;
