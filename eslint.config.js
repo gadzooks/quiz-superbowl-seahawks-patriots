@@ -2,6 +2,7 @@ import eslint from '@eslint/js';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
 import prettier from 'eslint-plugin-prettier';
+import importPlugin from 'eslint-plugin-import-x';
 
 export default [
   {
@@ -59,6 +60,18 @@ export default [
     plugins: {
       '@typescript-eslint': tseslint,
       prettier: prettier,
+      'import-x': importPlugin,
+    },
+    settings: {
+      'import-x/extensions': ['.ts', '.tsx', '.js', '.jsx'],
+      'import-x/parsers': {
+        '@typescript-eslint/parser': ['.ts', '.tsx'],
+      },
+      'import-x/resolver': {
+        node: {
+          extensions: ['.ts', '.tsx', '.js', '.jsx'],
+        },
+      },
     },
     rules: {
       ...eslint.configs.recommended.rules,
@@ -77,6 +90,7 @@ export default [
       '@typescript-eslint/no-non-null-assertion': 'warn',
       'no-console': 'off', // Allow console.log for this project
       'no-debugger': 'warn',
+      'import-x/no-cycle': 'error', // Prevent circular dependencies
     },
   },
   {
