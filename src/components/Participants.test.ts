@@ -10,6 +10,8 @@ import type { League, Prediction } from '../types';
 // Mock dependencies
 vi.mock('../utils/game', () => ({
   getCurrentGameConfig: () => ({ id: 'lx', name: 'Super Bowl LX' }),
+  getCurrentGameId: () => 'lx',
+  buildGamePath: (gameId: string, slug?: string) => (slug ? `/${gameId}/${slug}` : `/${gameId}`),
 }));
 
 vi.mock('../questions', () => ({
@@ -442,9 +444,7 @@ describe('components/Participants', () => {
 
       await copyParticipantLink('u123', 'Team A');
 
-      expect(mockWriteText).toHaveBeenCalledWith(
-        'http://localhost:3000/?league=test-league&user=u123'
-      );
+      expect(mockWriteText).toHaveBeenCalledWith('http://localhost:3000/lx/test-league?user=u123');
     });
 
     it('should not copy if no current league', async () => {

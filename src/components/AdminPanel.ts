@@ -2,6 +2,7 @@
 // Renders admin controls and settings
 
 import { getState } from '../state/store';
+import { getLeagueUrl } from '../utils/url';
 
 /**
  * Render the admin controls panel.
@@ -13,7 +14,7 @@ export function renderAdminControls(): void {
   if (!statusDiv || !currentLeague) return;
 
   const showPredictions = currentLeague.showAllPredictions === true;
-  const shareUrl = `${window.location.origin}${window.location.pathname}?league=${currentLeague.slug}`;
+  const shareUrl = getLeagueUrl(currentLeague.slug);
 
   // Get git commit and app ID from window (set by Vite)
   const gitCommit = (window as Window & { VITE_GIT_COMMIT?: string }).VITE_GIT_COMMIT || 'dev';

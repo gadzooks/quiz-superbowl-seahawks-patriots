@@ -6,6 +6,8 @@
 
 import { SoundManager } from '../sound/manager';
 import { getUserId } from '../utils/user';
+import { getCurrentGameId, buildGamePath } from '../utils/game';
+import { getLeagueUrl } from '../utils/url';
 import {
   getState,
   setCurrentLeague,
@@ -85,7 +87,8 @@ export function initApp(): void {
       leagueParam = savedLeague;
       console.log('Restored league from localStorage:', leagueParam);
       // Update URL to reflect the league (without reload)
-      const newUrl = `${window.location.pathname}?league=${leagueParam}`;
+      const gameId = getCurrentGameId();
+      const newUrl = buildGamePath(gameId, leagueParam);
       window.history.replaceState({}, '', newUrl);
     }
   }
@@ -222,7 +225,7 @@ export async function handleLeagueCreation(e: Event): Promise<void> {
   ]);
 
   // Update URL
-  const newUrl = `${window.location.pathname}?league=${leagueSlug}`;
+  const newUrl = buildGamePath(gameId, leagueSlug);
   window.history.pushState({}, '', newUrl);
 
   // Reload to initialize with league
@@ -259,7 +262,7 @@ export function render(): void {
   document.getElementById('leagueNotFound')?.classList.add('hidden');
 
   // Store league URL for copy function
-  const shareUrl = `${window.location.origin}${window.location.pathname}?league=${currentLeague.slug}`;
+  const shareUrl = getLeagueUrl(currentLeague.slug);
   const shareUrlEl = document.getElementById('shareUrl');
   if (shareUrlEl) shareUrlEl.textContent = shareUrl;
 

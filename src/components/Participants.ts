@@ -4,6 +4,7 @@
 import { getState } from '../state/store';
 import { getCurrentGameConfig } from '../utils/game';
 import { getQuestionsForGame } from '../questions';
+import { getLeagueUrl } from '../utils/url';
 import {
   countAnsweredQuestions,
   getCompletionPercentage,
@@ -103,8 +104,8 @@ export function copyParticipantLink(userId: string, teamName: string): void {
   const { currentLeague } = getState();
   if (!currentLeague) return;
 
-  const baseUrl = `${window.location.origin}${window.location.pathname}`;
-  const link = `${baseUrl}?league=${currentLeague.slug}&user=${userId}`;
+  const leagueUrl = getLeagueUrl(currentLeague.slug);
+  const link = `${leagueUrl}?user=${userId}`;
 
   navigator.clipboard
     .writeText(link)

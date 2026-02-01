@@ -9,7 +9,8 @@ import {
   updateShowAllPredictions,
 } from '../db/queries';
 import { getState } from '../state/store';
-import { getCurrentGameId } from '../utils/game';
+import { getCurrentGameId, buildGamePath } from '../utils/game';
+import { getLeagueUrl } from '../utils/url';
 import { showToast } from '../ui/toast';
 
 /**
@@ -76,7 +77,8 @@ export async function handleLeagueForm(e: Event): Promise<void> {
 
   if (result.success && result.slug) {
     // Update URL and reload
-    const newUrl = `${window.location.pathname}?league=${result.slug}`;
+    const gameId = getCurrentGameId();
+    const newUrl = buildGamePath(gameId, result.slug);
     window.history.pushState({}, '', newUrl);
     window.location.reload();
   } else if (result.error) {
@@ -169,7 +171,7 @@ export async function copyLeagueUrl(): Promise<void> {
     return;
   }
 
-  const url = `${window.location.origin}${window.location.pathname}?league=${currentLeague.slug}`;
+  const url = getLeagueUrl(currentLeague.slug);
 
   try {
     await navigator.clipboard.writeText(url);
