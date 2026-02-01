@@ -21,8 +21,8 @@ import type { Prediction } from '../types';
 import { showIntroOverlay } from '../ui/celebration';
 import { showLeagueNotFound } from '../ui/screens';
 import { showToast } from '../ui/toast';
-import { getCurrentGameId, buildGamePath } from '../utils/game';
-import { getLeagueUrl } from '../utils/url';
+import { buildGamePath } from '../utils/game';
+import { getLeagueUrl, getLeagueSlug, isAdminOverride as getIsAdminOverride } from '../utils/url';
 import { getUserId } from '../utils/user';
 
 // InstantDB instance - set during init
@@ -76,23 +76,10 @@ export function initApp(): void {
   const currentUserId = getUserId();
   console.log('Current user ID:', currentUserId);
 
-  // Check for league parameter and admin override
-  const urlParams = new URLSearchParams(window.location.search);
-  let leagueParam = urlParams.get('league');
-  const isAdminOverride = urlParams.get('isAdmin') === 'true';
-
-  // If no URL param, check localStorage for saved league
-  if (!leagueParam) {
-    const savedLeague = localStorage.getItem('currentLeagueSlug');
-    if (savedLeague) {
-      leagueParam = savedLeague;
-      console.log('Restored league from localStorage:', leagueParam);
-      // Update URL to reflect the league (without reload)
-      const gameId = getCurrentGameId();
-      const newUrl = buildGamePath(gameId, leagueParam);
-      window.history.replaceState({}, '', newUrl);
-    }
-  }
+  // Check for league parameter (supports both path-based and query param routing)
+  const leagueParam = getLeagueSlug();
+  const isAdminOverride = getIsAdminOverride();
+  console.log('League slug from URL:', leagueParam);
 
   if (leagueParam) {
     // Track expected slug for "not found" handling

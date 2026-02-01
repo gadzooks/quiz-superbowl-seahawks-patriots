@@ -2,6 +2,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { showLeagueNotFound, showLeagueCreation, clearLeagueAndReload } from './screens';
 
+// Mock the game utils
+vi.mock('../utils/game', () => ({
+  getCurrentGameId: vi.fn(() => 'lx'),
+}));
+
 describe('ui/screens', () => {
   beforeEach(() => {
     // Setup DOM elements that screens module expects
@@ -56,28 +61,51 @@ describe('ui/screens', () => {
   });
 
   describe('showLeagueCreation', () => {
-    it('should show league creation form', () => {
+    it('should clear league from localStorage', () => {
+      localStorage.setItem('currentLeagueSlug', 'test-league');
+
+      // Mock window methods
+      const mockReload = vi.fn();
+      const mockReplaceState = vi.fn();
+      Object.defineProperty(window, 'location', {
+        value: { reload: mockReload },
+        writable: true,
+      });
+      window.history.replaceState = mockReplaceState;
+
       showLeagueCreation();
 
-      const creationEl = document.getElementById('leagueCreation');
-      expect(creationEl?.classList.contains('hidden')).toBe(false);
+      expect(localStorage.getItem('currentLeagueSlug')).toBeNull();
     });
 
-    it('should hide not found screen', () => {
-      // Show not found first
-      document.getElementById('leagueNotFound')?.classList.remove('hidden');
+    it('should update URL to game home and reload', () => {
+      // Mock window methods
+      const mockReload = vi.fn();
+      const mockReplaceState = vi.fn();
+      Object.defineProperty(window, 'location', {
+        value: { reload: mockReload },
+        writable: true,
+      });
+      window.history.replaceState = mockReplaceState;
 
       showLeagueCreation();
 
-      expect(document.getElementById('leagueNotFound')?.classList.contains('hidden')).toBe(true);
+      expect(mockReplaceState).toHaveBeenCalledWith({}, '', '/lx/');
+      expect(mockReload).toHaveBeenCalled();
     });
 
     it('should clear expected slug from state', () => {
-      // This tests the integration with state management
+      // Mock window methods
+      const mockReload = vi.fn();
+      Object.defineProperty(window, 'location', {
+        value: { reload: mockReload },
+        writable: true,
+      });
+
       showLeagueCreation();
 
-      // Would need to import getState to verify, but testing side effect
-      // through localStorage is simpler
+      // Would need to import getState to verify state was cleared
+      // For now, verifying it doesn't throw is sufficient
       expect(true).toBe(true);
     });
   });
@@ -86,15 +114,34 @@ describe('ui/screens', () => {
     it('should clear league from localStorage', () => {
       localStorage.setItem('currentLeagueSlug', 'test-league');
 
-      // Mock window.location.reload to prevent actual reload
-      const originalReload = window.location.reload;
-      window.location.reload = vi.fn();
+      // Mock window methods
+      const mockReload = vi.fn();
+      const mockReplaceState = vi.fn();
+      Object.defineProperty(window, 'location', {
+        value: { reload: mockReload },
+        writable: true,
+      });
+      window.history.replaceState = mockReplaceState;
 
       clearLeagueAndReload();
 
       expect(localStorage.getItem('currentLeagueSlug')).toBeNull();
+    });
 
-      window.location.reload = originalReload;
+    it('should update URL to game home and reload', () => {
+      // Mock window methods
+      const mockReload = vi.fn();
+      const mockReplaceState = vi.fn();
+      Object.defineProperty(window, 'location', {
+        value: { reload: mockReload },
+        writable: true,
+      });
+      window.history.replaceState = mockReplaceState;
+
+      clearLeagueAndReload();
+
+      expect(mockReplaceState).toHaveBeenCalledWith({}, '', '/lx/');
+      expect(mockReload).toHaveBeenCalled();
     });
   });
 });

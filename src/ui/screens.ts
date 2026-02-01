@@ -4,6 +4,7 @@
  */
 
 import { setExpectedLeagueSlug } from '../state/store';
+import { getCurrentGameId } from '../utils/game';
 
 /**
  * Show league not found screen.
@@ -31,24 +32,17 @@ export function showLeagueNotFound(slug: string): void {
  * Show the league creation form from the not found screen.
  */
 export function showLeagueCreation(): void {
-  hideElement('leagueNotFound');
-  showElement('leagueCreation');
-
-  // Set up form handler using window-exposed function
-  const form = document.getElementById('leagueForm') as HTMLFormElement | null;
-  if (form) {
-    const handleLeagueCreation = (window as Window & { handleLeagueCreation?: (e: Event) => void })
-      .handleLeagueCreation;
-    if (handleLeagueCreation) {
-      form.onsubmit = handleLeagueCreation;
-    }
-  }
-
   // Clear expected slug so we don't show not found again
   setExpectedLeagueSlug(null);
 
-  // Clear URL parameter
-  window.history.replaceState({}, '', window.location.pathname);
+  // Clear localStorage
+  localStorage.removeItem('currentLeagueSlug');
+
+  // Clear URL to game home (e.g., /lx/ instead of /lx/gbaa123) and reload
+  // Reload is necessary to tear down the old league subscriptions
+  const gameId = getCurrentGameId();
+  window.history.replaceState({}, '', `/${gameId}/`);
+  window.location.reload();
 }
 
 /**
@@ -58,17 +52,13 @@ export function clearLeagueAndReload(): void {
   localStorage.removeItem('currentLeagueSlug');
   setExpectedLeagueSlug(null);
 
-  // Clear URL and reload
-  window.history.replaceState({}, '', window.location.pathname);
+  // Clear URL to game home and reload
+  const gameId = getCurrentGameId();
+  window.history.replaceState({}, '', `/${gameId}/`);
   window.location.reload();
 }
 
 // Helper functions
-function showElement(id: string): void {
-  const el = document.getElementById(id);
-  if (el) el.classList.remove('hidden');
-}
-
 function hideElement(id: string): void {
   const el = document.getElementById(id);
   if (el) el.classList.add('hidden');
