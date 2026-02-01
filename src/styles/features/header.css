@@ -240,7 +240,7 @@
 
 /* Team name display in header (next to league name) */
 .team-name-display {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -256,7 +256,7 @@
 
 /* League name in header */
 .league-name-header {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -283,11 +283,11 @@
     max-width: 80px;
   }
   .team-name-large {
-    font-size: 12px;
+    font-size: 14px;
     letter-spacing: 0.5px;
   }
   .matchup-text {
-    font-size: 12px;
+    font-size: 14px;
   }
   .title-text {
     font-size: 18px;

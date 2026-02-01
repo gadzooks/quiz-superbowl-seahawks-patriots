@@ -22,3 +22,12 @@
   color: var(--color-text-muted) !important;
   font-size: 16px !important;
 }
+
+@media (max-width: 640px) {
+  .card-body {
+    padding: 16px;
+  }
+  .card {
+    border-radius: 12px;
+  }
+}

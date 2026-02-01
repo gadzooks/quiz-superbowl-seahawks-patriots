@@ -110,7 +110,7 @@ export const TEAM_THEMES: Record<string, TeamTheme> = {
   },
   colts: {
     name: 'Indianapolis Colts',
-    primary: '#002C5F',
+    primary: '#4B8BFF',
     secondary: '#A2AAAD',
     background: '#002C5F',
     backgroundAlt: '#00234a',
@@ -162,7 +162,7 @@ export const TEAM_THEMES: Record<string, TeamTheme> = {
     background: '#000000',
     backgroundAlt: '#1a1a1a',
     text: '#FFFFFF',
-    textMuted: '#A5ACAF',
+    textMuted: '#C8CDD0',
   },
   chargers: {
     name: 'Los Angeles Chargers',
@@ -177,7 +177,7 @@ export const TEAM_THEMES: Record<string, TeamTheme> = {
   // NFC East
   cowboys: {
     name: 'Dallas Cowboys',
-    primary: '#869397',
+    primary: '#B0C4DE',
     secondary: '#003594',
     background: '#003594',
     backgroundAlt: '#002a75',
@@ -200,7 +200,7 @@ export const TEAM_THEMES: Record<string, TeamTheme> = {
     background: '#004C54',
     backgroundAlt: '#003a40',
     text: '#FFFFFF',
-    textMuted: '#A5ACAF',
+    textMuted: '#B8E0E3',
   },
   commanders: {
     name: 'Washington Commanders',
@@ -276,7 +276,7 @@ export const TEAM_THEMES: Record<string, TeamTheme> = {
     background: '#101820',
     backgroundAlt: '#0a1015',
     text: '#FFFFFF',
-    textMuted: '#D3BC8D',
+    textMuted: '#B8ADA0',
   },
   buccaneers: {
     name: 'Tampa Bay Buccaneers',
@@ -291,7 +291,7 @@ export const TEAM_THEMES: Record<string, TeamTheme> = {
   // NFC West
   cardinals: {
     name: 'Arizona Cardinals',
-    primary: '#97233F',
+    primary: '#FFB612',
     secondary: '#000000',
     background: '#97233F',
     backgroundAlt: '#7a1c33',

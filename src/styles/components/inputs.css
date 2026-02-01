@@ -109,7 +109,7 @@ input[type='text']:focus {
 
 /* Character count styling */
 .char-count {
-  font-size: 13px;
+  font-size: 14px;
   margin-top: 8px;
   transition: color 0.2s ease;
 }
