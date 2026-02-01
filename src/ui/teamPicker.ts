@@ -2,6 +2,7 @@
 
 import { getTeamOptions, getTeamTheme } from '../theme/teams';
 import { setTeamTheme, getSavedTeamId } from '../theme/apply';
+import { NEUTRAL_THEME_ID } from '../theme/neutral';
 
 /**
  * Check if user needs to pick a team (first visit).
@@ -25,6 +26,7 @@ export function showTeamPicker(): Promise<string> {
     const select = document.getElementById('team-select') as HTMLSelectElement;
     const confirmBtn = document.getElementById('team-confirm-btn') as HTMLButtonElement;
     const preview = document.getElementById('team-preview') as HTMLDivElement;
+    const skipBtn = document.getElementById('team-skip-btn') as HTMLButtonElement;
 
     // Preview theme on selection change
     select.addEventListener('change', () => {
@@ -53,6 +55,13 @@ export function showTeamPicker(): Promise<string> {
         overlay.remove();
         resolve(teamId);
       }
+    });
+
+    // Skip button - use neutral theme
+    skipBtn.addEventListener('click', () => {
+      setTeamTheme(NEUTRAL_THEME_ID);
+      overlay.remove();
+      resolve(NEUTRAL_THEME_ID);
     });
   });
 }
@@ -111,7 +120,7 @@ function createTeamPickerHTML(): string {
     seahawks: 'NFC West',
   };
 
-  // Sort teams into divisions
+  // Sort teams into divisions (excluding neutral theme)
   for (const team of teams) {
     const division = teamDivisions[team.id];
     if (division && divisions[division]) {
@@ -144,7 +153,7 @@ function createTeamPickerHTML(): string {
         padding: 20px;
       }
       .team-picker-card {
-        background: var(--color-background-alt, #001a30);
+        background: var(--color-background-alt, #1e293b);
         border-radius: 16px;
         padding: 32px;
         max-width: 400px;
@@ -159,7 +168,7 @@ function createTeamPickerHTML(): string {
       }
       .team-picker-subtitle {
         font-size: 16px;
-        color: var(--color-text-muted, #9DA2A3);
+        color: var(--color-text-muted, #94a3b8);
         margin-bottom: 24px;
       }
       .team-picker-select {
@@ -167,20 +176,20 @@ function createTeamPickerHTML(): string {
         padding: 14px 16px;
         font-size: 18px;
         border-radius: 8px;
-        border: 2px solid var(--color-text-muted, #9DA2A3);
-        background: var(--color-input-bg, #002a4a);
+        border: 2px solid var(--color-text-muted, #94a3b8);
+        background: var(--color-input-bg, #1e293b);
         color: var(--color-text, #fff);
         cursor: pointer;
         margin-bottom: 20px;
       }
       .team-picker-select:focus {
         outline: none;
-        border-color: var(--color-primary, #33F200);
+        border-color: var(--color-primary, #6366f1);
       }
       .team-picker-preview {
         padding: 20px;
         border-radius: 12px;
-        border: 2px dashed var(--color-text-muted, #9DA2A3);
+        border: 2px dashed var(--color-text-muted, #94a3b8);
         margin-bottom: 24px;
         min-height: 70px;
         display: flex;
@@ -190,7 +199,7 @@ function createTeamPickerHTML(): string {
         transition: all 0.3s ease;
       }
       .team-picker-preview-placeholder {
-        color: var(--color-text-muted, #9DA2A3);
+        color: var(--color-text-muted, #94a3b8);
         font-size: 14px;
       }
       .team-picker-btn {
@@ -200,10 +209,11 @@ function createTeamPickerHTML(): string {
         font-weight: 700;
         border-radius: 8px;
         border: none;
-        background: var(--color-primary, #33F200);
-        color: var(--color-background, #00203B);
+        background: var(--color-primary, #6366f1);
+        color: #ffffff;
         cursor: pointer;
         transition: opacity 0.2s;
+        margin-bottom: 12px;
       }
       .team-picker-btn:disabled {
         opacity: 0.5;
@@ -211,6 +221,22 @@ function createTeamPickerHTML(): string {
       }
       .team-picker-btn:not(:disabled):hover {
         opacity: 0.9;
+      }
+      .team-picker-skip-btn {
+        width: 100%;
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 8px;
+        border: 2px solid var(--color-text-muted, #94a3b8);
+        background: transparent;
+        color: var(--color-text-muted, #94a3b8);
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .team-picker-skip-btn:hover {
+        border-color: var(--color-text, #fff);
+        color: var(--color-text, #fff);
       }
     </style>
     <div class="team-picker-card">
@@ -227,6 +253,10 @@ function createTeamPickerHTML(): string {
 
       <button id="team-confirm-btn" class="team-picker-btn" disabled>
         Let's Go!
+      </button>
+
+      <button id="team-skip-btn" class="team-picker-skip-btn">
+        Skip / No preference
       </button>
     </div>
   `;

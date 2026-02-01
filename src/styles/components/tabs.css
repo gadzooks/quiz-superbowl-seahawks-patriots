@@ -2,7 +2,7 @@
 
 .tabs {
   display: flex;
-  background: #001a30 !important;
+  background: var(--color-background-alt) !important;
   border-radius: 8px;
   overflow: hidden;
 }
@@ -12,7 +12,7 @@
   padding: 12px 16px;
   text-align: center;
   cursor: pointer;
-  color: #c4c4c4 !important;
+  color: var(--color-text-muted) !important;
   font-size: 16px !important;
   font-weight: 500 !important;
   transition: all 0.2s;
@@ -25,8 +25,8 @@
 
 .tab-active,
 .tab.tab-active {
-  background-color: #33f200 !important;
-  color: #00203b !important;
+  background-color: var(--color-primary) !important;
+  color: var(--color-background) !important;
   font-weight: 700 !important;
 }
 
@@ -39,7 +39,7 @@
 .tab-active.tab-results,
 .tab.tab-active.tab-results {
   background-color: #e57373 !important;
-  color: #ffffff !important;
+  color: var(--color-text) !important;
 }
 
 /* Scores tab notification badge */
@@ -52,31 +52,31 @@
   position: absolute;
   top: -8px;
   right: -8px;
-  background: #33f200;
-  color: #00203b;
+  background: var(--color-primary);
+  color: var(--color-background);
   font-size: 16px;
   font-weight: 700;
   padding: 4px 6px;
   border-radius: 50%;
   animation: pulseGlow 2s ease-in-out infinite;
-  box-shadow: 0 0 8px rgba(51, 242, 0, 0.6);
+  box-shadow: 0 0 8px rgba(var(--color-primary-rgb), 0.6);
 }
 
 @keyframes pulseGlow {
   0%,
   100% {
     transform: scale(1);
-    box-shadow: 0 0 8px rgba(51, 242, 0, 0.6);
+    box-shadow: 0 0 8px rgba(var(--color-primary-rgb), 0.6);
   }
   50% {
     transform: scale(1.05);
-    box-shadow: 0 0 16px rgba(51, 242, 0, 0.9);
+    box-shadow: 0 0 16px rgba(var(--color-primary-rgb), 0.9);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .tab-scores-notify::after {
     animation: none !important;
-    box-shadow: 0 0 8px rgba(51, 242, 0, 0.6) !important;
+    box-shadow: 0 0 8px rgba(var(--color-primary-rgb), 0.6) !important;
   }
 }

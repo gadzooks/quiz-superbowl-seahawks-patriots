@@ -45,6 +45,6 @@
 
 /* Delete confirmation modal */
 .delete-confirm-modal .modal-box {
-  background: linear-gradient(135deg, #1a0f0f 0%, #2d1515 100%);
-  border: 2px solid #ff6b6b;
+  background: linear-gradient(135deg, var(--color-background-alt) 0%, var(--color-surface) 100%);
+  border: 2px solid var(--color-error);
 }

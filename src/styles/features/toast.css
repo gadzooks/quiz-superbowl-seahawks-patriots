@@ -5,11 +5,11 @@
   bottom: 100px;
   left: 50%;
   transform: translateX(-50%) translateY(100px);
-  background: linear-gradient(135deg, #003320 0%, #002a4a 100%);
-  border: 2px solid #33f200;
+  background: linear-gradient(135deg, var(--color-success-bg) 0%, var(--color-input-bg) 100%);
+  border: 2px solid var(--color-primary);
   border-radius: 16px;
   padding: 16px 24px;
-  color: #ffffff;
+  color: var(--color-text);
   font-size: 18px;
   font-weight: 600;
   z-index: 1001;

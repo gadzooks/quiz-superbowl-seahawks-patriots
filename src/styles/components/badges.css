@@ -22,27 +22,27 @@
 }
 
 .badge-primary {
-  background-color: #33f200 !important;
-  color: #00203b !important;
+  background-color: var(--color-primary) !important;
+  color: var(--color-background) !important;
   font-weight: 600 !important;
 }
 
 .badge-success {
-  background-color: #33f200 !important;
-  color: #00203b !important;
+  background-color: var(--color-success) !important;
+  color: var(--color-background) !important;
 }
 
 .badge-warning {
-  background: #fbbf24;
-  color: #00203b;
+  background: var(--color-warning);
+  color: var(--color-background);
 }
 
 .badge-error {
-  background-color: #ff6b6b !important;
-  color: #ffffff !important;
+  background-color: var(--color-error) !important;
+  color: var(--color-text) !important;
 }
 
 .badge-ghost {
   background: rgba(255, 255, 255, 0.1);
-  color: #c4c4c4;
+  color: var(--color-text-muted);
 }

@@ -33,11 +33,11 @@
   inset: -2px;
   background: linear-gradient(
     90deg,
-    #ffd700 0%,
+    var(--color-gold) 0%,
     #fff8dc 25%,
-    #ffd700 50%,
+    var(--color-gold) 50%,
     #fff8dc 75%,
-    #ffd700 100%
+    var(--color-gold) 100%
   );
   background-size: 200% 100%;
   animation: shimmer 2s linear infinite;
@@ -56,17 +56,17 @@
 
 /* Podium place styling */
 .place-gold {
-  border: 3px solid #ffd700 !important;
+  border: 3px solid var(--color-gold) !important;
   box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
 }
 
 .place-silver {
-  border: 3px solid #c0c0c0 !important;
+  border: 3px solid var(--color-silver) !important;
   box-shadow: 0 0 15px rgba(192, 192, 192, 0.2);
 }
 
 .place-bronze {
-  border: 3px solid #cd7f32 !important;
+  border: 3px solid var(--color-bronze) !important;
   box-shadow: 0 0 15px rgba(205, 127, 50, 0.2);
 }
 

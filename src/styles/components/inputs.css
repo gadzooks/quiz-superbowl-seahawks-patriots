@@ -31,34 +31,34 @@ input[type='number'] {
   width: 100%;
   padding: 16px 20px;
   font-size: 20px;
-  border: 2px solid #9da2a3;
+  border: 2px solid var(--color-text-muted);
   border-radius: 12px;
-  background: #002a4a;
-  color: #ffffff;
+  background: var(--color-input-bg);
+  color: var(--color-text);
   transition: all 0.2s ease;
 }
 
 input[type='number']:focus {
   outline: none;
-  border-color: #33f200;
-  box-shadow: 0 0 0 3px rgba(51, 242, 0, 0.3);
-  background: #003355;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.3);
+  background: var(--color-input-hover);
 }
 
 input[type='number']::placeholder {
-  color: #9da2a3;
+  color: var(--color-text-muted);
 }
 
 /* Text inputs */
 input[type='text'] {
-  background: #002a4a !important;
-  color: #ffffff !important;
-  border-color: #9da2a3 !important;
+  background: var(--color-input-bg) !important;
+  color: var(--color-text) !important;
+  border-color: var(--color-text-muted) !important;
 }
 
 input[type='text']:focus {
-  border-color: #33f200 !important;
-  box-shadow: 0 0 0 3px rgba(51, 242, 0, 0.3) !important;
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.3) !important;
 }
 
 /* Radio option styling - large and tappable */
@@ -115,13 +115,13 @@ input[type='text']:focus {
 }
 
 .char-count-valid {
-  color: #33f200;
+  color: var(--color-success);
 }
 
 .char-count-warning {
-  color: #fbbf24;
+  color: var(--color-warning);
 }
 
 .char-count-error {
-  color: #ff6b6b;
+  color: var(--color-error);
 }

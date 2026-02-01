@@ -28,7 +28,7 @@
 
 .btn-ghost {
   background: transparent;
-  color: #c4c4c4;
+  color: var(--color-text-muted);
 }
 
 .btn-ghost:hover {
@@ -53,8 +53,8 @@
 
 /* Delete button variant */
 .btn-delete {
-  background-color: #ff6b6b !important;
-  color: #ffffff !important;
+  background-color: var(--color-error) !important;
+  color: var(--color-text) !important;
   border: none !important;
 }
 

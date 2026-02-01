@@ -1,6 +1,8 @@
 // NFL Team Color Definitions
 // Users can select their favorite team to personalize the app's appearance
 
+import { neutralTheme, NEUTRAL_THEME_ID } from './neutral';
+
 export interface TeamTheme {
   name: string; // Display name
   primary: string; // Main accent color (buttons, highlights)
@@ -14,8 +16,12 @@ export interface TeamTheme {
 /**
  * NFL team color themes.
  * Colors sourced from official team brand guidelines.
+ * Includes neutral theme for users who don't want team colors.
  */
 export const TEAM_THEMES: Record<string, TeamTheme> = {
+  // Neutral theme (no team preference)
+  [NEUTRAL_THEME_ID]: neutralTheme,
+
   // AFC East
   bills: {
     name: 'Buffalo Bills',
@@ -339,6 +345,6 @@ export function getTeamTheme(teamId: string): TeamTheme | undefined {
 }
 
 /**
- * Default team theme (Seahawks).
+ * Default team theme (neutral - no team preference).
  */
-export const DEFAULT_TEAM_ID = 'seahawks';
+export const DEFAULT_TEAM_ID = NEUTRAL_THEME_ID;

@@ -2,35 +2,44 @@
 // Applies team colors via CSS custom properties for dynamic theming
 
 import { getTeamTheme, DEFAULT_TEAM_ID, type TeamTheme } from './teams';
+import { CSS_VAR_NAMES, calculateDerivedTokens, type ThemeTokens } from './tokens';
 
 const STORAGE_KEY = 'supportedTeam';
 
 /**
- * CSS custom property names used throughout the app.
- */
-const CSS_VARS = {
-  primary: '--color-primary',
-  secondary: '--color-secondary',
-  background: '--color-background',
-  backgroundAlt: '--color-background-alt',
-  text: '--color-text',
-  textMuted: '--color-text-muted',
-} as const;
-
-/**
  * Apply a theme to the document by setting CSS custom properties.
+ * Automatically calculates derived colors (hover states, input backgrounds, etc.)
  */
 export function applyTheme(theme: TeamTheme): void {
   const root = document.documentElement;
 
-  root.style.setProperty(CSS_VARS.primary, theme.primary);
-  root.style.setProperty(CSS_VARS.secondary, theme.secondary);
-  root.style.setProperty(CSS_VARS.background, theme.background);
-  root.style.setProperty(CSS_VARS.backgroundAlt, theme.backgroundAlt);
-  root.style.setProperty(CSS_VARS.text, theme.text);
-  root.style.setProperty(CSS_VARS.textMuted, theme.textMuted);
+  // Apply base theme colors
+  root.style.setProperty(CSS_VAR_NAMES.primary, theme.primary);
+  root.style.setProperty(CSS_VAR_NAMES.secondary, theme.secondary);
+  root.style.setProperty(CSS_VAR_NAMES.background, theme.background);
+  root.style.setProperty(CSS_VAR_NAMES.backgroundAlt, theme.backgroundAlt);
+  root.style.setProperty(CSS_VAR_NAMES.text, theme.text);
+  root.style.setProperty(CSS_VAR_NAMES.textMuted, theme.textMuted);
 
-  // Also update meta theme-color for mobile browsers
+  // Calculate and apply derived colors
+  const baseTokens: ThemeTokens = {
+    primary: theme.primary,
+    secondary: theme.secondary,
+    background: theme.background,
+    backgroundAlt: theme.backgroundAlt,
+    text: theme.text,
+    textMuted: theme.textMuted,
+  };
+  const derived = calculateDerivedTokens(baseTokens);
+
+  root.style.setProperty(CSS_VAR_NAMES.inputBg, derived.inputBg);
+  root.style.setProperty(CSS_VAR_NAMES.inputHover, derived.inputHover);
+  root.style.setProperty(CSS_VAR_NAMES.primaryHover, derived.primaryHover);
+  root.style.setProperty(CSS_VAR_NAMES.primaryRgb, derived.primaryRgb);
+  root.style.setProperty(CSS_VAR_NAMES.surface, derived.surface);
+  root.style.setProperty(CSS_VAR_NAMES.border, derived.border);
+
+  // Update meta theme-color for mobile browsers
   const metaThemeColor = document.querySelector('meta[name="theme-color"]');
   if (metaThemeColor) {
     metaThemeColor.setAttribute('content', theme.background);

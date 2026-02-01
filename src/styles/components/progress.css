@@ -8,15 +8,15 @@
 }
 
 .progress-primary {
-  background-color: #002a4a;
+  background-color: var(--color-input-bg);
 }
 
 .progress-primary::-webkit-progress-value {
-  background-color: #33f200;
+  background-color: var(--color-primary);
 }
 
 .progress-primary::-moz-progress-bar {
-  background-color: #33f200;
+  background-color: var(--color-primary);
 }
 
 .progress::-webkit-progress-bar {
@@ -59,13 +59,18 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: rgba(0, 32, 59, 0.8);
+  background: rgba(0, 0, 0, 0.8);
 }
 
 .progress-bar {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, #33f200 0%, #2ad600 50%, #33f200 100%);
+  background: linear-gradient(
+    90deg,
+    var(--color-primary) 0%,
+    var(--color-primary-hover) 50%,
+    var(--color-primary) 100%
+  );
   transition: width 0.3s ease;
-  box-shadow: 0 0 8px rgba(51, 242, 0, 0.5);
+  box-shadow: 0 0 8px rgba(var(--color-primary-rgb), 0.5);
 }

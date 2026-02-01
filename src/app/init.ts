@@ -354,7 +354,7 @@ export async function handleTeamNameSubmit(e: Event): Promise<void> {
   }
 
   // Check if team name already exists (case-insensitive)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const teamNameExists = allPredictions.some(
     (p: any) => p.teamName.toLowerCase() === teamName.toLowerCase()
   );

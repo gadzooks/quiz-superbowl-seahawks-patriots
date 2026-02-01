@@ -25,7 +25,7 @@
 
 /* Closed submissions styling */
 .closed-banner {
-  background: linear-gradient(135deg, #1a1520 0%, #2d1f2d 100%);
+  background: linear-gradient(135deg, var(--color-background-alt) 0%, var(--color-surface) 100%);
   border: 2px solid var(--color-text-muted);
   border-radius: 12px;
   padding: 16px 20px;
@@ -43,18 +43,18 @@
 
 .submissions-closed .question-card {
   background: var(--color-background-alt);
-  border-color: #5a5a5a;
+  border-color: var(--color-disabled);
 }
 
 .submissions-closed .radio-option {
   background-color: var(--color-background-alt);
-  border-color: #5a5a5a;
+  border-color: var(--color-disabled);
   cursor: default;
 }
 
 .submissions-closed input[type='number'] {
   background: var(--color-background-alt) !important;
-  border-color: #5a5a5a !important;
+  border-color: var(--color-disabled) !important;
   cursor: default;
 }
 
@@ -71,15 +71,15 @@
 }
 
 .correct-answer-indicator.correct {
-  background: rgba(51, 242, 0, 0.15);
-  border: 2px solid #33f200;
-  color: #33f200;
+  background: var(--color-success-bg);
+  border: 2px solid var(--color-success-border);
+  color: var(--color-success);
 }
 
 .correct-answer-indicator.incorrect {
-  background: rgba(255, 107, 107, 0.15);
-  border: 2px solid #ff6b6b;
-  color: #ff6b6b;
+  background: var(--color-error-bg);
+  border: 2px solid var(--color-error-border);
+  color: var(--color-error);
 }
 
 .correct-answer-indicator .indicator-icon {
@@ -88,14 +88,14 @@
 }
 
 .user-answer-correct {
-  background-color: #003320 !important;
-  border-color: #33f200 !important;
-  box-shadow: 0 0 0 3px rgba(51, 242, 0, 0.3) !important;
+  background-color: var(--color-success-bg) !important;
+  border-color: var(--color-success-border) !important;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.3) !important;
 }
 
 .user-answer-incorrect {
-  background-color: #330a0a !important;
-  border-color: #ff6b6b !important;
+  background-color: var(--color-error-bg) !important;
+  border-color: var(--color-error-border) !important;
   box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.3) !important;
 }
 
@@ -115,49 +115,49 @@
 .answer-item {
   padding: 16px 20px !important;
   margin: 8px 0 !important;
-  background-color: #00203b !important;
+  background-color: var(--color-background) !important;
   border-radius: 10px !important;
   font-size: 18px !important;
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  color: #a5acaf !important;
-  border: 1px solid #6b7280 !important;
+  color: var(--color-text-muted) !important;
+  border: 1px solid var(--color-border) !important;
   font-weight: 400 !important;
 }
 
 .answer-item span {
-  color: #a5acaf !important;
+  color: var(--color-text-muted) !important;
 }
 
 .answer-item.correct {
-  background-color: #002418 !important;
-  border: 1px solid #4a9d2a !important;
-  border-left: 4px solid #4a9d2a !important;
+  background-color: var(--color-success-bg) !important;
+  border: 1px solid var(--color-success-border) !important;
+  border-left: 4px solid var(--color-success-border) !important;
 }
 
 .answer-item.correct span {
-  color: #6bbe42 !important;
+  color: var(--color-success) !important;
 }
 
 .answer-item.incorrect {
-  background-color: #250808 !important;
-  border: 1px solid #b85454 !important;
-  border-left: 4px solid #b85454 !important;
+  background-color: var(--color-error-bg) !important;
+  border: 1px solid var(--color-error-border) !important;
+  border-left: 4px solid var(--color-error-border) !important;
 }
 
 .answer-item.incorrect span {
-  color: #cc8888 !important;
+  color: var(--color-error) !important;
 }
 
 /* Team name edit button */
 .team-name-edit-btn {
-  background: rgba(51, 242, 0, 0.15);
-  border: 1px solid #33f200;
+  background: rgba(var(--color-primary-rgb), 0.15);
+  border: 1px solid var(--color-primary);
   border-radius: 6px;
   padding: 4px 10px;
   font-size: 12px;
-  color: #33f200;
+  color: var(--color-primary);
   cursor: pointer;
   transition: all 0.2s ease;
   margin-left: 8px;
@@ -165,25 +165,25 @@
 }
 
 .team-name-edit-btn:hover {
-  background: rgba(51, 242, 0, 0.3);
-  border-color: #33f200;
-  color: #ffffff;
+  background: rgba(var(--color-primary-rgb), 0.3);
+  border-color: var(--color-primary);
+  color: var(--color-text);
 }
 
 /* Delete team button */
 .delete-team-btn {
-  background: rgba(255, 107, 107, 0.1);
+  background: var(--color-error-bg);
   border: 1px solid rgba(255, 107, 107, 0.4);
   border-radius: 6px;
   padding: 6px 10px;
   font-size: 12px;
   font-weight: 600;
-  color: #ff6b6b;
+  color: var(--color-error);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .delete-team-btn:hover {
   background: rgba(255, 107, 107, 0.2);
-  border-color: #ff6b6b;
+  border-color: var(--color-error);
 }
