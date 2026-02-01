@@ -150,10 +150,10 @@ export const TEAM_THEMES: Record<string, TeamTheme> = {
     name: 'Kansas City Chiefs',
     primary: '#E31837',
     secondary: '#FFB81C',
-    background: '#E31837',
-    backgroundAlt: '#c5142f',
+    background: '#8B0A1E',
+    backgroundAlt: '#6B0818',
     text: '#FFFFFF',
-    textMuted: '#FFD9A8',
+    textMuted: '#D4A8B0',
   },
   raiders: {
     name: 'Las Vegas Raiders',
@@ -229,7 +229,7 @@ export const TEAM_THEMES: Record<string, TeamTheme> = {
     background: '#0076B6',
     backgroundAlt: '#006098',
     text: '#FFFFFF',
-    textMuted: '#B0B7BC',
+    textMuted: '#C8DDE9',
   },
   packers: {
     name: 'Green Bay Packers',
