@@ -144,19 +144,19 @@ describe('utils/game', () => {
     it('should build path with game ID only', () => {
       const path = buildGamePath('lx');
 
-      expect(path).toBe('/lx');
+      expect(path).toBe('/superbowl/lx');
     });
 
     it('should build path with game ID and league slug', () => {
       const path = buildGamePath('lx', 'smith-family');
 
-      expect(path).toBe('/lx/smith-family');
+      expect(path).toBe('/superbowl/lx/smith-family');
     });
 
     it('should handle undefined league slug', () => {
       const path = buildGamePath('lx', undefined);
 
-      expect(path).toBe('/lx');
+      expect(path).toBe('/superbowl/lx');
     });
   });
 
@@ -167,7 +167,7 @@ describe('utils/game', () => {
 
       const url = buildGameUrl('lx');
 
-      expect(url).toBe('https://example.com/lx');
+      expect(url).toBe('https://example.com/superbowl/lx');
     });
 
     it('should build full URL with game ID and league slug', () => {
@@ -176,7 +176,7 @@ describe('utils/game', () => {
 
       const url = buildGameUrl('lx', 'smith-family');
 
-      expect(url).toBe('https://example.com/lx/smith-family');
+      expect(url).toBe('https://example.com/superbowl/lx/smith-family');
     });
   });
 });

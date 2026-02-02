@@ -12,6 +12,7 @@ const getGitCommit = (): string => {
 };
 
 export default defineConfig({
+  base: '/superbowl/',
   define: {
     __GIT_COMMIT__: JSON.stringify(getGitCommit()),
   },

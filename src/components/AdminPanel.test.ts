@@ -182,7 +182,7 @@ describe('components/AdminPanel', () => {
       expect(statusDiv?.innerHTML).toContain('Invite Others');
       expect(statusDiv?.innerHTML).toContain('Share link:');
       expect(statusDiv?.innerHTML).toContain('Copy invite link');
-      expect(statusDiv?.innerHTML).toContain('http://localhost:3000/lx/test-league');
+      expect(statusDiv?.innerHTML).toContain('http://localhost:3000/superbowl/lx/test-league');
     });
 
     it('should render QR code for share URL', () => {
@@ -205,7 +205,9 @@ describe('components/AdminPanel', () => {
       const qrImage = statusDiv?.querySelector<HTMLImageElement>('img[alt="QR Code"]');
       expect(qrImage).toBeDefined();
       expect(qrImage?.src).toContain('api.qrserver.com');
-      expect(qrImage?.src).toContain(encodeURIComponent('http://localhost:3000/lx/test-league'));
+      expect(qrImage?.src).toContain(
+        encodeURIComponent('http://localhost:3000/superbowl/lx/test-league')
+      );
     });
 
     it('should render git commit and app ID', () => {

@@ -144,7 +144,7 @@ describe('utils/url', () => {
       delete (window as any).location;
       const mockHistory = { replaceState: vi.fn() };
       (window as any).location = {
-        pathname: '/lx',
+        pathname: '/superbowl/lx',
         search: '',
         origin: 'http://localhost',
       } as unknown as Location;
@@ -152,14 +152,14 @@ describe('utils/url', () => {
 
       saveLeagueSlug('test-league');
 
-      expect(mockHistory.replaceState).toHaveBeenCalledWith({}, '', '/lx/test-league');
+      expect(mockHistory.replaceState).toHaveBeenCalledWith({}, '', '/superbowl/lx/test-league');
     });
 
     it('should preserve query parameters', () => {
       delete (window as any).location;
       const mockHistory = { replaceState: vi.fn() };
       (window as any).location = {
-        pathname: '/lx',
+        pathname: '/superbowl/lx',
         search: '?isAdmin=true',
         origin: 'http://localhost',
       } as unknown as Location;
@@ -167,7 +167,11 @@ describe('utils/url', () => {
 
       saveLeagueSlug('test-league');
 
-      expect(mockHistory.replaceState).toHaveBeenCalledWith({}, '', '/lx/test-league?isAdmin=true');
+      expect(mockHistory.replaceState).toHaveBeenCalledWith(
+        {},
+        '',
+        '/superbowl/lx/test-league?isAdmin=true'
+      );
     });
   });
 
@@ -198,7 +202,7 @@ describe('utils/url', () => {
 
       const url = getLeagueUrl('test-league');
 
-      expect(url).toBe('https://example.com/lx/test-league');
+      expect(url).toBe('https://example.com/superbowl/lx/test-league');
     });
   });
 

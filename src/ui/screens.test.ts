@@ -3,9 +3,13 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { showLeagueNotFound, showLeagueCreation, clearLeagueAndReload } from './screens';
 
 // Mock the game utils
-vi.mock('../utils/game', () => ({
-  getCurrentGameId: vi.fn(() => 'lx'),
-}));
+vi.mock('../utils/game', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../utils/game')>();
+  return {
+    ...actual,
+    getCurrentGameId: vi.fn(() => 'lx'),
+  };
+});
 
 describe('ui/screens', () => {
   beforeEach(() => {
@@ -90,7 +94,7 @@ describe('ui/screens', () => {
 
       showLeagueCreation();
 
-      expect(mockReplaceState).toHaveBeenCalledWith({}, '', '/lx/');
+      expect(mockReplaceState).toHaveBeenCalledWith({}, '', '/superbowl/lx');
       expect(mockReload).toHaveBeenCalled();
     });
 
@@ -140,7 +144,7 @@ describe('ui/screens', () => {
 
       clearLeagueAndReload();
 
-      expect(mockReplaceState).toHaveBeenCalledWith({}, '', '/lx/');
+      expect(mockReplaceState).toHaveBeenCalledWith({}, '', '/superbowl/lx');
       expect(mockReload).toHaveBeenCalled();
     });
   });

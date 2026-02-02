@@ -1,14 +1,19 @@
 // Game utility functions for path-based routing and game configuration
 //
-// URL structure:
-//   /:gameId              - Game home (create/join league)
-//   /:gameId/:leagueSlug  - Specific league within a game
+// URL structure (with /superbowl base path):
+//   /superbowl/:gameId              - Game home (create/join league)
+//   /superbowl/:gameId/:leagueSlug  - Specific league within a game
 //
 // Examples:
-//   /lx                   - Super Bowl LX home
-//   /lx/smith-family      - Smith Family league in Super Bowl LX
+//   /superbowl/lx                   - Super Bowl LX home
+//   /superbowl/lx/smith-family      - Smith Family league in Super Bowl LX
 
 import { getGameConfig, isValidGameId, DEFAULT_GAME_ID, type GameConfig } from '../config/games';
+
+/**
+ * Base path for the application (set in vite.config.ts)
+ */
+const BASE_PATH = '/superbowl';
 
 /**
  * Parse game ID and league slug from the URL path.
@@ -19,8 +24,14 @@ export function parseUrlPath(pathname: string = window.location.pathname): {
   gameId: string;
   leagueSlug: string | null;
 } {
+  // Strip base path if present
+  let path = pathname;
+  if (path.startsWith(BASE_PATH)) {
+    path = path.slice(BASE_PATH.length);
+  }
+
   // Remove leading/trailing slashes and split
-  const parts = pathname
+  const parts = path
     .replace(/^\/|\/$/g, '')
     .split('/')
     .filter(Boolean);
@@ -83,12 +94,13 @@ export function getCurrentGameConfig(): GameConfig {
 
 /**
  * Build a URL path for a game, optionally with a league.
+ * Includes the base path (/superbowl).
  */
 export function buildGamePath(gameId: string, leagueSlug?: string): string {
   if (leagueSlug) {
-    return `/${gameId}/${leagueSlug}`;
+    return `${BASE_PATH}/${gameId}/${leagueSlug}`;
   }
-  return `/${gameId}`;
+  return `${BASE_PATH}/${gameId}`;
 }
 
 /**

@@ -24,7 +24,7 @@ test.describe('League Not Found', () => {
     const nonExistentSlug = `nonexistent-league-${Date.now()}`;
 
     // Navigate to non-existent league
-    await page.goto(`/${gameId}/${nonExistentSlug}`);
+    await page.goto(`/superbowl/${gameId}/${nonExistentSlug}`);
 
     // Wait for the page to finish loading and check what screen is shown
     await page.waitForLoadState('networkidle');
@@ -42,7 +42,7 @@ test.describe('League Not Found', () => {
     const gameId = TEST_GAME_ID;
     const nonExistentSlug = `nonexistent-league-${Date.now()}`;
 
-    await page.goto(`/${gameId}/${nonExistentSlug}`);
+    await page.goto(`/superbowl/${gameId}/${nonExistentSlug}`);
     await page.waitForLoadState('networkidle');
 
     // Wait for not found screen
@@ -51,8 +51,8 @@ test.describe('League Not Found', () => {
     // Click "Create a New League"
     await page.locator('button:has-text("Create a New League")').click();
 
-    // Should navigate to game home
-    await page.waitForURL(`/${gameId}/`);
+    // Should navigate to game home and show league creation form
+    await expect(page.locator('#leagueCreation')).toBeVisible({ timeout: 10000 });
   });
 
   test('should clear localStorage when league is not found', async ({ page }) => {
@@ -65,7 +65,7 @@ test.describe('League Not Found', () => {
     }, nonExistentSlug);
 
     // Navigate to non-existent league
-    await page.goto(`/${gameId}/${nonExistentSlug}`);
+    await page.goto(`/superbowl/${gameId}/${nonExistentSlug}`);
     await page.waitForLoadState('networkidle');
 
     // Verify not found screen appears
@@ -80,7 +80,7 @@ test.describe('League Not Found', () => {
     const gameId = TEST_GAME_ID;
     const nonExistentSlug = `test-missing-league-${Date.now()}`;
 
-    await page.goto(`/${gameId}/${nonExistentSlug}`);
+    await page.goto(`/superbowl/${gameId}/${nonExistentSlug}`);
     await page.waitForLoadState('networkidle');
 
     // Verify the error message contains the correct slug
