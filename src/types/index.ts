@@ -10,6 +10,7 @@ export interface Question {
 
 export interface League {
   id: string;
+  gameId: string; // e.g., "lx", "lxi" - partitions data by Super Bowl year
   name: string;
   slug: string;
   creatorId: string;
@@ -21,6 +22,7 @@ export interface League {
 
 export interface Prediction {
   id: string;
+  gameId: string; // Denormalized from league for query efficiency
   leagueId: string;
   userId: string;
   teamName: string;

@@ -52,22 +52,27 @@ The app uses environment variables to configure the InstantDB App ID, allowing d
 ### Local Development
 
 1. **Create a `.env` file:**
+
    ```bash
    cp .env.example .env
    ```
 
 2. **Edit `.env` and add your InstantDB App ID:**
+
    ```
    INSTANTDB_APP_ID=8b6d941d-edc0-4750-95ec-19660710b8d6
    ```
 
 3. **Run the development server:**
+
    ```bash
    node dev.js
    ```
+
    Opens at http://localhost:8000
 
 4. **Or manually build and serve:**
+
    ```bash
    # Build
    INSTANTDB_APP_ID=your-app-id node build.js
@@ -209,6 +214,7 @@ git push origin prod
 ## Environment URLs
 
 After setup, Netlify will provide:
+
 - **Production**: `https://your-site-name.netlify.app`
 - **Branch deploys**: `https://master--your-site-name.netlify.app`
 - **Deploy previews**: For each pull request
@@ -229,11 +235,13 @@ After setup, Netlify will provide:
 ## Troubleshooting
 
 ### Deploy fails
+
 - Check the deploy log in Netlify dashboard
 - Ensure `index.html` is in the root directory
 - Verify `netlify.toml` syntax
 
 ### Changes not showing
+
 - Clear browser cache
 - Check which branch you pushed to
 - Verify deploy completed successfully in dashboard
@@ -256,6 +264,7 @@ cd dist && python3 -m http.server 8000
 ```
 
 **First time setup:**
+
 ```bash
 # Copy environment example
 cp .env.example .env

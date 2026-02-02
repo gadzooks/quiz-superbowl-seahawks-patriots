@@ -33,6 +33,7 @@ A single-file HTML/JavaScript application for a family Super Bowl prediction gam
 2. Click on "Rules" or "Permissions"
 3. Set to allow **public read/write** (this is a family game, no authentication needed)
 4. Example rule (if needed):
+
 ```javascript
 {
   allow: {
@@ -45,11 +46,13 @@ A single-file HTML/JavaScript application for a family Super Bowl prediction gam
 ### 4. Deploy to Netlify
 
 **Option A: Drag & Drop (Easiest)**
+
 1. Go to [netlify.com/drop](https://netlify.com/drop)
 2. Drag `index.html` onto the page
 3. Get your URL (e.g., `superbowl-game-123.netlify.app`)
 
 **Option B: Netlify CLI**
+
 ```bash
 npm install -g netlify-cli
 netlify deploy --prod --dir .
@@ -112,10 +115,12 @@ netlify deploy --prod --dir .
 ## Design Features
 
 ### Seahawks Theme
+
 - Navy (#002244), Action Green (#69BE28), Wolf Grey (#A5ACAF)
 - Seahawks-inspired branding
 
 ### Accessibility for Elderly Users
+
 - **Large fonts**: 18px body, 24px headers, 32px title
 - **Large tap targets**: Minimum 48px height
 - **Large radio buttons**: 40px custom styled
@@ -134,20 +139,24 @@ netlify deploy --prod --dir .
 ## Troubleshooting
 
 ### Predictions not saving
+
 - Check InstantDB App ID is correct in `index.html`
 - Verify permissions are set to allow public read/write
 - Check browser console for errors
 
 ### Real-time updates not working
+
 - Refresh the page
 - Check internet connection
 - Verify InstantDB service status
 
 ### Admin panel not showing
+
 - Ensure URL has `?admin=true` parameter
 - Check URL is exactly: `https://your-site.com?admin=true`
 
 ### Team URL not working
+
 - Team name gets converted to lowercase with dashes
 - Example: "Smith Family" becomes `?team=smith-family`
 - Share the exact URL shown after team creation
@@ -162,6 +171,7 @@ netlify deploy --prod --dir .
 ## Support
 
 For issues with:
+
 - **InstantDB**: Check [instantdb.com/docs](https://instantdb.com/docs)
 - **Netlify**: Check [docs.netlify.com](https://docs.netlify.com)
 - **This app**: Check browser console for error messages

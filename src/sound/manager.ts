@@ -29,9 +29,10 @@ class SoundManagerClass {
 
   private getContext(): AudioContext {
     if (!this.audioContext) {
-      this.audioContext = new (window.AudioContext ||
-        (window as typeof window & { webkitAudioContext?: typeof AudioContext })
-          .webkitAudioContext)();
+      this.audioContext = new (
+        window.AudioContext ||
+        (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+      )();
     }
     return this.audioContext;
   }
@@ -56,7 +57,7 @@ class SoundManagerClass {
       const audio = new Audio(url);
       audio.volume = 0.7;
       audio.play().catch((e) => console.log('Audio play failed:', e));
-    } catch (e) {
+    } catch {
       console.log('Audio not available');
     }
   }
@@ -69,7 +70,7 @@ class SoundManagerClass {
       const audio = new Audio(this.audioUrls.intro);
       audio.volume = 0.7;
       audio.play().catch((e) => console.log('Audio play failed:', e));
-    } catch (e) {
+    } catch {
       console.log('Audio not available');
     }
   }
@@ -115,7 +116,7 @@ class SoundManagerClass {
 
       oscillator.start(ctx.currentTime);
       oscillator.stop(ctx.currentTime + 0.3);
-    } catch (e) {
+    } catch {
       console.log('Web Audio not available');
     }
   }
@@ -141,7 +142,7 @@ class SoundManagerClass {
 
       oscillator.start(ctx.currentTime);
       oscillator.stop(ctx.currentTime + 0.05);
-    } catch (e) {
+    } catch {
       console.log('Web Audio not available');
     }
   }

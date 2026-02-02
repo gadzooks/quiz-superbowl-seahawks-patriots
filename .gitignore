@@ -1,12 +1,21 @@
 # Build output
 dist/
 
+# Test coverage
+coverage/
+test-results/
+playwright-report/
+playwright/.cache/
+
 # Environment variables
 .env
 .env.local
 
 # Node modules (if needed in future)
 node_modules/
+
+# Package manager lock files (using yarn.lock only)
+package-lock.json
 
 # OS files
 .DS_Store

@@ -116,8 +116,22 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Redirect rules (if needed in the future)
-# [[redirects]]
-#   from = "/old-path"
-#   to = "/new-path"
-#   status = 301
+# ============================================================================
+# SPA Routing
+# ============================================================================
+#
+# URL structure:
+#   /:gameId              - Game home (create/join league)
+#   /:gameId/:leagueSlug  - Specific league within a game
+#
+# Examples:
+#   /lx                   - Super Bowl LX home
+#   /lx/smith-family      - Smith Family league in Super Bowl LX
+#
+# All paths that don't match static files fall through to index.html
+# for client-side routing.
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

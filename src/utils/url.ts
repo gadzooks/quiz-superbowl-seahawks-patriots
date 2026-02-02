@@ -1,4 +1,17 @@
 /**
+ * URL utilities for the Super Bowl Prediction app.
+ *
+ * URL structure:
+ *   /:gameId              - Game home (create/join league)
+ *   /:gameId/:leagueSlug  - Specific league within a game
+ *
+ * Query parameters:
+ *   ?isAdmin=true         - Grant admin access
+ */
+
+import { parseUrlPath, buildGamePath, getCurrentGameId } from './game';
+
+/**
  * Get URL parameters as an object.
  */
 export function getUrlParams(): URLSearchParams {
@@ -6,18 +19,25 @@ export function getUrlParams(): URLSearchParams {
 }
 
 /**
- * Get the league slug from URL.
+ * Get the league slug from URL path.
+ * Falls back to localStorage if not in URL (for backward compatibility).
  */
 export function getLeagueSlug(): string | null {
-  const params = getUrlParams();
-  let slug = params.get('league');
+  const { leagueSlug } = parseUrlPath();
 
-  // If no URL param, check localStorage for saved league
-  if (!slug) {
-    slug = localStorage.getItem('currentLeagueSlug');
+  if (leagueSlug) {
+    return leagueSlug;
   }
 
-  return slug;
+  // Legacy: check URL param
+  const params = getUrlParams();
+  const legacySlug = params.get('league');
+  if (legacySlug) {
+    return legacySlug;
+  }
+
+  // Legacy: check localStorage
+  return localStorage.getItem('currentLeagueSlug');
 }
 
 /**
@@ -34,11 +54,15 @@ export function isAdminOverride(): boolean {
 export function saveLeagueSlug(slug: string): void {
   localStorage.setItem('currentLeagueSlug', slug);
 
-  // Update URL to reflect the league (without reload)
-  const params = getUrlParams();
-  if (!params.get('league')) {
-    const newUrl = `${window.location.pathname}?league=${slug}`;
-    window.history.replaceState({}, '', newUrl);
+  // Update URL to path-based format (without reload)
+  const { leagueSlug } = parseUrlPath();
+  if (!leagueSlug || leagueSlug !== slug) {
+    const gameId = getCurrentGameId();
+    const newPath = buildGamePath(gameId, slug);
+
+    // Preserve query params (like isAdmin)
+    const queryString = window.location.search;
+    window.history.replaceState({}, '', newPath + queryString);
   }
 }
 
@@ -50,10 +74,12 @@ export function clearLeagueSlug(): void {
 }
 
 /**
- * Generate a URL for a league.
+ * Generate a full URL for a league.
  */
 export function getLeagueUrl(slug: string): string {
-  return `${window.location.origin}${window.location.pathname}?league=${slug}`;
+  const gameId = getCurrentGameId();
+  const path = buildGamePath(gameId, slug);
+  return `${window.location.origin}${path}`;
 }
 
 /**

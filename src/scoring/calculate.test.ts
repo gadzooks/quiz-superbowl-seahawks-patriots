@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { calculateScore, calculateScoreWithDebug, calculateTiebreakDiff } from './calculate';
 
 describe('calculateScore', () => {
@@ -66,11 +67,11 @@ describe('calculateScore', () => {
       firstHalfLeader: 'seahawks',
     };
     const results = {
-      winner: 'seahawks',    // correct: +5
-      totalTDs: 4,           // correct: +5
-      overtime: 'yes',       // wrong: 0
+      winner: 'seahawks', // correct: +5
+      totalTDs: 4, // correct: +5
+      overtime: 'yes', // wrong: 0
       winningMargin: '8-14', // correct: +5
-      totalFieldGoals: 2,    // wrong: 0
+      totalFieldGoals: 2, // wrong: 0
       firstHalfLeader: 'tied', // wrong: 0
     };
     expect(calculateScore(predictions, results)).toBe(15);
@@ -105,8 +106,8 @@ describe('calculateScoreWithDebug', () => {
 
     expect(result.score).toBe(5);
     expect(result.debug.length).toBeGreaterThan(0);
-    expect(result.debug.some(d => d.includes('✓'))).toBe(true);
-    expect(result.debug.some(d => d.includes('✗'))).toBe(true);
+    expect(result.debug.some((d) => d.includes('✓'))).toBe(true);
+    expect(result.debug.some((d) => d.includes('✗'))).toBe(true);
   });
 
   it('includes debug for missing predictions', () => {
@@ -114,7 +115,7 @@ describe('calculateScoreWithDebug', () => {
     const results = { winner: 'seahawks' };
     const result = calculateScoreWithDebug(predictions, results);
 
-    expect(result.debug.some(d => d.includes('no prediction'))).toBe(true);
+    expect(result.debug.some((d) => d.includes('no prediction'))).toBe(true);
   });
 });
 

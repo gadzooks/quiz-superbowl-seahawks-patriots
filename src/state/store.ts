@@ -90,9 +90,7 @@ export function setHasShownCompletionCelebration(shown: boolean): void {
   notifyListeners();
 }
 
-export function setPreviousActualResults(
-  results: Record<string, string | number> | null
-): void {
+export function setPreviousActualResults(results: Record<string, string | number> | null): void {
   state = { ...state, previousActualResults: results };
   notifyListeners();
 }
@@ -157,4 +155,60 @@ export function isSubmissionsOpen(): boolean {
 export function hasResults(): boolean {
   const results = state.currentLeague?.actualResults;
   return results !== null && results !== undefined && Object.keys(results).length > 0;
+}
+
+// Type declaration for window extensions
+declare global {
+  interface Window {
+    AppState: {
+      getState: typeof getState;
+      subscribe: typeof subscribe;
+      updateState: typeof updateState;
+      setCurrentLeague: typeof setCurrentLeague;
+      setAllPredictions: typeof setAllPredictions;
+      setCurrentUserId: typeof setCurrentUserId;
+      setCurrentTeamName: typeof setCurrentTeamName;
+      setIsLeagueCreator: typeof setIsLeagueCreator;
+      setIsManager: typeof setIsManager;
+      setCurrentTab: typeof setCurrentTab;
+      setHasShownCompletionCelebration: typeof setHasShownCompletionCelebration;
+      setPreviousActualResults: typeof setPreviousActualResults;
+      setHasUnviewedScoreUpdate: typeof setHasUnviewedScoreUpdate;
+      setExpectedLeagueSlug: typeof setExpectedLeagueSlug;
+      getCurrentUserPrediction: typeof getCurrentUserPrediction;
+      hasAdminAccess: typeof hasAdminAccess;
+      isSubmissionsOpen: typeof isSubmissionsOpen;
+      hasResults: typeof hasResults;
+      resetState: typeof resetState;
+    };
+  }
+}
+
+/**
+ * Expose the store to window for legacy inline scripts.
+ * This allows gradual migration from global variables to the store.
+ */
+export function exposeStoreToWindow(): void {
+  window.AppState = {
+    getState,
+    subscribe,
+    updateState,
+    setCurrentLeague,
+    setAllPredictions,
+    setCurrentUserId,
+    setCurrentTeamName,
+    setIsLeagueCreator,
+    setIsManager,
+    setCurrentTab,
+    setHasShownCompletionCelebration,
+    setPreviousActualResults,
+    setHasUnviewedScoreUpdate,
+    setExpectedLeagueSlug,
+    getCurrentUserPrediction,
+    hasAdminAccess,
+    isSubmissionsOpen,
+    hasResults,
+    resetState,
+  };
+  console.log('AppState exposed to window');
 }

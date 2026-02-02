@@ -1,9 +1,9 @@
-import type { TabType } from '../types';
-import { getState, setCurrentTab, setHasUnviewedScoreUpdate } from '../state/store';
 import { SoundManager } from '../sound/manager';
+import { getState, setCurrentTab, setHasUnviewedScoreUpdate } from '../state/store';
+import type { TabType } from '../types';
 
 /**
- * Switch to a different tab.
+ * Switch to a different tab (module approach with data attributes).
  */
 export function switchTab(tab: TabType): void {
   const state = getState();
@@ -27,7 +27,7 @@ export function switchTab(tab: TabType): void {
 }
 
 /**
- * Render the tab navigation.
+ * Render the tab navigation (module approach).
  */
 export function renderTabs(): void {
   const state = getState();
@@ -92,7 +92,7 @@ function updateTabContent(): void {
 }
 
 /**
- * Update the scores tab notification badge.
+ * Update the scores tab notification badge (module approach).
  */
 export function updateScoresTabNotification(): void {
   const state = getState();
@@ -110,4 +110,152 @@ export function updateScoresTabNotification(): void {
   } else if (!state.hasUnviewedScoreUpdate && existingBadge) {
     existingBadge.remove();
   }
+}
+
+// ============================================================================
+// INLINE COMPATIBILITY FUNCTIONS
+// These preserve the exact behavior of the inline tab functions that use
+// specific panel IDs and onclick handlers. Will be refactored later.
+// ============================================================================
+
+/**
+ * Switch tabs (admin panel) - inline compatibility version.
+ * Uses #adminPanel and specific section IDs.
+ */
+export function switchAdminTab(tab: string): void {
+  // Handle removed 'participants' tab - redirect to admin
+  if (tab === 'participants') tab = 'admin';
+
+  // Update state
+  setCurrentTab(tab as TabType);
+  localStorage.setItem('currentTab', tab);
+
+  // Remove active class from all admin tabs
+  document.querySelectorAll('#adminPanel .tab').forEach((btn) => {
+    btn.classList.remove('tab-active');
+  });
+
+  // Hide all sections
+  document.getElementById('predictionsSection')?.classList.add('hidden');
+  document.getElementById('leaderboardSection')?.classList.add('hidden');
+  document.getElementById('resultsTab')?.classList.add('hidden');
+  document.getElementById('adminTab')?.classList.add('hidden');
+
+  if (tab === 'predictions') {
+    document.querySelectorAll('#adminPanel .tab')[0]?.classList.add('tab-active');
+    document.getElementById('predictionsSection')?.classList.remove('hidden');
+  } else if (tab === 'scores') {
+    document.querySelectorAll('#adminPanel .tab')[1]?.classList.add('tab-active');
+    document.getElementById('leaderboardSection')?.classList.remove('hidden');
+    // Call renderLeaderboard from window (exposed by ui/index.ts)
+    (window as Window & { renderLeaderboard?: () => void }).renderLeaderboard?.();
+    clearScoresNotificationInline();
+  } else if (tab === 'results') {
+    document.querySelectorAll('#adminPanel .tab')[2]?.classList.add('tab-active');
+    document.getElementById('resultsTab')?.classList.remove('hidden');
+    // Call renderResultsForm from window
+    (window as Window & { renderResultsForm?: () => void }).renderResultsForm?.();
+  } else if (tab === 'admin') {
+    document.querySelectorAll('#adminPanel .tab')[3]?.classList.add('tab-active');
+    document.getElementById('adminTab')?.classList.remove('hidden');
+    // Call renderAdminControls from window
+    (window as Window & { renderAdminControls?: () => void }).renderAdminControls?.();
+  }
+}
+
+/**
+ * Switch tabs (user panel) - inline compatibility version.
+ * Uses #userPanel and specific section IDs.
+ */
+export function switchUserTab(tab: string): void {
+  const state = getState();
+
+  // Non-admins have predictions and scores tabs; managers also have results
+  if (tab === 'results' && !state.isManager) {
+    tab = 'predictions'; // Fallback if non-manager tries to access results
+  }
+  if (tab !== 'predictions' && tab !== 'scores' && tab !== 'results') {
+    tab = 'predictions';
+  }
+
+  // Update state
+  setCurrentTab(tab as TabType);
+  localStorage.setItem('currentTab', tab);
+
+  // Remove active class from all user tabs
+  document.querySelectorAll('#userPanel .tab').forEach((btn) => {
+    btn.classList.remove('tab-active');
+  });
+
+  // Hide all sections
+  document.getElementById('predictionsSection')?.classList.add('hidden');
+  document.getElementById('leaderboardSection')?.classList.add('hidden');
+  document.getElementById('resultsTab')?.classList.add('hidden');
+
+  if (tab === 'predictions') {
+    document.querySelectorAll('#userPanel .tab')[0]?.classList.add('tab-active');
+    document.getElementById('predictionsSection')?.classList.remove('hidden');
+  } else if (tab === 'scores') {
+    document.querySelectorAll('#userPanel .tab')[1]?.classList.add('tab-active');
+    document.getElementById('leaderboardSection')?.classList.remove('hidden');
+    (window as Window & { renderLeaderboard?: () => void }).renderLeaderboard?.();
+    clearScoresNotificationInline();
+  } else if (tab === 'results') {
+    // Results tab is at index 2 for managers
+    document.querySelectorAll('#userPanel .tab')[2]?.classList.add('tab-active');
+    document.getElementById('resultsTab')?.classList.remove('hidden');
+    (window as Window & { renderResultsForm?: () => void }).renderResultsForm?.();
+  }
+}
+
+/**
+ * Render user tabs dynamically based on manager status.
+ */
+export function renderUserTabs(): void {
+  const state = getState();
+  const tabsContainer = document.getElementById('userTabs');
+  if (!tabsContainer) return;
+
+  let html = `
+    <a role="tab" id="userPredictionsTab" class="tab ${state.currentTab === 'predictions' ? 'tab-active' : ''}" onclick="switchUserTab('predictions')">My Predictions</a>
+    <a role="tab" class="tab ${state.currentTab === 'scores' ? 'tab-active' : ''}" onclick="switchUserTab('scores')">Scores</a>
+  `;
+
+  if (state.isManager) {
+    html += `<a role="tab" class="tab tab-results ${state.currentTab === 'results' ? 'tab-active' : ''}" onclick="switchUserTab('results')">Results</a>`;
+  }
+
+  tabsContainer.innerHTML = html;
+
+  // Update My Predictions tab with team name
+  const userTab = document.getElementById('userPredictionsTab');
+  if (userTab && state.currentTeamName) {
+    userTab.innerHTML = `Team ${state.currentTeamName}`;
+  }
+}
+
+/**
+ * Update Scores tab visual notification - inline compatibility version.
+ * Uses onclick selector approach.
+ */
+export function updateScoresTabNotificationInline(): void {
+  const state = getState();
+  const adminScoresTab = document.querySelector('#adminPanel .tab[onclick*="scores"]');
+  const userScoresTab = document.querySelector('#userPanel .tab[onclick*="scores"]');
+
+  if (state.hasUnviewedScoreUpdate) {
+    adminScoresTab?.classList.add('tab-scores-notify');
+    userScoresTab?.classList.add('tab-scores-notify');
+  } else {
+    adminScoresTab?.classList.remove('tab-scores-notify');
+    userScoresTab?.classList.remove('tab-scores-notify');
+  }
+}
+
+/**
+ * Clear notification when viewing scores - inline compatibility version.
+ */
+export function clearScoresNotificationInline(): void {
+  setHasUnviewedScoreUpdate(false);
+  updateScoresTabNotificationInline();
 }

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+echo "🔧 Running lint-staged (auto-fix + verify)..."
+npx lint-staged || exit 1
+
+echo "📝 Running TypeScript type check..."
+npm run type-check || exit 1
+
+echo "🧪 Running tests..."
+npm test || exit 1
+
+echo "✅ All checks passed!"

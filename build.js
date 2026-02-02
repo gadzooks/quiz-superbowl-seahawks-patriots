@@ -66,7 +66,7 @@ if (fs.existsSync(imagesDir)) {
   }
   // Copy all files from images folder
   const imageFiles = fs.readdirSync(imagesDir);
-  imageFiles.forEach(file => {
+  imageFiles.forEach((file) => {
     const srcPath = path.join(imagesDir, file);
     const destPath = path.join(imagesOutputDir, file);
     if (fs.statSync(srcPath).isFile()) {
