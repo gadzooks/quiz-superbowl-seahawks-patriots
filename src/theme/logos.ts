@@ -1,11 +1,5 @@
 // NFL Team Logo URLs
-// Using ESPN CDN for reliable, high-quality team logos
-
-/**
- * ESPN CDN base URL for NFL team logos.
- * Format: https://a.espncdn.com/i/teamlogos/nfl/500/{abbr}.png
- */
-const ESPN_LOGO_BASE = 'https://a.espncdn.com/i/teamlogos/nfl/500';
+// Self-hosted logos in public/images/logos/
 
 /**
  * NFL team abbreviations used by ESPN.
@@ -70,10 +64,10 @@ export function getTeamLogoUrl(teamId: string): string | null {
   if (!abbr) {
     return null; // Neutral theme or invalid team
   }
-  return `${ESPN_LOGO_BASE}/${abbr}.png`;
+  return `${import.meta.env.BASE_URL}images/logos/${abbr}.png`;
 }
 
 /**
  * Generic NFL shield logo for neutral theme.
  */
-export const NFL_SHIELD_LOGO = 'https://a.espncdn.com/i/teamlogos/nfl/500/nfl.png';
+export const NFL_SHIELD_LOGO = `${import.meta.env.BASE_URL}images/logos/nfl.png`;

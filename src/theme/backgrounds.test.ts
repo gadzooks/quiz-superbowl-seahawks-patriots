@@ -8,8 +8,7 @@ describe('backgrounds', () => {
       const result = getTeamBackground('seahawks', '#69BE28', '#002244');
 
       expect(result).toContain('url(');
-      expect(result).toContain('espncdn.com');
-      expect(result).toContain('sea.png');
+      expect(result).toContain('images/logos/sea.png');
       expect(result).toContain('linear-gradient');
     });
 
@@ -96,7 +95,7 @@ describe('backgrounds', () => {
       for (const team of teams) {
         const result = getTeamBackground(team, '#ffffff', '#000000');
         expect(result).toContain('url(');
-        expect(result).toContain('espncdn.com');
+        expect(result).toContain('images/logos/');
       }
     });
   });
