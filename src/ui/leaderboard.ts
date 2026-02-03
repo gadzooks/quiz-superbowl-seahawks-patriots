@@ -25,7 +25,7 @@ export function renderAnswerDetails(
   actualResults: Record<string, string | number> | null | undefined
 ): string {
   if (!pred.predictions) {
-    return '<div style="padding: 12px; color: #9DA2A3; text-align: center;">No predictions submitted</div>';
+    return '<div class="answer-detail-empty">No predictions submitted</div>';
   }
 
   const gameConfig = getCurrentGameConfig();
@@ -46,38 +46,29 @@ export function renderAnswerDetails(
         .join(' ');
     }
 
-    // Determine if answer is correct and set colors
-    let bgColor = '#00203B';
-    let borderColor = '#9DA2A3';
-    let textColor = '#FFFFFF';
+    // Determine if answer is correct and set class
     let statusIcon = '';
-    let answerClass = '';
+    let answerClass = 'answer-neutral';
 
     if (correctAnswer !== undefined && correctAnswer !== null && correctAnswer !== '') {
       if (
         userAnswer === correctAnswer ||
         (q.type === 'number' && parseInt(String(userAnswer)) === parseInt(String(correctAnswer)))
       ) {
-        answerClass = 'correct';
-        bgColor = '#003320';
-        borderColor = '#33F200';
-        textColor = '#33F200';
+        answerClass = 'answer-correct';
         statusIcon = '✓';
       } else {
-        answerClass = 'incorrect';
-        bgColor = '#330a0a';
-        borderColor = '#ff6b6b';
-        textColor = '#ff9999';
+        answerClass = 'answer-incorrect';
         statusIcon = '✗';
       }
     }
 
     html += `
-      <div class="answer-item ${answerClass}" style="background-color: ${bgColor}; border: 2px solid ${borderColor}; ${answerClass ? `border-left: 6px solid ${borderColor};` : ''} padding: 16px 20px; margin: 8px 0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;">
-        <span style="color: ${textColor}; font-size: 16px; font-weight: 500;">${q.label}</span>
-        <span style="color: ${textColor}; font-size: 18px; font-weight: 700;">
+      <div class="answer-detail-item ${answerClass}">
+        <span class="answer-detail-label">${q.label}</span>
+        <span class="answer-detail-value">
           ${displayAnswer || '-'}
-          ${statusIcon ? `<strong style="margin-left: 10px; font-size: 20px;">${statusIcon}</strong>` : ''}
+          ${statusIcon ? `<strong class="answer-status-icon">${statusIcon}</strong>` : ''}
         </span>
       </div>
     `;
@@ -88,7 +79,6 @@ export function renderAnswerDetails(
 
 /**
  * Render the leaderboard section.
- * Copied from inline implementation for consistency, will refactor later.
  */
 export function renderLeaderboard(): void {
   const state = getState();
@@ -142,24 +132,21 @@ export function renderLeaderboard(): void {
     // Determine place styling
     let placeClass = '';
     let placeEmoji = '';
-    let shimmerClass = '';
 
     if (isFirst) {
       placeClass = 'place-gold';
-      placeEmoji =
-        '<span class="trophy-bounce" style="font-size: 28px; margin-right: 8px;">🏆</span>';
-      shimmerClass = 'winner-shimmer';
+      placeEmoji = '<span class="trophy-bounce leaderboard-trophy">🏆</span>';
       shouldCelebrate = true;
     } else if (isSecond) {
       placeClass = 'place-silver';
-      placeEmoji = '<span style="font-size: 24px; margin-right: 8px;">🥈</span>';
+      placeEmoji = '<span class="leaderboard-medal">🥈</span>';
     } else if (isThird) {
       placeClass = 'place-bronze';
-      placeEmoji = '<span style="font-size: 24px; margin-right: 8px;">🥉</span>';
+      placeEmoji = '<span class="leaderboard-medal">🥉</span>';
     }
 
     html += `
-      <div class="card bg-base-200 shadow-lg ${placeClass} ${shimmerClass}">
+      <div class="card bg-base-200 ${placeClass}">
         <div class="card-body p-4">
           <div class="flex justify-between items-center">
             <div class="flex-1">

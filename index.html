@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="color-scheme" content="dark only">
     <title>Super Bowl Prediction Game</title>
 
@@ -46,7 +46,7 @@
 </head>
 <body data-theme="neutral" class="bg-base-100 min-h-screen">
     <!-- Header -->
-    <div class="app-header sticky top-0 z-50 shadow-lg">
+    <div class="app-header sticky top-0 z-50">
         <!-- Team logo (top-left) -->
         <img id="team-logo" class="team-logo-header" src="https://a.espncdn.com/i/teamlogos/nfl/500/nfl.png" alt="NFL" />
         <button id="soundToggle" class="sound-toggle" onclick="SoundManager.toggle()" title="Toggle sound">
@@ -65,7 +65,7 @@
                     <span class="team-name-large">Patriots</span>
                 </div>
             </div>
-            <div id="leagueNameHeader" class="hidden" style="margin-top: 6px;">
+            <div id="leagueNameHeader" class="hidden mt-2">
                 <span id="teamNameDisplay" class="team-name-display"></span>
                 <span class="league-name-header"></span>
             </div>
@@ -84,7 +84,7 @@
 
         <!-- League Creation -->
         <div id="leagueCreation" class="hidden">
-            <div class="card bg-base-200 shadow-xl">
+            <div class="card bg-base-200 ">
                 <div class="card-body">
                     <h2 class="card-title text-2xl text-primary">Create Your League</h2>
                     <p class="text-base-content/80">Enter a name for your prediction league. You'll get a shareable link to invite others!</p>
@@ -105,7 +105,7 @@
 
         <!-- League Not Found -->
         <div id="leagueNotFound" class="hidden">
-            <div class="card bg-base-200 shadow-xl">
+            <div class="card bg-base-200 ">
                 <div class="card-body">
                     <h2 class="card-title text-2xl text-primary">League Not Found</h2>
                     <p class="text-base-content/80">The league you're looking for doesn't exist or has been deleted.</p>
@@ -130,11 +130,11 @@
 
         <!-- Team Name Entry -->
         <div id="teamNameEntry" class="hidden">
-            <div class="card bg-base-200 shadow-xl">
+            <div class="card bg-base-200 ">
                 <div class="card-body">
                     <h2 class="card-title text-2xl text-primary">Enter Your Team Name</h2>
                     <p class="text-base-content/80">Choose a unique name for your team in this league.</p>
-                    <p class="text-sm mt-2" style="color: #f59e0b;">⚠️ Choose carefully — only admins can change team names later.</p>
+                    <p class="text-sm mt-2 text-warning">⚠️ Choose carefully — only admins can change team names later.</p>
 
                     <form id="teamNameForm" class="space-y-4 mt-4">
                         <div class="form-control">
@@ -196,10 +196,10 @@
 
         <!-- Delete Team Confirmation Modal -->
         <dialog id="deleteTeamModal" class="modal delete-confirm-modal">
-            <div class="modal-box bg-base-200" style="background: linear-gradient(135deg, #1a0f0f 0%, #2d1515 100%); border: 2px solid #ff6b6b;">
-                <h3 class="font-bold text-lg mb-4" style="color: #ff6b6b;">Delete Team</h3>
-                <p class="mb-2" style="color: #FFFFFF;">Are you sure you want to delete <strong id="deleteTeamName" style="color: #ff6b6b;"></strong>?</p>
-                <p class="text-sm mb-4" style="color: #ff9999;">This action cannot be undone. All predictions for this team will be permanently removed.</p>
+            <div class="modal-box">
+                <h3 class="font-bold text-lg mb-4 text-error">Delete Team</h3>
+                <p class="mb-2">Are you sure you want to delete <strong id="deleteTeamName" class="text-error"></strong>?</p>
+                <p class="text-sm mb-4 text-base-content/60">This action cannot be undone. All predictions for this team will be permanently removed.</p>
                 <input type="hidden" id="deleteTeamId" value="" />
                 <div class="modal-action">
                     <button type="button" class="btn btn-ghost" onclick="closeDeleteModal()">Cancel</button>
@@ -222,11 +222,11 @@
 
             <!-- Admin Controls Tab -->
             <div id="adminTab" class="hidden space-y-6">
-                <div class="card bg-base-200 shadow-xl">
+                <div class="card bg-base-200 ">
                     <div class="card-body p-0">
-                        <button onclick="toggleGameStatus()" class="w-full p-4 flex justify-between items-center cursor-pointer" style="background: transparent; border: none;">
+                        <button onclick="toggleGameStatus()" class="collapsible-toggle w-full p-4 flex justify-between items-center cursor-pointer">
                             <h3 class="card-title text-primary m-0">Game Status</h3>
-                            <span id="gameStatusToggleIcon" style="color: #33F200; font-size: 18px;">▼</span>
+                            <span id="gameStatusToggleIcon" class="collapsible-icon">▼</span>
                         </button>
                         <div id="gameStatusContent" class="px-4 pb-4">
                             <div id="gameStatus"></div>
@@ -235,27 +235,27 @@
                 </div>
 
                 <!-- Participants Section (collapsible) -->
-                <div class="card bg-base-200 shadow-xl">
+                <div class="card bg-base-200 ">
                     <div class="card-body p-0">
-                        <button onclick="toggleParticipants()" class="w-full p-4 flex justify-between items-center cursor-pointer" style="background: transparent; border: none;">
+                        <button onclick="toggleParticipants()" class="collapsible-toggle w-full p-4 flex justify-between items-center cursor-pointer">
                             <h3 class="card-title text-primary m-0">👥 Participants</h3>
-                            <span id="participantsToggleIcon" style="color: #33F200; font-size: 18px;">▶</span>
+                            <span id="participantsToggleIcon" class="collapsible-icon">▶</span>
                         </button>
-                        <div id="participantsContent" class="px-4 pb-4" style="display: none;">
+                        <div id="participantsContent" class="px-4 pb-4 hidden">
                             <div id="participantsList" class="space-y-3"></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Recalculate Scores Section (collapsible) -->
-                <div class="card bg-base-200 shadow-xl">
+                <div class="card bg-base-200 ">
                     <div class="card-body p-0">
-                        <button onclick="toggleRecalculateScores()" class="w-full p-4 flex justify-between items-center cursor-pointer" style="background: transparent; border: none;">
+                        <button onclick="toggleRecalculateScores()" class="collapsible-toggle w-full p-4 flex justify-between items-center cursor-pointer">
                             <h3 class="card-title text-primary m-0">🔄 Recalculate Scores</h3>
-                            <span id="recalculateScoresToggleIcon" style="color: #33F200; font-size: 18px;">▶</span>
+                            <span id="recalculateScoresToggleIcon" class="collapsible-icon">▶</span>
                         </button>
-                        <div id="recalculateScoresContent" class="px-4 pb-4" style="display: none;">
-                            <p class="text-sm mb-4" style="color: #9DA2A3;">
+                        <div id="recalculateScoresContent" class="px-4 pb-4 hidden">
+                            <p class="text-sm mb-4 text-base-content/60">
                                 Recalculate scores for all participants. Useful when someone submits predictions after results have been entered.
                             </p>
                             <button onclick="recalculateAllScores()" class="btn btn-primary w-full mb-4" id="recalculateScoresBtn">
@@ -279,14 +279,13 @@
 
         <!-- Results Tab (for admins and managers) -->
         <div id="resultsTab" class="hidden">
-            <div class="card shadow-xl" style="background-color: #1a0f0f; border: 2px solid #e57373;">
+            <div class="card results-question-card">
                 <div class="card-body">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                        <span style="background: #e57373; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; text-transform: uppercase;">Admin/Manager</span>
-                        <h3 class="card-title" style="color: #e57373; margin: 0;">Enter Actual Results</h3>
+                    <div class="flex items-center gap-2 mb-2">
+                        <h3 class="card-title results-question-number" style="margin: 0; font-size: 20px;">Enter Actual Results</h3>
                     </div>
-                    <p class="text-sm" style="color: #9DA2A3;">
-                        Results are saved automatically as you enter them. Scores update in real-time.
+                    <p class="text-sm text-base-content/60">
+                        Scores update in real-time.
                     </p>
                     <p id="resultsAutoSaveStatus" class="text-sm text-success text-center font-semibold"></p>
                     <form id="resultsForm" class="space-y-4 mt-4">
@@ -301,7 +300,7 @@
             <div id="submissionsStatus" class="mb-4"></div>
             <p id="autoSaveStatus" class="text-sm text-success text-center font-semibold"></p>
 
-            <div class="card bg-base-200 shadow-xl">
+            <div class="card bg-base-200 ">
                 <div class="card-body">
                     <form id="predictionsForm" class="space-y-4 mt-4">
                         <!-- Questions will be generated by JS -->

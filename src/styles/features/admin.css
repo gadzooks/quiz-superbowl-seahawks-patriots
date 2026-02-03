@@ -1,0 +1,430 @@
+/* Admin panel, results form, predictions table, and participant styles */
+
+/* ============================================
+ * Results Form
+ * ============================================ */
+
+.results-question-card {
+  background: rgba(229, 115, 115, 0.06);
+  border: 1px solid rgba(229, 115, 115, 0.25);
+  border-left: 4px solid #e57373;
+}
+
+.results-question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.results-question-header label {
+  margin: 0;
+}
+
+.results-question-number {
+  color: #e57373;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.results-clear-btn {
+  background: rgba(229, 115, 115, 0.2);
+  color: #e57373;
+  border: 1px solid #e57373;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--duration-micro) var(--ease-micro);
+}
+
+.results-clear-btn:hover {
+  background: rgba(229, 115, 115, 0.35);
+}
+
+.results-info-banner {
+  background: rgba(96, 165, 250, 0.15);
+  border: 1px solid var(--color-info);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.results-info-banner .results-info-icon {
+  font-size: 20px;
+}
+
+.results-info-banner .results-info-text {
+  color: var(--color-text);
+  font-size: 16px;
+}
+
+.results-points-badge {
+  display: inline-block;
+  background: #e57373;
+  color: #ffffff;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-left: var(--space-xs);
+}
+
+/* Results radio option overrides */
+.results-radio-selected {
+  background-color: rgba(229, 115, 115, 0.1);
+  border-color: #e57373;
+  box-shadow: 0 0 0 3px rgba(229, 115, 115, 0.15);
+}
+
+.results-radio-unselected {
+  background-color: rgba(229, 115, 115, 0.06);
+  border-color: rgba(229, 115, 115, 0.35);
+}
+
+.results-number-input {
+  background: rgba(229, 115, 115, 0.06);
+  border-color: rgba(229, 115, 115, 0.35);
+}
+
+/* ============================================
+ * Admin Panel
+ * ============================================ */
+
+.admin-control-row {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-control-label {
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.admin-toggle-group {
+  display: flex;
+  gap: 6px;
+}
+
+.admin-toggle-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all var(--duration-micro) var(--ease-micro);
+}
+
+.admin-toggle-active-open {
+  background: rgba(0, 51, 32, 0.5);
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
+}
+
+.admin-toggle-inactive {
+  background: var(--color-input-bg);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-text-muted);
+}
+
+.admin-toggle-active-closed {
+  background: rgba(61, 26, 26, 0.5);
+  border: 1.5px solid var(--color-error);
+  color: var(--color-error);
+}
+
+.admin-share-section {
+  padding: 16px;
+  background: var(--color-input-bg);
+  border-radius: 8px;
+}
+
+.admin-share-title {
+  color: var(--color-text);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.admin-share-content {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.admin-share-link-label {
+  color: var(--color-text-muted);
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.admin-share-link {
+  color: var(--color-primary);
+  font-size: 15px;
+  text-decoration: underline;
+  display: inline-block;
+}
+
+.admin-share-url {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  margin-top: 8px;
+  word-break: break-all;
+}
+
+.admin-qr-container {
+  background: white;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.admin-qr-image {
+  display: block;
+  width: 120px;
+  height: 120px;
+}
+
+.admin-build-info {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--color-background-alt);
+  border-left: 3px solid var(--color-primary);
+  border-radius: 6px;
+}
+
+.admin-build-message {
+  font-size: 13px;
+  color: var(--color-text);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.admin-build-details {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+/* ============================================
+ * All Predictions Table
+ * ============================================ */
+
+.predictions-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  background-color: var(--color-background);
+}
+
+.predictions-th {
+  background-color: var(--color-primary);
+  color: var(--color-background);
+  font-weight: 700;
+  padding: var(--space-sm) var(--space-xs);
+  white-space: normal;
+  min-width: 80px;
+}
+
+.predictions-th-team {
+  text-align: left;
+  position: sticky;
+  left: 0;
+  z-index: 10;
+}
+
+.predictions-td {
+  background-color: var(--color-input-bg);
+  color: var(--color-text);
+  padding: var(--space-sm) var(--space-xs);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.predictions-td-sticky {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  font-weight: 700;
+}
+
+.predictions-td-correct {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: var(--color-primary);
+}
+
+.predictions-td-score {
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.predictions-actual-row {
+  background-color: rgba(34, 197, 94, 0.1);
+}
+
+.predictions-actual-td {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: var(--color-primary);
+  font-weight: 600;
+  padding: var(--space-sm) var(--space-xs);
+  border-top: 3px solid var(--color-primary);
+}
+
+.predictions-actual-td-sticky {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  font-weight: 700;
+}
+
+/* ============================================
+ * Participants
+ * ============================================ */
+
+.manager-toggle-btn {
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--duration-micro) var(--ease-micro);
+}
+
+.manager-toggle-btn:first-of-type {
+  border-radius: 6px 0 0 6px;
+}
+
+.manager-toggle-btn:last-of-type {
+  border-radius: 0 6px 6px 0;
+}
+
+.manager-toggle-active {
+  background: var(--color-primary);
+  color: var(--color-background);
+  border: 1.5px solid var(--color-primary);
+}
+
+.manager-toggle-active-yes {
+  background: var(--color-warning);
+  color: var(--color-background);
+  border: 1.5px solid var(--color-warning);
+}
+
+.manager-toggle-inactive {
+  background: var(--color-input-bg);
+  color: var(--color-text-muted);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+ * Collapsible sections (admin tab)
+ * ============================================ */
+
+.collapsible-toggle {
+  background: transparent;
+  border: none;
+}
+
+.collapsible-icon {
+  color: var(--color-primary);
+  font-size: 18px;
+}
+
+/* ============================================
+ * Warning text
+ * ============================================ */
+
+.text-warning {
+  color: var(--color-warning);
+}
+
+/* ============================================
+ * Status text for recalculate
+ * ============================================ */
+
+.status-text-muted {
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: var(--space-sm);
+}
+
+/* ============================================
+ * Leaderboard answer details (from leaderboard.ts)
+ * ============================================ */
+
+.answer-detail-empty {
+  padding: var(--space-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.answer-detail-item {
+  padding: 16px 20px;
+  margin: 8px 0;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+}
+
+.answer-detail-item.answer-neutral {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.answer-detail-item.answer-correct {
+  background-color: var(--color-success-bg);
+  border-color: var(--color-success);
+  border-left: 6px solid var(--color-success);
+}
+
+.answer-detail-item.answer-incorrect {
+  background-color: var(--color-error-bg);
+  border-color: var(--color-error);
+  border-left: 6px solid var(--color-error);
+}
+
+.answer-detail-label {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.answer-detail-value {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.answer-neutral .answer-detail-label,
+.answer-neutral .answer-detail-value {
+  color: var(--color-text);
+}
+
+.answer-correct .answer-detail-label,
+.answer-correct .answer-detail-value {
+  color: var(--color-success);
+}
+
+.answer-incorrect .answer-detail-label,
+.answer-incorrect .answer-detail-value {
+  color: var(--color-error);
+}
+
+.answer-status-icon {
+  margin-left: 10px;
+  font-size: 20px;
+  font-weight: 700;
+}

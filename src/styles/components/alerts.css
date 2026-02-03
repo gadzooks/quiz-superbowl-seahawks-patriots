@@ -2,7 +2,7 @@
 
 .alert {
   padding: 16px 20px !important;
-  border-radius: 8px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   gap: 12px;

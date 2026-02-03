@@ -151,7 +151,7 @@ function createThemeMenuHTML(): string {
         const theme = getTeamTheme(team.id);
         teamsHTML += `
           <div class="theme-option" data-team-id="${team.id}">
-            <div class="theme-option-swatch" style="background: ${theme?.primary}"></div>
+            <div class="theme-option-swatch" style="background: ${theme?.secondary}"></div>
             <span class="theme-option-name">${team.name}</span>
           </div>
         `;
@@ -209,7 +209,7 @@ function createThemeMenuHTML(): string {
         bottom: 96px;
         right: 24px;
         width: 280px;
-        max-height: 70vh;
+        max-height: 70dvh;
         background: var(--color-background-alt);
         border-radius: 16px;
         z-index: 999;
@@ -302,7 +302,7 @@ function createThemeMenuHTML(): string {
       }
 
       .theme-division-header {
-        font-size: 11px;
+        font-size: 13px;
         font-weight: 700;
         color: var(--color-text-muted);
         text-transform: uppercase;

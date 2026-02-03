@@ -26,42 +26,40 @@ export function renderResultsForm(): void {
       currentLeague.actualResults?.[q.id] !== null &&
       currentLeague.actualResults?.[q.id] !== '';
 
-    html += `<div class="question-card" style="background: #1a0f0f; border: 1px solid #e5737340; border-left: 4px solid #e57373;">`;
-    html += `<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-      <label style="margin: 0;">
-        <span style="color: #ef9a9a; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Question ${index + 1}</span><br>
-        <span style="color: #FFFFFF;">${q.label}</span>
-        <span style="display: inline-block; background: #e57373; color: #FFFFFF; padding: 4px 12px; border-radius: 12px; font-size: 14px; font-weight: 700; margin-left: 10px;">${q.points} pts</span>
+    html += `<div class="question-card results-question-card">`;
+    html += `<div class="results-question-header">
+      <label>
+        <span class="results-question-number">Question ${index + 1}</span><br>
+        <span>${q.label}</span>
+        <span class="results-points-badge">${q.points} pts</span>
       </label>
-      ${hasValue ? `<button type="button" onclick="clearResult('${q.id}')" style="background: rgba(229, 115, 115, 0.2); color: #e57373; border: 1px solid #e57373; padding: 8px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">✕ Clear</button>` : ''}
+      ${hasValue ? `<button type="button" onclick="clearResult('${q.id}')" class="results-clear-btn">✕ Clear</button>` : ''}
     </div>`;
 
     if (q.type === 'radio' && q.options) {
       q.options.forEach((option) => {
         const value = option.toLowerCase().replace(/\s+/g, '-');
         const checked = currentLeague.actualResults?.[q.id] === value ? 'checked' : '';
-        const selectedStyle = checked
-          ? 'background-color: #2d1515; border-color: #e57373; box-shadow: 0 0 0 3px rgba(229, 115, 115, 0.3);'
-          : 'background-color: #1a0f0f; border-color: #e5737360;';
+        const selectedClass = checked ? 'results-radio-selected' : 'results-radio-unselected';
         html += `
-          <label class="radio-option" style="${selectedStyle}">
-            <input type="radio" name="result-${q.id}" value="${value}" ${checked} style="accent-color: #e57373;">
+          <label class="radio-option ${selectedClass}">
+            <input type="radio" name="result-${q.id}" value="${value}" ${checked}>
             <span>${option}</span>
           </label>
         `;
       });
     } else {
       const value = currentLeague.actualResults?.[q.id] ?? '';
-      html += `<input type="number" name="result-${q.id}" value="${value}" min="0" placeholder="Enter number" style="background: #1a0f0f; border-color: #e5737360;">`;
+      html += `<input type="number" name="result-${q.id}" value="${value}" min="0" placeholder="Enter number" class="results-number-input">`;
     }
 
     html += `</div>`;
   });
 
   html += `
-    <div style="background: rgba(96, 165, 250, 0.15); border: 1px solid #60a5fa; border-radius: 12px; padding: 16px; margin-top: 24px; display: flex; align-items: center; gap: 12px;">
-      <span style="font-size: 20px;">ℹ️</span>
-      <span style="color: #FFFFFF; font-size: 16px;">Results are saved automatically as you enter them.</span>
+    <div class="results-info-banner">
+      <span class="results-info-icon">ℹ️</span>
+      <span class="results-info-text">Results are saved automatically as you enter them.</span>
     </div>
   `;
 
@@ -139,7 +137,7 @@ async function handleResultsAutoSave(): Promise<void> {
       } catch (error) {
         if (statusDiv) {
           statusDiv.textContent = '✗ Error saving';
-          statusDiv.style.color = '#dc2626';
+          statusDiv.style.color = 'var(--color-error)';
         }
         console.error('Results auto-save error:', error);
       }
@@ -205,7 +203,7 @@ export async function recalculateAllScores(): Promise<void> {
     }
     if (statusDiv) {
       statusDiv.innerHTML =
-        '<div style="color: var(--color-text-muted); text-align: center; padding: 10px;">Recalculating scores for all participants...</div>';
+        '<div class="status-text-muted">Recalculating scores for all participants...</div>';
     }
 
     const { recalculateAllScores: recalculate } = await import('../db/queries');

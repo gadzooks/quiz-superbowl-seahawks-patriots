@@ -1,3 +1,5 @@
+// AdminPanel.ts
+
 // Admin Panel Component
 // Renders admin controls and settings
 
@@ -23,53 +25,53 @@ export function renderAdminControls(): void {
   const appId = (window as Window & { VITE_APP_ID?: string }).VITE_APP_ID || '';
 
   statusDiv.innerHTML = `
-    <div style="margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-      <span style="color: #FFFFFF; font-weight: 600; font-size: 15px;">Submissions</span>
-      <div style="display: flex; gap: 6px;">
-        <label style="display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; ${currentLeague.isOpen ? 'background: #003320; border: 2px solid var(--color-primary); color: var(--color-primary);' : 'background: var(--color-input-bg); border: 2px solid var(--color-text-muted); color: var(--color-text-muted);'}">
-          <input type="radio" name="submissions" value="open" ${currentLeague.isOpen ? 'checked' : ''} onchange="setSubmissions(true)" style="width: 16px; height: 16px; accent-color: var(--color-primary);">
+    <div class="admin-control-row">
+      <span class="admin-control-label">Submissions</span>
+      <div class="admin-toggle-group">
+        <label class="admin-toggle-option ${currentLeague.isOpen ? 'admin-toggle-active-open' : 'admin-toggle-inactive'}">
+          <input type="radio" name="submissions" value="open" ${currentLeague.isOpen ? 'checked' : ''} onchange="setSubmissions(true)">
           🔓 Open
         </label>
-        <label style="display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; ${!currentLeague.isOpen ? 'background: #3d1a1a; border: 2px solid #ff6b6b; color: #ff6b6b;' : 'background: var(--color-input-bg); border: 2px solid var(--color-text-muted); color: var(--color-text-muted);'}">
-          <input type="radio" name="submissions" value="closed" ${!currentLeague.isOpen ? 'checked' : ''} onchange="setSubmissions(false)" style="width: 16px; height: 16px; accent-color: #ff6b6b;">
+        <label class="admin-toggle-option ${!currentLeague.isOpen ? 'admin-toggle-active-closed' : 'admin-toggle-inactive'}">
+          <input type="radio" name="submissions" value="closed" ${!currentLeague.isOpen ? 'checked' : ''} onchange="setSubmissions(false)">
           🔒 Closed
         </label>
       </div>
     </div>
 
-    <div style="margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-      <span style="color: #FFFFFF; font-weight: 600; font-size: 15px;">Show All Answers</span>
-      <div style="display: flex; gap: 6px;">
-        <label style="display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; ${!showPredictions ? 'background: #003320; border: 2px solid var(--color-primary); color: var(--color-primary);' : 'background: var(--color-input-bg); border: 2px solid var(--color-text-muted); color: var(--color-text-muted);'}">
-          <input type="radio" name="showPredictions" value="hidden" ${!showPredictions ? 'checked' : ''} onchange="setShowPredictions(false)" style="width: 16px; height: 16px; accent-color: var(--color-primary);">
+    <div class="admin-control-row">
+      <span class="admin-control-label">Show Answers</span>
+      <div class="admin-toggle-group">
+        <label class="admin-toggle-option ${!showPredictions ? 'admin-toggle-active-open' : 'admin-toggle-inactive'}">
+          <input type="radio" name="showPredictions" value="hidden" ${!showPredictions ? 'checked' : ''} onchange="setShowPredictions(false)">
           🔒 Hidden
         </label>
-        <label style="display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; ${showPredictions ? 'background: #3d1a1a; border: 2px solid #ff6b6b; color: #ff6b6b;' : 'background: var(--color-input-bg); border: 2px solid var(--color-text-muted); color: var(--color-text-muted);'}">
-          <input type="radio" name="showPredictions" value="visible" ${showPredictions ? 'checked' : ''} onchange="setShowPredictions(true)" style="width: 16px; height: 16px; accent-color: #ff6b6b;">
+        <label class="admin-toggle-option ${showPredictions ? 'admin-toggle-active-closed' : 'admin-toggle-inactive'}">
+          <input type="radio" name="showPredictions" value="visible" ${showPredictions ? 'checked' : ''} onchange="setShowPredictions(true)">
           👁️ Visible
         </label>
       </div>
     </div>
 
-    <div style="padding: 16px; background: var(--color-input-bg); border-radius: 8px;">
-      <div style="color: #FFFFFF; font-weight: 600; margin-bottom: 12px;">Invite Others</div>
-      <div style="display: flex; gap: 16px; align-items: flex-start;">
+    <div class="admin-share-section">
+      <div class="admin-share-title">Invite Others</div>
+      <div class="admin-share-content">
         <div style="flex: 1;">
-          <div style="color: var(--color-text-muted); font-size: 14px; margin-bottom: 8px;">Share link:</div>
-          <a href="#" onclick="copyLeagueUrl(); return false;" style="color: var(--color-primary); font-size: 14px; text-decoration: underline; display: inline-block;">📋 Copy invite link</a>
-          <div style="color: var(--color-text-muted); font-size: 12px; margin-top: 8px; word-break: break-all;">${shareUrl}</div>
+          <div class="admin-share-link-label">Share link:</div>
+          <a href="#" onclick="copyLeagueUrl(); return false;" class="admin-share-link">📋 Copy invite link</a>
+          <div class="admin-share-url">${shareUrl}</div>
         </div>
-        <div style="background: white; padding: 8px; border-radius: 8px;">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(shareUrl)}" alt="QR Code" style="display: block; width: 120px; height: 120px;">
+        <div class="admin-qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(shareUrl)}" alt="QR Code" class="admin-qr-image">
         </div>
       </div>
     </div>
 
-    <div style="margin-top: 16px; padding: 16px; background: var(--color-background-alt); border-left: 3px solid var(--color-primary); border-radius: 6px;">
-      <div style="font-size: 13px; color: var(--color-text); margin-bottom: 8px; font-weight: 600;">
+    <div class="admin-build-info">
+      <div class="admin-build-message">
         ${commitMessage}
       </div>
-      <div style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 11px; color: var(--color-text-muted);">
+      <div class="admin-build-details">
         <span>Commit: <code>${gitCommit}</code></span>
         <span>DB: <code>...${appId.slice(-5)}</code></span>
       </div>

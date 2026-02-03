@@ -1,3 +1,5 @@
+// AllPredictions.test.ts
+
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { updateState } from '../state/store';
@@ -135,10 +137,10 @@ describe('components/AllPredictions', () => {
       renderAllPredictions();
 
       const table = document.querySelector('table');
-      expect(table?.innerHTML).toContain('✓ ACTUAL');
+      expect(table?.innerHTML).toContain('RESULTS');
     });
 
-    it('should highlight correct answers with green background', () => {
+    it('should highlight correct answers with CSS class', () => {
       const league: League = {
         id: 'l1',
         gameId: 'lx',
@@ -169,7 +171,7 @@ describe('components/AllPredictions', () => {
       renderAllPredictions();
 
       const tableHtml = document.getElementById('allPredictionsTable')?.innerHTML || '';
-      expect(tableHtml).toContain('#003320'); // Correct answer background color
+      expect(tableHtml).toContain('predictions-td-correct'); // Correct answer CSS class
     });
 
     it('should show dash for unanswered questions', () => {

@@ -307,49 +307,14 @@ export function showIntroOverlay(teamName: string): void {
     introImage.src = slideshowImages[0];
     introImage.style.opacity = '1';
 
-    // Transition effects
-    const transitions = [
-      {
-        out: (img: HTMLElement) => {
-          img.style.opacity = '0';
-          img.style.transform = 'scale(1.1)';
-        },
-        in: (img: HTMLElement) => {
-          img.style.opacity = '1';
-          img.style.transform = 'scale(1)';
-        },
-      },
-      {
-        out: (img: HTMLElement) => {
-          img.style.opacity = '0';
-          img.style.transform = 'scale(0.9)';
-        },
-        in: (img: HTMLElement) => {
-          img.style.opacity = '1';
-          img.style.transform = 'scale(1)';
-        },
-      },
-      {
-        out: (img: HTMLElement) => {
-          img.style.opacity = '0';
-          img.style.transform = 'translateX(-30px)';
-        },
-        in: (img: HTMLElement) => {
-          img.style.opacity = '1';
-          img.style.transform = 'translateX(0)';
-        },
-      },
-    ];
-
-    // Start slideshow
+    // Start slideshow with simple crossfade
     const slideshowInterval = setInterval(() => {
       currentIndex++;
       if (currentIndex < slideshowImages.length) {
-        const transition = transitions[Math.floor(Math.random() * transitions.length)];
-        transition.out(introImage);
+        introImage.style.opacity = '0';
         setTimeout(() => {
           introImage.src = slideshowImages[currentIndex];
-          transition.in(introImage);
+          introImage.style.opacity = '1';
         }, TRANSITION_SPEED);
       }
     }, IMAGE_DURATION);
@@ -382,13 +347,12 @@ export function showIntroOverlay(teamName: string): void {
   if (footballEl) {
     footballEl.style.animation = 'none';
     void footballEl.offsetWidth;
-    footballEl.style.animation =
-      'footballBounceStop 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards';
+    footballEl.style.animation = 'footballDrop 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
   }
   if (shadowEl) {
     shadowEl.style.animation = 'none';
     void shadowEl.offsetWidth;
-    shadowEl.style.animation = 'shadowPulse 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards';
+    shadowEl.style.animation = 'shadowAppear 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
   }
 
   // Only play intro sound for Seahawks theme

@@ -54,20 +54,23 @@
   }
 }
 
-/* Podium place styling */
+/* Podium place styling — subtle left accent stripe */
+.place-gold,
+.place-silver,
+.place-bronze {
+  border-left: 3px solid transparent;
+}
+
 .place-gold {
-  border: 3px solid var(--color-gold) !important;
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+  border-left-color: var(--color-gold);
 }
 
 .place-silver {
-  border: 3px solid var(--color-silver) !important;
-  box-shadow: 0 0 15px rgba(192, 192, 192, 0.2);
+  border-left-color: var(--color-silver);
 }
 
 .place-bronze {
-  border: 3px solid var(--color-bronze) !important;
-  box-shadow: 0 0 15px rgba(205, 127, 50, 0.2);
+  border-left-color: var(--color-bronze);
 }
 
 /* Gentle pulse animation for non-winner celebration */
@@ -85,6 +88,17 @@
     transform: scale(1.02);
     box-shadow: 0 0 20px rgba(var(--color-primary-rgb), 0.4);
   }
+}
+
+/* Leaderboard answer item styles (used in expandable sections) */
+.leaderboard-trophy {
+  font-size: 28px;
+  margin-right: 8px;
+}
+
+.leaderboard-medal {
+  font-size: 24px;
+  margin-right: 8px;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -57,7 +57,7 @@ export function showTeamPicker(): Promise<string> {
             const isSelected = selectedTeamId === team.id;
             html += `
               <div class="team-item ${isSelected ? 'selected' : ''}" data-team-id="${team.id}">
-                <div class="team-color-swatch" style="background: ${theme?.primary || '#6366f1'};"></div>
+                <div class="team-color-swatch" style="background: ${theme?.secondary || '#6366f1'};"></div>
                 <span class="team-name">${team.name}</span>
                 ${isSelected ? '<span class="team-check">✓</span>' : ''}
               </div>
@@ -234,14 +234,21 @@ function createTeamPickerHTML(): string {
         justify-content: center;
         z-index: 9999;
         padding: 20px;
+        padding-top: calc(20px + env(safe-area-inset-top));
+        padding-bottom: calc(20px + env(safe-area-inset-bottom));
       }
       .team-picker-card {
         background: var(--color-background-alt, #1e293b);
         border-radius: 16px;
-        padding: 32px;
+        padding: var(--space-lg, 24px);
+        padding-bottom: calc(var(--space-lg, 24px) + env(safe-area-inset-bottom));
         max-width: 500px;
         width: 100%;
         text-align: center;
+        max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 40px);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
       }
       .team-picker-title {
         font-size: 28px;
@@ -262,8 +269,8 @@ function createTeamPickerHTML(): string {
         width: 100%;
         padding: 14px 40px 14px 16px;
         font-size: 16px;
-        border-radius: 8px;
-        border: 2px solid var(--color-text-muted, #94a3b8);
+        border-radius: 12px;
+        border: 1.5px solid var(--color-text-muted, #94a3b8);
         background: var(--color-input-bg, #1e293b);
         color: var(--color-text, #fff);
       }
@@ -290,14 +297,16 @@ function createTeamPickerHTML(): string {
       .team-list-wrapper {
         max-height: 400px;
         overflow-y: auto;
-        border: 2px solid var(--color-text-muted, #94a3b8);
-        border-radius: 8px;
-        margin-bottom: 20px;
+        border: 1.5px solid var(--color-text-muted, #94a3b8);
+        border-radius: 12px;
+        margin-bottom: var(--space-md, 16px);
         background: var(--color-input-bg, #1e293b);
         text-align: left;
+        flex-shrink: 1;
+        min-height: 120px;
       }
       .division-header {
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 700;
         color: var(--color-text-muted, #94a3b8);
         padding: 12px 16px 8px;
@@ -311,11 +320,11 @@ function createTeamPickerHTML(): string {
       .team-item {
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 12px 16px;
+        gap: var(--space-md, 16px);
+        padding: 14px 16px;
         cursor: pointer;
         transition: background 0.2s;
-        min-height: 48px;
+        min-height: 56px;
       }
       .team-item:hover {
         background: rgba(255, 255, 255, 0.05);
@@ -343,36 +352,39 @@ function createTeamPickerHTML(): string {
         padding: 40px 20px;
         text-align: center;
         color: var(--color-text-muted, #94a3b8);
-        font-size: 14px;
+        font-size: 15px;
       }
       .team-picker-preview {
-        padding: 20px;
+        padding: var(--space-md, 16px);
         border-radius: 12px;
-        border: 2px dashed var(--color-text-muted, #94a3b8);
-        margin-bottom: 24px;
+        border: 1.5px dashed var(--color-text-muted, #94a3b8);
+        margin-bottom: var(--space-md, 16px);
         min-height: 70px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         transition: all 0.3s ease;
+        flex-shrink: 0;
       }
       .team-picker-preview-placeholder {
         color: var(--color-text-muted, #94a3b8);
-        font-size: 14px;
+        font-size: 15px;
       }
       .team-picker-btn {
         width: 100%;
         padding: 16px 24px;
         font-size: 18px;
         font-weight: 700;
-        border-radius: 8px;
+        border-radius: 12px;
         border: none;
         background: var(--color-primary, #6366f1);
         color: #ffffff;
         cursor: pointer;
         transition: opacity 0.2s;
-        margin-bottom: 12px;
+        margin-bottom: var(--space-sm, 12px);
+        flex-shrink: 0;
+        min-height: 56px;
       }
       .team-picker-btn:disabled {
         opacity: 0.5;
@@ -383,15 +395,17 @@ function createTeamPickerHTML(): string {
       }
       .team-picker-skip-btn {
         width: 100%;
-        padding: 12px 24px;
+        padding: 14px 24px;
         font-size: 16px;
         font-weight: 600;
-        border-radius: 8px;
-        border: 2px solid var(--color-text-muted, #94a3b8);
+        border-radius: 12px;
+        border: 1.5px solid var(--color-text-muted, #94a3b8);
         background: transparent;
         color: var(--color-text-muted, #94a3b8);
         cursor: pointer;
         transition: all 0.2s;
+        flex-shrink: 0;
+        min-height: 48px;
       }
       .team-picker-skip-btn:hover {
         border-color: var(--color-text, #fff);
