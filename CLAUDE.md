@@ -129,23 +129,13 @@ db.subscribeQuery(
 );
 ```
 
-## Design System (Seahawks Theme)
+## Design System
 
-**Color Palette** (defined in CSS variables, line 13-16):
+**IMPORTANT: Read `UX_GUIDELINES.md` before making any UI changes.** It defines the Apple-inspired design language, spacing tokens, component patterns, motion rules, and accessibility requirements for this project. All new and modified components must follow those guidelines.
 
-- Navy: `#002244` (primary background)
-- Action Green: `#69BE28` (accent, buttons)
-- Wolf Grey: `#A5ACAF` (secondary elements)
+**Theme Architecture**: Colors are dynamic CSS custom properties set by JavaScript based on the user's selected NFL team. See `src/styles/base.css` for token definitions and `src/theme/` for the theming system.
 
-**Accessibility Features for Elderly Users**:
-
-- Large fonts: 18px body, 20px inputs, 24px headers, 32px title
-- Large tap targets: Minimum 48px height for all interactive elements
-- Large radio buttons: 40px custom-styled
-- High contrast: White text on navy background
-- Generous spacing: 24px between questions, 16px padding
-- Single column layout: Max-width 640px, centered
-- Hover states with visual feedback (scale transform, background color)
+**Key constraints**: Mobile-first, elderly users, dark mode only, 8px spacing grid, 56px minimum touch targets for primary actions.
 
 ## Code Modification Guidelines
 

@@ -101,9 +101,15 @@
 }
 
 .submissions-closed .radio-option {
-  background-color: var(--color-background-alt);
-  border-color: var(--color-disabled);
+  background-color: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.06);
   cursor: default;
+}
+
+.submissions-closed .radio-option:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.06);
+  transform: none;
 }
 
 .submissions-closed input[type='number'] {

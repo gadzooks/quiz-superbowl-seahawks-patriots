@@ -61,44 +61,74 @@ input[type='text']:focus {
   box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.3) !important;
 }
 
-/* Radio option styling - large and tappable */
+/* Radio option styling - Apple-inspired selection cards */
 .radio-option {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: var(--space-md, 16px);
-  padding: 18px 20px;
-  margin: var(--space-sm, 12px) 0;
-  background-color: var(--color-input-bg);
-  border: 2px solid var(--color-text-muted);
+  justify-content: center;
+  padding: 16px 20px;
+  margin: var(--space-xs, 8px) 0;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  min-height: 60px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 56px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .radio-option:hover {
-  background-color: var(--color-input-hover);
-  border-color: var(--color-primary);
+  background-color: rgba(var(--color-primary-rgb), 0.08);
+  border-color: rgba(var(--color-primary-rgb), 0.3);
+}
+
+.radio-option:active {
+  transform: scale(0.98);
 }
 
 .radio-option:has(input:checked) {
-  background-color: var(--color-input-hover);
+  background-color: rgba(var(--color-primary-rgb), 0.12);
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.3);
+  box-shadow: 0 0 0 1px rgba(var(--color-primary-rgb), 0.2);
 }
 
+/* Hide native radio — use a checkmark indicator instead */
 .radio-option input[type='radio'] {
-  width: 28px;
-  height: 28px;
-  accent-color: var(--color-primary);
-  cursor: pointer;
-  flex-shrink: 0;
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Checkmark indicator on selected state */
+.radio-option:has(input:checked)::after {
+  content: '';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12l4 4 8-8'/%3E%3C/svg%3E");
+  background-size: 14px;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 .radio-option span {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 500;
   color: var(--color-text);
+  letter-spacing: -0.01em;
+}
+
+.radio-option:has(input:checked) span {
+  font-weight: 600;
+  color: var(--color-primary);
 }
 
 @media (max-width: 640px) {
