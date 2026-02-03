@@ -121,17 +121,17 @@
 # ============================================================================
 #
 # URL structure:
-#   /:gameId              - Game home (create/join league)
-#   /:gameId/:leagueSlug  - Specific league within a game
+#   /superbowl/:gameId              - Game home (create/join league)
+#   /superbowl/:gameId/:leagueSlug  - Specific league within a game
 #
 # Examples:
-#   /lx                   - Super Bowl LX home
-#   /lx/smith-family      - Smith Family league in Super Bowl LX
+#   /superbowl/lx                   - Super Bowl LX home
+#   /superbowl/lx/smith-family      - Smith Family league in Super Bowl LX
 #
 # All paths that don't match static files fall through to index.html
 # for client-side routing.
 
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
+  from = "/superbowl/*"
+  to = "/superbowl/index.html"
   status = 200
