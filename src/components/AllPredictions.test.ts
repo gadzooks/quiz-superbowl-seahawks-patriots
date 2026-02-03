@@ -1,3 +1,5 @@
+// AllPredictions.test.ts
+
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { updateState } from '../state/store';
@@ -135,7 +137,7 @@ describe('components/AllPredictions', () => {
       renderAllPredictions();
 
       const table = document.querySelector('table');
-      expect(table?.innerHTML).toContain('✓ ACTUAL');
+      expect(table?.innerHTML).toContain('RESULTS');
     });
 
     it('should highlight correct answers with CSS class', () => {

@@ -13,6 +13,10 @@
   transition: opacity 0.3s;
 }
 
+#autoSaveStatus:empty {
+  display: none;
+}
+
 .question-card {
   background: var(--color-input-bg);
   border-radius: 16px;

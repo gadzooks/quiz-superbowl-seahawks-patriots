@@ -1,3 +1,5 @@
+// AdminPanel.ts
+
 // Admin Panel Component
 // Renders admin controls and settings
 
@@ -38,7 +40,7 @@ export function renderAdminControls(): void {
     </div>
 
     <div class="admin-control-row">
-      <span class="admin-control-label">Show All Answers</span>
+      <span class="admin-control-label">Show Answers</span>
       <div class="admin-toggle-group">
         <label class="admin-toggle-option ${!showPredictions ? 'admin-toggle-active-open' : 'admin-toggle-inactive'}">
           <input type="radio" name="showPredictions" value="hidden" ${!showPredictions ? 'checked' : ''} onchange="setShowPredictions(false)">

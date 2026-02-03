@@ -1,3 +1,5 @@
+// AllPredictions.ts
+
 // All Predictions Component
 // Renders the table showing all predictions (admin/visible mode)
 
@@ -64,7 +66,7 @@ export function renderAllPredictions(): void {
   const actualResults = currentLeague.actualResults;
   if (actualResults && Object.keys(actualResults).length > 0) {
     html += `<tr class="predictions-actual-row">
-      <td class="predictions-actual-td predictions-actual-td-sticky">✓ ACTUAL</td>`;
+      <td class="predictions-actual-td predictions-actual-td-sticky">RESULTS</td>`;
 
     questions.forEach((q) => {
       const value = actualResults[q.id];

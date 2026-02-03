@@ -1,3 +1,5 @@
+// AdminPanel.test.ts
+
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { updateState } from '../state/store';
@@ -111,7 +113,7 @@ describe('components/AdminPanel', () => {
       renderAdminControls();
 
       const statusDiv = document.getElementById('gameStatus');
-      expect(statusDiv?.innerHTML).toContain('Show All Answers');
+      expect(statusDiv?.innerHTML).toContain('Show Answers');
       expect(statusDiv?.innerHTML).toContain('🔒 Hidden');
       expect(statusDiv?.innerHTML).toContain('👁️ Visible');
     });
