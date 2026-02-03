@@ -18,7 +18,7 @@
   border-radius: 16px;
   padding: var(--space-lg, 24px);
   margin-bottom: var(--space-lg, 24px);
-  border: 1px solid var(--color-text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .question-card label {
@@ -45,9 +45,9 @@
 /* Question label parts */
 .question-number {
   color: var(--color-primary);
-  font-size: 14px;
+  font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.05em;
   font-weight: 700;
 }
 
@@ -60,10 +60,10 @@
   background: var(--color-primary);
   color: var(--color-background);
   padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 14px;
+  border-radius: 9999px;
+  font-size: 13px;
   font-weight: 700;
-  margin-left: 10px;
+  margin-left: var(--space-xs);
 }
 
 .question-tiebreaker-badge {
@@ -71,16 +71,16 @@
   background: var(--color-text-muted);
   color: var(--color-background);
   padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 14px;
+  border-radius: 9999px;
+  font-size: 13px;
   font-weight: 600;
-  margin-left: 10px;
+  margin-left: var(--space-xs);
 }
 
 /* Closed submissions styling */
 .closed-banner {
   background: linear-gradient(135deg, var(--color-background-alt) 0%, var(--color-surface) 100%);
-  border: 2px solid var(--color-text-muted);
+  border: 1.5px solid var(--color-text-muted);
   border-radius: 12px;
   padding: 16px 20px;
   color: var(--color-text-muted);
@@ -132,13 +132,13 @@
 
 .correct-answer-indicator.correct {
   background: var(--color-success-bg);
-  border: 2px solid var(--color-success-border);
+  border: 1.5px solid var(--color-success-border);
   color: var(--color-success);
 }
 
 .correct-answer-indicator.incorrect {
   background: var(--color-error-bg);
-  border: 2px solid var(--color-error-border);
+  border: 1.5px solid var(--color-error-border);
   color: var(--color-error);
 }
 
@@ -150,13 +150,13 @@
 .user-answer-correct {
   background-color: var(--color-success-bg) !important;
   border-color: var(--color-success-border) !important;
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.3) !important;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15) !important;
 }
 
 .user-answer-incorrect {
   background-color: var(--color-error-bg) !important;
   border-color: var(--color-error-border) !important;
-  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.3) !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15) !important;
 }
 
 /* Collapsible answers */
@@ -176,7 +176,7 @@
   padding: 16px 20px !important;
   margin: 8px 0 !important;
   background-color: var(--color-background) !important;
-  border-radius: 10px !important;
+  border-radius: 8px !important;
   font-size: 18px !important;
   display: flex !important;
   justify-content: space-between !important;
@@ -214,12 +214,12 @@
 .team-name-edit-btn {
   background: rgba(var(--color-primary-rgb), 0.15);
   border: 1px solid var(--color-primary);
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 4px 10px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--color-primary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--duration-micro) var(--ease-micro);
   margin-left: 8px;
   font-weight: 600;
 }
@@ -234,13 +234,13 @@
 .delete-team-btn {
   background: var(--color-error-bg);
   border: 1px solid rgba(255, 107, 107, 0.4);
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 6px 10px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--color-error);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--duration-micro) var(--ease-micro);
 }
 
 .delete-team-btn:hover {

@@ -23,7 +23,7 @@
   background: rgba(255, 255, 255, 0.85);
   padding: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease;
+  transition: transform var(--duration-micro) var(--ease-micro);
 }
 
 .team-logo-header:hover {
@@ -47,15 +47,15 @@
   font-weight: 800;
   margin: 0;
   color: var(--color-primary);
-  letter-spacing: 2px;
+  letter-spacing: 0.1em;
 }
 
 .header-text h2 {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--color-text-muted);
   margin: 0;
-  letter-spacing: 1px;
+  letter-spacing: 0.05em;
 }
 
 .header-logo {
@@ -72,13 +72,13 @@
 }
 
 .header-teams .team-name {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--color-text);
 }
 
 .header-teams .vs {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--color-primary);
   font-weight: 600;
 }
@@ -108,7 +108,7 @@
 .team-name-large {
   font-size: 16px;
   font-weight: 800;
-  letter-spacing: 1px;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   background-size: 200% 100%;
   -webkit-background-clip: text;
@@ -166,7 +166,7 @@
   font-size: 20px;
   font-weight: 800;
   color: var(--color-primary);
-  letter-spacing: 2px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   text-shadow: 0 0 10px rgba(var(--color-primary-rgb), 0.4);
 }
@@ -178,10 +178,10 @@
 }
 
 .title-text {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--color-text-muted);
-  letter-spacing: 1px;
+  letter-spacing: 0.05em;
 }
 
 /* Sound toggle button */
@@ -190,7 +190,7 @@
   right: 16px;
   bottom: 68px;
   background: rgba(var(--color-primary-rgb), 0.1);
-  border: 2px solid rgba(var(--color-primary-rgb), 0.3);
+  border: 1.5px solid rgba(var(--color-primary-rgb), 0.3);
   border-radius: 50%;
   width: 36px;
   height: 36px;
@@ -199,7 +199,7 @@
   justify-content: center;
   cursor: pointer;
   font-size: 16px;
-  transition: all 0.2s ease;
+  transition: all var(--duration-micro) var(--ease-micro);
 }
 
 .sound-toggle:hover {
@@ -217,7 +217,7 @@
   right: 16px;
   bottom: 24px;
   background: rgba(var(--color-primary-rgb), 0.1);
-  border: 2px solid rgba(var(--color-primary-rgb), 0.3);
+  border: 1.5px solid rgba(var(--color-primary-rgb), 0.3);
   border-radius: 50%;
   width: 36px;
   height: 36px;
@@ -226,7 +226,7 @@
   justify-content: center;
   cursor: pointer;
   font-size: 16px;
-  transition: all 0.2s ease;
+  transition: all var(--duration-micro) var(--ease-micro);
 }
 
 .intro-replay-btn:hover {
@@ -240,9 +240,9 @@
 
 /* Team name display in header (next to league name) */
 .team-name-display {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--color-text);
   margin-right: 8px;
@@ -256,9 +256,9 @@
 
 /* League name in header */
 .league-name-header {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--color-text);
   padding: 4px 12px;
@@ -284,7 +284,7 @@
   }
   .team-name-large {
     font-size: 14px;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.03em;
   }
   .matchup-text {
     font-size: 14px;

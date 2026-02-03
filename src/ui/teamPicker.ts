@@ -269,8 +269,8 @@ function createTeamPickerHTML(): string {
         width: 100%;
         padding: 14px 40px 14px 16px;
         font-size: 16px;
-        border-radius: 8px;
-        border: 2px solid var(--color-text-muted, #94a3b8);
+        border-radius: 12px;
+        border: 1.5px solid var(--color-text-muted, #94a3b8);
         background: var(--color-input-bg, #1e293b);
         color: var(--color-text, #fff);
       }
@@ -297,8 +297,8 @@ function createTeamPickerHTML(): string {
       .team-list-wrapper {
         max-height: 400px;
         overflow-y: auto;
-        border: 2px solid var(--color-text-muted, #94a3b8);
-        border-radius: 8px;
+        border: 1.5px solid var(--color-text-muted, #94a3b8);
+        border-radius: 12px;
         margin-bottom: var(--space-md, 16px);
         background: var(--color-input-bg, #1e293b);
         text-align: left;
@@ -306,7 +306,7 @@ function createTeamPickerHTML(): string {
         min-height: 120px;
       }
       .division-header {
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 700;
         color: var(--color-text-muted, #94a3b8);
         padding: 12px 16px 8px;
@@ -352,12 +352,12 @@ function createTeamPickerHTML(): string {
         padding: 40px 20px;
         text-align: center;
         color: var(--color-text-muted, #94a3b8);
-        font-size: 14px;
+        font-size: 15px;
       }
       .team-picker-preview {
         padding: var(--space-md, 16px);
         border-radius: 12px;
-        border: 2px dashed var(--color-text-muted, #94a3b8);
+        border: 1.5px dashed var(--color-text-muted, #94a3b8);
         margin-bottom: var(--space-md, 16px);
         min-height: 70px;
         display: flex;
@@ -369,14 +369,14 @@ function createTeamPickerHTML(): string {
       }
       .team-picker-preview-placeholder {
         color: var(--color-text-muted, #94a3b8);
-        font-size: 14px;
+        font-size: 15px;
       }
       .team-picker-btn {
         width: 100%;
         padding: 16px 24px;
         font-size: 18px;
         font-weight: 700;
-        border-radius: 8px;
+        border-radius: 12px;
         border: none;
         background: var(--color-primary, #6366f1);
         color: #ffffff;
@@ -398,8 +398,8 @@ function createTeamPickerHTML(): string {
         padding: 14px 24px;
         font-size: 16px;
         font-weight: 600;
-        border-radius: 8px;
-        border: 2px solid var(--color-text-muted, #94a3b8);
+        border-radius: 12px;
+        border: 1.5px solid var(--color-text-muted, #94a3b8);
         background: transparent;
         color: var(--color-text-muted, #94a3b8);
         cursor: pointer;

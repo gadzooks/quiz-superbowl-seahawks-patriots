@@ -44,25 +44,25 @@ export function renderParticipants(): void {
     const managerToggle = isLeagueCreator
       ? `
         <div class="mt-3" style="display: flex; align-items: center; gap: 8px;">
-          <span style="color: var(--color-text-muted); font-size: 13px; font-weight: 500;">Manager?</span>
+          <span class="admin-share-url" style="margin-top: 0;">Manager?</span>
           <label style="display: flex; gap: 4px;">
-            <button onclick="toggleManager('${pred.id}', false)" style="padding: 6px 12px; border-radius: 6px 0 0 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; ${!participantIsManager ? 'background: var(--color-primary); color: var(--color-background); border: 2px solid var(--color-primary);' : 'background: var(--color-input-bg); color: var(--color-text-muted); border: 2px solid var(--color-text-muted);'}">No</button>
-            <button onclick="toggleManager('${pred.id}', true)" style="padding: 6px 12px; border-radius: 0 6px 6px 0; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; ${participantIsManager ? 'background: #f59e0b; color: var(--color-background); border: 2px solid #f59e0b;' : 'background: var(--color-input-bg); color: var(--color-text-muted); border: 2px solid var(--color-text-muted);'}">👑 Yes</button>
+            <button onclick="toggleManager('${pred.id}', false)" class="manager-toggle-btn ${!participantIsManager ? 'manager-toggle-active' : 'manager-toggle-inactive'}">No</button>
+            <button onclick="toggleManager('${pred.id}', true)" class="manager-toggle-btn ${participantIsManager ? 'manager-toggle-active-yes' : 'manager-toggle-inactive'}">👑 Yes</button>
           </label>
         </div>
       `
       : participantIsManager
-        ? '<span class="badge badge-warning badge-sm mt-2" style="background: #f59e0b; color: var(--color-background);">👑 Manager</span>'
+        ? '<span class="badge badge-warning badge-sm mt-2">👑 Manager</span>'
         : '';
 
     html += `
-      <div class="card bg-base-200 shadow-lg ${isComplete ? 'ring-2 ring-success' : ''}">
+      <div class="card bg-base-200 ${isComplete ? 'ring-2 ring-success' : ''}">
         <div class="card-body p-4">
           <div class="flex justify-between items-start">
             <div class="flex-1">
               <h3 class="font-bold text-lg" style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" onclick="openTeamNameModal('${pred.id}', '${escapedName}')">
                 ${pred.teamName}
-                <span class="team-name-edit-btn" style="font-size: 12px;">Edit</span>
+                <span class="team-name-edit-btn">Edit</span>
               </h3>
               <p class="text-sm text-base-content/60 mt-1">
                 ${answeredCount} of ${totalQuestions} questions answered
@@ -75,7 +75,7 @@ export function renderParticipants(): void {
                 <progress class="progress progress-primary w-full" value="${percentage}" max="100"></progress>
               </div>
               <div class="flex gap-2 flex-wrap items-center">
-                <button onclick="copyParticipantLink('${pred.userId}', '${escapedName}')" class="btn btn-ghost btn-xs mt-3" style="color: var(--color-text-muted);">
+                <button onclick="copyParticipantLink('${pred.userId}', '${escapedName}')" class="btn btn-ghost btn-xs mt-3">
                   📋 Copy recovery link
                 </button>
                 ${managerToggle}

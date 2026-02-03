@@ -56,17 +56,17 @@
 
 /* Podium place styling */
 .place-gold {
-  border: 3px solid var(--color-gold) !important;
+  border: 1.5px solid var(--color-gold) !important;
   box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
 }
 
 .place-silver {
-  border: 3px solid var(--color-silver) !important;
+  border: 1.5px solid var(--color-silver) !important;
   box-shadow: 0 0 15px rgba(192, 192, 192, 0.2);
 }
 
 .place-bronze {
-  border: 3px solid var(--color-bronze) !important;
+  border: 1.5px solid var(--color-bronze) !important;
   box-shadow: 0 0 15px rgba(205, 127, 50, 0.2);
 }
 
@@ -85,6 +85,17 @@
     transform: scale(1.02);
     box-shadow: 0 0 20px rgba(var(--color-primary-rgb), 0.4);
   }
+}
+
+/* Leaderboard answer item styles (used in expandable sections) */
+.leaderboard-trophy {
+  font-size: 28px;
+  margin-right: 8px;
+}
+
+.leaderboard-medal {
+  font-size: 24px;
+  margin-right: 8px;
 }
 
 @media (prefers-reduced-motion: reduce) {

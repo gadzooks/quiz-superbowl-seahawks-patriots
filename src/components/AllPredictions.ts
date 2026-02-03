@@ -32,47 +32,46 @@ export function renderAllPredictions(): void {
   section.classList.remove('hidden');
 
   // Build table
-  let html = `<table style="width: 100%; border-collapse: collapse; font-size: 14px; background-color: var(--color-background);">
+  let html = `<table class="predictions-table">
     <thead>
-      <tr style="background-color: var(--color-primary);">
-        <th style="background-color: var(--color-primary); color: var(--color-background); font-weight: 700; padding: 12px 8px; text-align: left; position: sticky; left: 0; z-index: 10;">Team</th>`;
+      <tr>
+        <th class="predictions-th predictions-th-team">Team</th>`;
 
   questions.forEach((q) => {
-    html += `<th style="background-color: var(--color-primary); color: var(--color-background); font-weight: 700; padding: 12px 8px; white-space: normal; min-width: 80px;">${q.label}</th>`;
+    html += `<th class="predictions-th">${q.label}</th>`;
   });
 
-  html += `<th style="background-color: var(--color-primary); color: var(--color-background); font-weight: 700; padding: 12px 8px;">Score</th></tr></thead><tbody>`;
+  html += `<th class="predictions-th">Score</th></tr></thead><tbody>`;
 
   teamsWithPredictions.forEach((pred) => {
-    html += `<tr style="background-color: var(--color-input-bg);">
-      <td style="background-color: var(--color-input-bg); color: var(--color-text); font-weight: 700; padding: 10px 8px; border-bottom: 1px solid var(--color-text-muted); position: sticky; left: 0; z-index: 10;">${pred.teamName}</td>`;
+    html += `<tr>
+      <td class="predictions-td predictions-td-sticky">${pred.teamName}</td>`;
 
     questions.forEach((q) => {
       const value = pred.predictions?.[q.id] || '-';
       const actual = currentLeague.actualResults?.[q.id];
       const correct = actual !== undefined && isAnswerCorrect(q, pred.predictions?.[q.id], actual);
 
-      const bgColor = correct ? '#003320' : 'var(--color-input-bg)';
-      const textColor = correct ? 'var(--color-primary)' : 'var(--color-text)';
+      const correctClass = correct ? ' predictions-td-correct' : '';
 
-      html += `<td style="background-color: ${bgColor}; color: ${textColor}; padding: 10px 8px; border-bottom: 1px solid var(--color-text-muted);">${value}</td>`;
+      html += `<td class="predictions-td${correctClass}">${value}</td>`;
     });
 
-    html += `<td style="background-color: var(--color-input-bg); color: var(--color-primary); font-weight: 700; padding: 10px 8px; border-bottom: 1px solid var(--color-text-muted); font-size: 16px;">${pred.score}</td></tr>`;
+    html += `<td class="predictions-td predictions-td-score">${pred.score}</td></tr>`;
   });
 
   // Add actual results row if available
   const actualResults = currentLeague.actualResults;
   if (actualResults && Object.keys(actualResults).length > 0) {
-    html += `<tr style="background-color: #003320;">
-      <td style="background-color: #003320; color: var(--color-primary); font-weight: 700; padding: 10px 8px; border-top: 3px solid var(--color-primary); position: sticky; left: 0; z-index: 10;">✓ ACTUAL</td>`;
+    html += `<tr class="predictions-actual-row">
+      <td class="predictions-actual-td predictions-actual-td-sticky">✓ ACTUAL</td>`;
 
     questions.forEach((q) => {
       const value = actualResults[q.id];
-      html += `<td style="background-color: #003320; color: var(--color-primary); font-weight: 600; padding: 10px 8px; border-top: 3px solid var(--color-primary);">${value !== undefined && value !== null ? value : '-'}</td>`;
+      html += `<td class="predictions-actual-td">${value !== undefined && value !== null ? value : '-'}</td>`;
     });
 
-    html += `<td style="background-color: #003320; color: var(--color-primary); font-weight: 700; padding: 10px 8px; border-top: 3px solid var(--color-primary);">-</td></tr>`;
+    html += `<td class="predictions-actual-td">-</td></tr>`;
   }
 
   html += '</tbody></table>';

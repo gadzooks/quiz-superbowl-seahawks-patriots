@@ -2,7 +2,7 @@
 
 table,
 .table {
-  font-size: 14px !important;
+  font-size: 15px !important;
   background-color: var(--color-background) !important;
 }
 
@@ -11,17 +11,17 @@ table th,
   background-color: var(--color-primary) !important;
   color: var(--color-background) !important;
   font-weight: 700 !important;
-  padding: 12px 8px !important;
-  font-size: 16px !important;
+  padding: var(--space-sm) var(--space-xs) !important;
+  font-size: 15px !important;
 }
 
 table td,
 .table td {
   background-color: var(--color-input-bg) !important;
   color: var(--color-text) !important;
-  padding: 10px 8px !important;
+  padding: var(--space-sm) var(--space-xs) !important;
   border-color: var(--color-text-muted) !important;
-  font-size: 16px !important;
+  font-size: 15px !important;
 }
 
 table thead,

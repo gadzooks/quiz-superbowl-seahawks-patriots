@@ -4,7 +4,7 @@
   display: inline-block;
   width: 1.5rem;
   height: 1.5rem;
-  border: 3px solid var(--color-text-muted);
+  border: 1.5px solid var(--color-text-muted);
   border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -17,7 +17,7 @@
 .loading-lg {
   width: 3rem;
   height: 3rem;
-  border-width: 4px;
+  border-width: 1.5px;
 }
 
 @keyframes spin {

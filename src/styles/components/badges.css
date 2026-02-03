@@ -3,8 +3,8 @@
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
-  font-size: 14px;
+  padding: 4px 8px;
+  font-size: 13px;
   font-weight: 600;
   border-radius: 9999px;
   background: var(--color-text-muted);
@@ -18,7 +18,7 @@
 
 .badge-sm {
   padding: 2px 8px;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .badge-primary {

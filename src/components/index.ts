@@ -49,7 +49,7 @@ function toggleGameStatus(): void {
   gameStatusCollapsed = !gameStatusCollapsed;
 
   if (content && icon) {
-    content.style.display = gameStatusCollapsed ? 'none' : 'block';
+    content.classList.toggle('hidden', gameStatusCollapsed);
     icon.textContent = gameStatusCollapsed ? '▶' : '▼';
   }
 }
@@ -63,7 +63,7 @@ function toggleParticipants(): void {
   participantsCollapsed = !participantsCollapsed;
 
   if (content && icon) {
-    content.style.display = participantsCollapsed ? 'none' : 'block';
+    content.classList.toggle('hidden', participantsCollapsed);
     icon.textContent = participantsCollapsed ? '▶' : '▼';
     if (!participantsCollapsed) {
       renderParticipants();
@@ -80,7 +80,7 @@ function toggleRecalculateScores(): void {
   recalculateScoresCollapsed = !recalculateScoresCollapsed;
 
   if (content && icon) {
-    content.style.display = recalculateScoresCollapsed ? 'none' : 'block';
+    content.classList.toggle('hidden', recalculateScoresCollapsed);
     icon.textContent = recalculateScoresCollapsed ? '▶' : '▼';
   }
 }

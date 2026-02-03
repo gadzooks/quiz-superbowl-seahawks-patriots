@@ -209,7 +209,7 @@ function createThemeMenuHTML(): string {
         bottom: 96px;
         right: 24px;
         width: 280px;
-        max-height: 70vh;
+        max-height: 70dvh;
         background: var(--color-background-alt);
         border-radius: 16px;
         z-index: 999;
@@ -302,7 +302,7 @@ function createThemeMenuHTML(): string {
       }
 
       .theme-division-header {
-        font-size: 11px;
+        font-size: 13px;
         font-weight: 700;
         color: var(--color-text-muted);
         text-transform: uppercase;

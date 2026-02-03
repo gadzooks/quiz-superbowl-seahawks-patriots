@@ -181,7 +181,7 @@ export async function recalculateAllScores(): Promise<void> {
     }
     if (statusDiv) {
       statusDiv.innerHTML =
-        '<div style="color: #9DA2A3; text-align: center; padding: 10px;">Recalculating scores for all participants...</div>';
+        '<div class="status-text-muted">Recalculating scores for all participants...</div>';
     }
 
     // Import calculateScore dynamically to avoid circular deps
