@@ -151,7 +151,7 @@ function createThemeMenuHTML(): string {
         const theme = getTeamTheme(team.id);
         teamsHTML += `
           <div class="theme-option" data-team-id="${team.id}">
-            <div class="theme-option-swatch" style="background: ${theme?.primary}"></div>
+            <div class="theme-option-swatch" style="background: ${theme?.secondary}"></div>
             <span class="theme-option-name">${team.name}</span>
           </div>
         `;

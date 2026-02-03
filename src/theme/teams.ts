@@ -186,8 +186,8 @@ export const TEAM_THEMES: Record<string, TeamTheme> = {
   },
   giants: {
     name: 'New York Giants',
-    primary: '#5A9AE6',
-    secondary: '#A71930',
+    primary: '#A71930',
+    secondary: '#0B2265',
     background: '#0A1232',
     backgroundAlt: '#081028',
     text: '#FFFFFF',
@@ -224,7 +224,7 @@ export const TEAM_THEMES: Record<string, TeamTheme> = {
   },
   lions: {
     name: 'Detroit Lions',
-    primary: '#47B5E6',
+    primary: '#0076B6',
     secondary: '#B0B7BC',
     background: '#001A2E',
     backgroundAlt: '#001424',
@@ -293,10 +293,10 @@ export const TEAM_THEMES: Record<string, TeamTheme> = {
     name: 'Arizona Cardinals',
     primary: '#FFB612',
     secondary: '#97233F',
-    background: '#1C0B14',
-    backgroundAlt: '#150812',
+    background: '#000000',
+    backgroundAlt: '#1a1a1a',
     text: '#FFFFFF',
-    textMuted: '#C4A8B5',
+    textMuted: '#A0A0A0',
   },
   rams: {
     name: 'Los Angeles Rams',
@@ -309,7 +309,7 @@ export const TEAM_THEMES: Record<string, TeamTheme> = {
   },
   '49ers': {
     name: 'San Francisco 49ers',
-    primary: '#C9B06B',
+    primary: '#B3995D',
     secondary: '#AA0000',
     background: '#1A0A0A',
     backgroundAlt: '#140808',

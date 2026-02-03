@@ -57,7 +57,7 @@ export function showTeamPicker(): Promise<string> {
             const isSelected = selectedTeamId === team.id;
             html += `
               <div class="team-item ${isSelected ? 'selected' : ''}" data-team-id="${team.id}">
-                <div class="team-color-swatch" style="background: ${theme?.primary || '#6366f1'};"></div>
+                <div class="team-color-swatch" style="background: ${theme?.secondary || '#6366f1'};"></div>
                 <span class="team-name">${team.name}</span>
                 ${isSelected ? '<span class="team-check">✓</span>' : ''}
               </div>
