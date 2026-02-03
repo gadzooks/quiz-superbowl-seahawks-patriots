@@ -42,6 +42,7 @@ export interface AppState {
   isManager: boolean;
   currentTab: TabType;
   hasShownCompletionCelebration: boolean;
+  hasTriggeredNonWinnerCelebration: boolean;
   previousActualResults: Record<string, string | number> | null;
   hasUnviewedScoreUpdate: boolean;
   expectedLeagueSlug: string | null;

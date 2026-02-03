@@ -10,6 +10,7 @@ const initialState: AppState = {
   isManager: false,
   currentTab: (localStorage.getItem('currentTab') as TabType) || 'predictions',
   hasShownCompletionCelebration: false,
+  hasTriggeredNonWinnerCelebration: false,
   previousActualResults: null,
   hasUnviewedScoreUpdate: false,
   expectedLeagueSlug: null,

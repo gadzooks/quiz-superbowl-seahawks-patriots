@@ -16,8 +16,10 @@ export function renderAdminControls(): void {
   const showPredictions = currentLeague.showAllPredictions === true;
   const shareUrl = getLeagueUrl(currentLeague.slug);
 
-  // Get git commit and app ID from window (set by Vite)
+  // Get git commit, commit message, and app ID from window (set by Vite)
   const gitCommit = (window as Window & { VITE_GIT_COMMIT?: string }).VITE_GIT_COMMIT || 'dev';
+  const commitMessage =
+    (window as Window & { VITE_GIT_COMMIT_MESSAGE?: string }).VITE_GIT_COMMIT_MESSAGE || 'dev';
   const appId = (window as Window & { VITE_APP_ID?: string }).VITE_APP_ID || '';
 
   statusDiv.innerHTML = `
@@ -63,10 +65,13 @@ export function renderAdminControls(): void {
       </div>
     </div>
 
-    <div style="margin-top: 16px; padding: 12px; background: #001a33; border-radius: 6px; font-size: 12px; color: #6b7280;">
-      <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-        <span>Commit: <code style="color: var(--color-text-muted);">${gitCommit}</code></span>
-        <span>DB: <code style="color: var(--color-text-muted);">...${appId.slice(-5)}</code></span>
+    <div style="margin-top: 16px; padding: 16px; background: var(--color-background-alt); border-left: 3px solid var(--color-primary); border-radius: 6px;">
+      <div style="font-size: 13px; color: var(--color-text); margin-bottom: 8px; font-weight: 600;">
+        ${commitMessage}
+      </div>
+      <div style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 11px; color: var(--color-text-muted);">
+        <span>Commit: <code>${gitCommit}</code></span>
+        <span>DB: <code>...${appId.slice(-5)}</code></span>
       </div>
     </div>
   `;

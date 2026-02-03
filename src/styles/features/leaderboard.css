@@ -70,6 +70,23 @@
   box-shadow: 0 0 15px rgba(205, 127, 50, 0.2);
 }
 
+/* Gentle pulse animation for non-winner celebration */
+.completion-pulse {
+  animation: gentle-pulse 2s ease-in-out;
+}
+
+@keyframes gentle-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(var(--color-primary-rgb), 0);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(var(--color-primary-rgb), 0.4);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .trophy-bounce {
     animation: none !important;
@@ -77,6 +94,10 @@
   }
 
   .winner-shimmer::before {
+    animation: none !important;
+  }
+
+  .completion-pulse {
     animation: none !important;
   }
 }

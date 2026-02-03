@@ -116,6 +116,11 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+[[headers]]
+  for = "/superbowl/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
 # ============================================================================
 # SPA Routing
 # ============================================================================
@@ -130,7 +135,41 @@
 #
 # All paths that don't match static files fall through to index.html
 # for client-side routing.
+#
+# IMPORTANT: Netlify processes redirects in order. Rules are evaluated
+# top-to-bottom, and the first match wins. Static assets must be excluded
+# from the SPA redirect to prevent MIME type errors.
 
+# Don't redirect static assets - let them be served directly
+[[redirects]]
+  from = "/superbowl/assets/*"
+  to = "/superbowl/assets/:splat"
+  status = 200
+
+# Don't redirect images
+[[redirects]]
+  from = "/superbowl/*.svg"
+  to = "/superbowl/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/superbowl/*.png"
+  to = "/superbowl/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/superbowl/*.jpg"
+  to = "/superbowl/:splat"
+  status = 200
+
+# Don't redirect other static files
+[[redirects]]
+  from = "/superbowl/*.ico"
+  to = "/superbowl/:splat"
+  status = 200
+
+# SPA fallback - redirect all other /superbowl/* paths to index.html
+# This handles client-side routing (e.g., /superbowl/lx/league-name)
 [[redirects]]
   from = "/superbowl/*"
   to = "/superbowl/index.html"

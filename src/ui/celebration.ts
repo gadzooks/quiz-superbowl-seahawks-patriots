@@ -1,6 +1,9 @@
 import { SoundManager } from '../sound/manager';
-import { getState } from '../state/store';
+import { getState, updateState } from '../state/store';
 import { getCurrentTeamId } from '../theme/apply';
+import { getTeamTheme } from '../theme/teams';
+
+import { showToast } from './toast';
 
 /**
  * Call the main render function (exposed on window to avoid circular imports).
@@ -10,10 +13,7 @@ function callRender(): void {
   (window as Window & { render?: () => void }).render?.();
 }
 
-// Seahawks team colors
-const SEAHAWKS_COLORS = ['#33F200', '#00203B', '#FFFFFF', '#FFD700'];
-
-// Default/neutral colors
+// Default/neutral colors (fallback)
 const DEFAULT_COLORS = ['#6366f1', '#8b5cf6', '#FFFFFF', '#FFD700'];
 
 // Intro images by theme
@@ -35,7 +35,19 @@ const INTRO_IMAGES: Record<string, string[]> = {
  */
 function getConfettiColors(): string[] {
   const teamId = getCurrentTeamId();
-  return teamId === 'seahawks' ? SEAHAWKS_COLORS : DEFAULT_COLORS;
+  const theme = getTeamTheme(teamId);
+
+  if (!theme) {
+    return DEFAULT_COLORS; // Fallback
+  }
+
+  // Use team's actual colors
+  return [
+    theme.primary, // Main team color
+    theme.secondary, // Secondary color
+    theme.text, // White/light color
+    '#FFD700', // Gold for celebration
+  ];
 }
 
 /**
@@ -165,6 +177,31 @@ export function triggerWinnerCelebration(): void {
  */
 export function resetWinnerCelebration(): void {
   hasTriggeredWinnerCelebration = false;
+}
+
+/**
+ * Celebration for non-winners when scores are finalized.
+ */
+export function triggerNonWinnerCelebration(_position: number): void {
+  // Don't repeat if already shown
+  const state = getState();
+  if (state.hasTriggeredNonWinnerCelebration) return;
+
+  // Play subtle sound
+  SoundManager.playClick();
+
+  // Show encouraging toast
+  const messages = [
+    'Great effort! 🎯',
+    'Nice predictions! 👏',
+    'Well played! 🏈',
+    'You did your best! ⭐',
+  ];
+  const message = messages[Math.floor(Math.random() * messages.length)];
+  showToast(message, 'info', 3000);
+
+  // Mark as shown
+  updateState({ hasTriggeredNonWinnerCelebration: true });
 }
 
 /**
