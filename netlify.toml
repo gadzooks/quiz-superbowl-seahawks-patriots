@@ -122,8 +122,14 @@
     Cache-Control = "public, max-age=31536000, immutable"
 
 # ============================================================================
-# SPA Routing
+# SPA Routing for /superbowl base path
 # ============================================================================
+#
+# Vite builds with base: '/superbowl/' which means:
+#   - HTML references /superbowl/assets/main.css
+#   - But build output is at dist/assets/main.css (not dist/superbowl/assets/)
+#
+# We use Netlify rewrites to map /superbowl/* requests to the actual files.
 #
 # URL structure:
 #   /superbowl/:gameId              - Game home (create/join league)
@@ -132,45 +138,34 @@
 # Examples:
 #   /superbowl/lx                   - Super Bowl LX home
 #   /superbowl/lx/smith-family      - Smith Family league in Super Bowl LX
-#
-# All paths that don't match static files fall through to index.html
-# for client-side routing.
-#
-# IMPORTANT: Netlify processes redirects in order. Rules are evaluated
-# top-to-bottom, and the first match wins. Static assets must be excluded
-# from the SPA redirect to prevent MIME type errors.
 
-# Don't redirect static assets - let them be served directly
+# Rewrite static assets: /superbowl/assets/* → /assets/*
 [[redirects]]
   from = "/superbowl/assets/*"
-  to = "/superbowl/assets/:splat"
+  to = "/assets/:splat"
   status = 200
 
-# Don't redirect images
+# Rewrite images: /superbowl/images/* → /images/*
 [[redirects]]
-  from = "/superbowl/*.svg"
-  to = "/superbowl/:splat"
+  from = "/superbowl/images/*"
+  to = "/images/:splat"
   status = 200
 
+# Rewrite favicon
 [[redirects]]
-  from = "/superbowl/*.png"
-  to = "/superbowl/:splat"
+  from = "/superbowl/favicon.svg"
+  to = "/favicon.svg"
   status = 200
 
-[[redirects]]
-  from = "/superbowl/*.jpg"
-  to = "/superbowl/:splat"
-  status = 200
-
-# Don't redirect other static files
-[[redirects]]
-  from = "/superbowl/*.ico"
-  to = "/superbowl/:splat"
-  status = 200
-
-# SPA fallback - redirect all other /superbowl/* paths to index.html
+# SPA fallback - all other /superbowl/* paths serve index.html
 # This handles client-side routing (e.g., /superbowl/lx/league-name)
 [[redirects]]
   from = "/superbowl/*"
-  to = "/superbowl/index.html"
+  to = "/index.html"
   status = 200
+
+# Root redirect to /superbowl (optional - for convenience)
+[[redirects]]
+  from = "/"
+  to = "/superbowl/"
+  status = 302
