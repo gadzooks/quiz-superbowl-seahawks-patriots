@@ -4,189 +4,115 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a single-file HTML/JavaScript application for a Super Bowl prediction game (Seahawks vs Patriots). The app uses InstantDB for real-time data synchronization and is designed with a mobile-first approach optimized for elderly users.
+Super Bowl prediction game — a mobile-first web app where users create leagues, submit predictions on game questions, and compete on a real-time leaderboard. Built with TypeScript, Vite, and InstantDB for real-time sync. Designed for elderly users with large touch targets and high contrast.
 
-## Key Architecture
+## Commands
 
-### Single-File Application Structure
+```bash
+# Development
+npm run dev              # Vite dev server on port 8000
+npm run build            # TypeScript check + Vite production build
 
-- **Everything in `index.html`**: All HTML, CSS, and JavaScript code is contained in one file
-- **No build process**: The app runs directly in the browser with no compilation or bundling
-- **CDN dependencies**: Tailwind CSS and InstantDB are loaded via CDN
+# Testing
+npm run test             # Vitest unit tests (single run)
+npm run test:watch       # Vitest watch mode
+npx vitest run src/path/to/file.test.ts  # Run single test file
+npm run test:e2e         # Playwright E2E tests (starts dev server)
+npm run test:e2e:headed  # E2E with visible browser
 
-### Data Architecture (InstantDB)
+# Code quality
+npm run lint             # ESLint check
+npm run lint:fix         # ESLint auto-fix
+npm run type-check       # TypeScript check (tsc --noEmit)
+npm run validate         # Full suite: lint + format + type-check + test
+npm run check:unused     # Knip unused code detection
 
-The app uses InstantDB as a real-time database with two main entities:
+# Deploy
+npm run validate:build   # Build + asset validation
+```
 
-**leagues entity:**
+**Pre-commit hooks** (Husky + lint-staged): ESLint fix, Prettier format, type-check, and full test suite run on every commit. If the hook fails, the commit did not happen — create a new commit after fixing, do not amend.
 
-- `name`: League name (string)
-- `slug`: URL-friendly version of name (string)
-- `creatorId`: User ID of league creator (string)
-- `isOpen`: Boolean controlling if submissions are allowed
-- `actualResults`: Object containing game results (null until admin enters them)
+## Architecture
 
-**predictions entity:**
+### Module System
 
-- `userId`: Unique user identifier (stored in localStorage)
-- `teamName`: Display name for the team (string)
-- `leagueId`: Foreign key to leagues (string)
-- `predictions`: Object with question IDs as keys and answers as values
-- `score`: Calculated score (number, computed after results entered)
-- `tiebreakDiff`: Absolute difference for tiebreaker question (number)
+Entry point is `src/main.ts` (loaded by Vite). The app is in **hybrid migration mode** — modern TypeScript modules coexist with legacy inline JavaScript in `index.html`. Modules expose functions to `window.*` globals so the HTML `onclick` handlers and inline `<script>` still work. The legacy script waits for `window.waitForAppReady()` before running.
 
-### Application Flow
+### Initialization Flow
 
-1. **League Creation**: First visitor creates a league, gets a shareable URL with `?league=slug` parameter
-   - League names must be unique (case-insensitive via slug comparison)
-2. **Team Entry**: Users visiting the league URL enter their team name
-   - Team names must be unique within a league (case-insensitive)
-3. **Predictions**: Users submit predictions (stored/updated in InstantDB)
-4. **Admin Controls**: League creator OR anyone with `?isAdmin=true` URL parameter has access to admin panel (separate tab) to:
-   - Toggle submissions open/closed
-   - Enter actual game results
-   - Trigger automatic score calculation
-5. **Real-time Leaderboard**: All users see live-updating leaderboard via InstantDB subscriptions
+1. Vite loads `src/main.ts`
+2. Team picker shown if first visit (sets theme)
+3. Theme system initialized, sound manager started
+4. User ID retrieved/created (localStorage)
+5. If `?league=slug` in URL, subscribes to InstantDB for real-time updates
+6. All modules exposed to `window` for legacy compatibility
+7. `appReadyResolve()` called — legacy `index.html` script proceeds
 
-### URL Parameters
+### Key Directories
 
-- `?league=slug` - Join a specific league
-- `?isAdmin=true` - Grant admin access (overrides league creator check)
+| Directory             | Purpose                                                                                  |
+| --------------------- | ---------------------------------------------------------------------------------------- |
+| `src/state/store.ts`  | Centralized state — getState(), setter functions, subscribe()                            |
+| `src/db/`             | InstantDB client (`client.ts`) and subscription queries (`queries.ts`)                   |
+| `src/handlers/`       | Form submission handlers (league, team, predictions, results)                            |
+| `src/components/`     | UI rendering functions (PredictionsForm, ResultsForm, Participants, AdminPanel)          |
+| `src/ui/`             | Screen management, modals, tabs, toast, celebration animations                           |
+| `src/theme/`          | Dynamic NFL team color theming (32 teams). Tokens in `tokens.ts`, applied via `apply.ts` |
+| `src/config/games.ts` | Multi-year Super Bowl config (gameId, teams, year). Add future games here                |
+| `src/questions.ts`    | Question definitions — dynamically generated from game config                            |
+| `src/scoring/`        | Score calculation against actual results                                                 |
+| `src/styles/`         | Modular CSS: `base.css` (tokens), `components/` (buttons, inputs, etc.), `features/`     |
 
 ### State Management
 
-Global JavaScript variables track application state:
+Custom store in `src/state/store.ts`. Pattern: private state object + individual setter functions + `updateState()` for batch updates + `subscribe()` for listeners. All setters notify subscribers. Key computed getters: `getCurrentUserPrediction()`, `hasAdminAccess()`, `isSubmissionsOpen()`.
 
-- `currentLeague`: The active league object
-- `allPredictions`: Array of all predictions for the current league
-- `currentUserId`: Persistent user ID from localStorage
-- `currentTeamName`: Team name for current user
-- `isLeagueCreator`: Boolean indicating if current user created the league
-- `currentTab`: Admin tab state ('predictions' or 'admin')
+### Data Layer (InstantDB)
 
-### User Identification
+App ID from env var `VITE_INSTANTDB_APP_ID` (set per deploy context). Public read/write, no auth. Two entities: `leagues` and `predictions`, both partitioned by `gameId`. Real-time updates via `db.subscribeQuery()`.
 
-- Users are identified by a generated `userId` stored in `localStorage`
-- Format: `user-{random}-{timestamp}`
-- This persists across sessions but is device/browser-specific
+### Multi-Game Support
 
-### Question Configuration
+Games are registered in `src/config/games.ts`. Current: `lx` (Super Bowl LX, 2026, Seahawks vs Patriots). The `gameId` partitions all database queries so multiple Super Bowls can coexist. Add new years by adding entries to the `GAMES` object.
 
-The `questions` array (line 346) defines all 15 prediction questions:
+### Theme System
 
-- Each has: `id`, `label`, `type` (radio/number), `options` (for radio), `points`
-- Question 2 (`totalPoints`) is the tiebreaker with 0 points
-- Total possible score: 80 points
-
-## Development Commands
-
-### Local Testing
-
-```bash
-# Open the file directly in a browser
-open index.html
-```
-
-### Multi-User Testing
-
-Open multiple browser windows/tabs with different league/team parameters:
-
-- `index.html` - Initial league creation flow
-- `index.html?league=test-league` - Join existing league
-- `index.html?league=test-league&team=team-one` - Specific team view
-
-Use browser DevTools to:
-
-- Clear localStorage to simulate new users
-- Inspect Network tab for InstantDB WebSocket traffic
-- Check Console for errors
-
-### Deployment
-
-```bash
-# Deploy to Netlify (drag-and-drop or CLI)
-netlify deploy --prod --dir .
-```
-
-## InstantDB Configuration
-
-**App ID Location**: Line 334 in `index.html`
-
-```javascript
-const APP_ID = '8b6d941d-edc0-4750-95ec-19660710b8d6';
-```
-
-**Required Permissions**: The InstantDB app must allow public read/write access since there is no authentication system.
-
-**Query Pattern**: The app uses `db.subscribeQuery()` for real-time updates:
-
-```javascript
-db.subscribeQuery(
-  { leagues: { $: { where: { slug: leagueParam } } }, predictions: {} },
-  (result) => {
-    /* handle updates */
-  }
-);
-```
+32 NFL team themes defined in `src/theme/teams.ts`. Each theme sets CSS custom properties (primary, secondary, background, text colors). User selection saved to localStorage. All UI uses `var(--color-*)` tokens — never hardcode colors. A CSS audit test (`src/theme/css-audit.test.ts`) enforces this.
 
 ## Design System
 
-**IMPORTANT: Read `UX_GUIDELINES.md` before making any UI changes.** It defines the Apple-inspired design language, spacing tokens, component patterns, motion rules, and accessibility requirements for this project. All new and modified components must follow those guidelines.
+**Read `UX_GUIDELINES.md` before making any UI changes.** It defines the Apple-inspired design language: spacing tokens (8px grid), component patterns, motion rules, and accessibility requirements.
 
-**Theme Architecture**: Colors are dynamic CSS custom properties set by JavaScript based on the user's selected NFL team. See `src/styles/base.css` for token definitions and `src/theme/` for the theming system.
+**Key constraints:**
 
-**Key constraints**: Mobile-first, elderly users, dark mode only, 8px spacing grid, 56px minimum touch targets for primary actions.
+- Mobile-first, dark mode only
+- 8px spacing grid (`--space-xs` through `--space-2xl`)
+- 56px minimum touch targets for primary actions, 44px minimum for all interactive elements
+- All colors via CSS custom properties (dynamic theming)
+- No inline styles in TypeScript — use CSS classes
+- `dvh` units (not `vh`), `env(safe-area-inset-*)` for iPhone support
+- `prefers-reduced-motion` must be respected
 
-## Code Modification Guidelines
+## Testing
 
-### Modifying Questions
+**Unit tests** (Vitest + happy-dom): `*.test.ts` files alongside source. Global test functions enabled (no imports for `describe`, `it`, `expect`). Setup in `src/test/setup.ts`.
 
-To add/remove/change questions, edit the `questions` array (line 346):
+**E2E tests** (Playwright): Specs in `e2e/specs/`. Runs against Chromium desktop + iPhone 13 mobile. Auto-starts dev server.
 
-- Each question needs: `id`, `label`, `type`, and `points`
-- Radio questions need `options` array
-- Ensure the `id` is unique and used consistently across prediction/result forms
+## Deployment
 
-### Changing Scoring Logic
+Netlify with context-based env vars:
 
-The `calculateScore()` function (line 645) compares predictions to actual results:
+- **production** (prod branch): Production InstantDB database
+- **branch-deploy** (master, feature/\*): QA database
+- **deploy-preview** (PRs): QA database
 
-- Iterates through all questions except tiebreaker
-- Awards `q.points` for exact matches
-- Handles both string and number comparisons
+Base path is `/superbowl/`. Rewrites in `netlify.toml` map paths accordingly.
 
-### Adding Admin Features
+## Code Quality Rules
 
-Admin-specific UI is controlled by `isLeagueCreator` boolean:
-
-- Set to true when `currentLeague.creatorId === currentUserId`
-- Admin panel uses tab navigation (line 283-305)
-- Admin can submit predictions AND manage game state
-
-### Styling Changes
-
-All styles are in the `<style>` tag (line 12-232):
-
-- CSS custom properties for colors
-- Responsive design is mobile-first (max-width: 640px container)
-- Maintain large tap targets for accessibility
-
-## Troubleshooting
-
-### Predictions Not Saving
-
-- Verify InstantDB App ID is correct (line 334)
-- Check browser console for InstantDB errors
-- Ensure InstantDB permissions allow public read/write
-
-### Real-time Updates Not Working
-
-- Check Network tab for WebSocket connections to InstantDB
-- Verify `db.subscribeQuery()` is properly configured
-- Try refreshing the page
-
-### League Not Found
-
-- League is identified by `slug` parameter in URL
-- Slug is created by lowercasing name and replacing spaces with hyphens
-- Check if league exists in InstantDB dashboard
+- ESLint flat config with TypeScript strict mode, import ordering, circular dependency detection
+- Prettier for formatting
+- Type-aware lint rules: `no-floating-promises`, `await-thenable`, `no-misused-promises`
+- Knip for detecting unused exports/dependencies
