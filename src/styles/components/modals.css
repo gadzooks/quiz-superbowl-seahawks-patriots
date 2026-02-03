@@ -13,6 +13,8 @@
   transition:
     opacity 0.2s,
     visibility 0.2s;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
 }
 
 .modal[open] {
@@ -22,19 +24,19 @@
 
 .modal-box {
   background: var(--color-background-alt);
-  padding: 24px;
+  padding: var(--space-lg, 24px);
   border-radius: 16px;
   max-width: 500px;
   width: 90%;
-  max-height: 90vh;
+  max-height: calc(90dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   overflow-y: auto;
 }
 
 .modal-action {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
+  gap: var(--space-sm, 12px);
+  margin-top: var(--space-lg, 24px);
 }
 
 .modal-backdrop {

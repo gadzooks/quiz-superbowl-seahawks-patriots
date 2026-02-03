@@ -60,6 +60,17 @@ html {
   --color-gold: #ffd700;
   --color-silver: #c0c0c0;
   --color-bronze: #cd7f32;
+
+  /* ===========================================
+   * SPACING TOKENS (8px grid)
+   * Consistent spacing scale for layout
+   * =========================================== */
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 40px;
 }
 
 body {
@@ -69,6 +80,10 @@ body {
   /* Background follows user's selected team theme */
   background-color: var(--color-background);
   color: var(--color-text);
+  /* Safe area insets for notched iPhones */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* Utility classes */

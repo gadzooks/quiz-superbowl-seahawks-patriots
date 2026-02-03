@@ -76,7 +76,7 @@
 .intro-football {
   font-size: 80px;
   margin-bottom: 20px;
-  animation: footballBounceStop 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: footballDrop 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 .intro-football-shadow {
@@ -84,7 +84,7 @@
   height: 15px;
   background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.5) 0%, transparent 70%);
   margin-top: -10px;
-  animation: shadowPulse 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: shadowAppear 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 .intro-title {
@@ -104,82 +104,45 @@
   animation: slideUp 0.6s ease-out 0.5s both;
 }
 
-@keyframes footballBounceStop {
+/* Simple drop-and-settle animation */
+@keyframes footballDrop {
   0% {
-    transform: translateX(-80px) translateY(-100px) rotate(0deg);
+    transform: translateY(-60px) rotate(0deg);
     opacity: 0;
   }
-  15% {
-    transform: translateX(-50px) translateY(80px) rotate(180deg);
+  40% {
+    transform: translateY(10px) rotate(180deg);
     opacity: 1;
   }
-  25% {
-    transform: translateX(-30px) translateY(0px) rotate(270deg);
-  }
-  35% {
-    transform: translateX(-10px) translateY(80px) rotate(360deg);
-  }
-  42% {
-    transform: translateX(5px) translateY(40px) rotate(450deg);
-  }
-  50% {
-    transform: translateX(20px) translateY(80px) rotate(540deg);
-  }
-  55% {
-    transform: translateX(30px) translateY(60px) rotate(570deg);
-  }
   60% {
-    transform: translateX(40px) translateY(80px) rotate(600deg);
+    transform: translateY(-8px) rotate(270deg);
   }
   80% {
-    transform: translateX(60px) translateY(80px) rotate(720deg);
+    transform: translateY(2px) rotate(340deg);
   }
   100% {
-    transform: translateX(60px) translateY(80px) rotate(720deg);
+    transform: translateY(0) rotate(360deg);
     opacity: 1;
   }
 }
 
-@keyframes shadowPulse {
+/* Shadow appears as football settles */
+@keyframes shadowAppear {
   0% {
     opacity: 0;
-    transform: translateX(-80px) translateY(80px) scale(0);
+    transform: scale(0.3);
   }
-  15% {
+  40% {
     opacity: 0.5;
-    transform: translateX(-50px) translateY(80px) scale(1);
-  }
-  25% {
-    opacity: 0.2;
-    transform: translateX(-30px) translateY(80px) scale(0.5);
-  }
-  35% {
-    opacity: 0.5;
-    transform: translateX(-10px) translateY(80px) scale(1);
-  }
-  42% {
-    opacity: 0.3;
-    transform: translateX(5px) translateY(80px) scale(0.6);
-  }
-  50% {
-    opacity: 0.5;
-    transform: translateX(20px) translateY(80px) scale(1);
-  }
-  55% {
-    opacity: 0.4;
-    transform: translateX(30px) translateY(80px) scale(0.8);
+    transform: scale(1.1);
   }
   60% {
-    opacity: 0.5;
-    transform: translateX(40px) translateY(80px) scale(1);
-  }
-  80% {
-    opacity: 0.5;
-    transform: translateX(60px) translateY(80px) scale(1);
+    opacity: 0.3;
+    transform: scale(0.8);
   }
   100% {
     opacity: 0.5;
-    transform: translateX(60px) translateY(80px) scale(1);
+    transform: scale(1);
   }
 }
 
@@ -196,7 +159,15 @@
 
 @media (prefers-reduced-motion: reduce) {
   .intro-football {
-    animation: footballBounce 0.6s ease-out !important;
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .intro-football-shadow {
+    animation: none !important;
+    opacity: 0.5 !important;
+    transform: scale(1) !important;
   }
 
   .intro-title,

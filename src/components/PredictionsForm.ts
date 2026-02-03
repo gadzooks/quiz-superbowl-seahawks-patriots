@@ -74,12 +74,12 @@ export function renderPredictionsForm(): void {
 
     html += `<div class="question-card">`;
     html += `<label>
-      <span style="color: var(--color-primary); font-size: 14px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Question ${index + 1}</span><br>
-      <span style="color: var(--color-text);">${q.label}</span>
+      <span class="question-number">Question ${index + 1}</span><br>
+      <span class="question-text">${q.label}</span>
       ${
         q.points > 0
-          ? `<span style="display: inline-block; background: var(--color-primary); color: var(--color-background); padding: 4px 12px; border-radius: 12px; font-size: 14px; font-weight: 700; margin-left: 10px;">${q.points} pts</span>`
-          : '<span style="display: inline-block; background: var(--color-text-muted); color: var(--color-background); padding: 4px 12px; border-radius: 12px; font-size: 14px; font-weight: 600; margin-left: 10px;">Tiebreaker</span>'
+          ? `<span class="question-points-badge">${q.points} pts</span>`
+          : '<span class="question-tiebreaker-badge">Tiebreaker</span>'
       }
     </label>`;
 

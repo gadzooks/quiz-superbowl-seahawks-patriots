@@ -8,14 +8,14 @@
 }
 
 .card-body {
-  padding: 24px;
+  padding: var(--space-lg, 24px);
 }
 
 .card-title {
   font-size: 22px !important;
   font-weight: 700;
   color: var(--color-primary) !important;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-sm, 12px);
 }
 
 .card-body p {
@@ -25,7 +25,7 @@
 
 @media (max-width: 640px) {
   .card-body {
-    padding: 16px;
+    padding: var(--space-md, 16px);
   }
   .card {
     border-radius: 12px;
