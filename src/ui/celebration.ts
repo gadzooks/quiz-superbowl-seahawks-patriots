@@ -17,17 +17,18 @@ function callRender(): void {
 const DEFAULT_COLORS = ['#6366f1', '#8b5cf6', '#FFFFFF', '#FFD700'];
 
 // Intro images by theme
+const BASE = import.meta.env.BASE_URL;
 const INTRO_IMAGES: Record<string, string[]> = {
   seahawks: [
-    '/images/intro/seahawks/seahawks-1.png',
-    '/images/intro/seahawks/seahawks-2.jpg',
-    '/images/intro/seahawks/seahawks-3.png',
-    '/images/intro/seahawks/seahawks-4.jpg',
-    '/images/intro/seahawks/seahawks-5.jpg',
-    '/images/intro/seahawks/seahawks-6.jpg',
-    '/images/intro/seahawks/seahawks-7.png',
+    `${BASE}images/seahawks-1.png`,
+    `${BASE}images/seahawks-2.jpg`,
+    `${BASE}images/seahawks-3.png`,
+    `${BASE}images/seahawks-4.jpg`,
+    `${BASE}images/seahawks-5.jpg`,
+    `${BASE}images/seahawks-6.jpg`,
+    `${BASE}images/seahawks-7.png`,
   ],
-  default: ['/images/intro/default/superbowl-logo.svg'],
+  default: [`${BASE}images/intro/default/superbowl-logo.svg`],
 };
 
 /**
