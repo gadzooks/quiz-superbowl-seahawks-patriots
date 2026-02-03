@@ -16,6 +16,7 @@ import {
   showCompletionCelebration,
   triggerConfetti,
   triggerWinnerCelebration,
+  triggerNonWinnerCelebration,
   resetWinnerCelebration,
   replayIntro,
 } from './celebration';
@@ -44,6 +45,7 @@ declare global {
     showCompletionCelebration: typeof showCompletionCelebration;
     triggerConfetti: typeof triggerConfetti;
     triggerWinnerCelebration: typeof triggerWinnerCelebration;
+    triggerNonWinnerCelebration: typeof triggerNonWinnerCelebration;
     resetWinnerCelebration: typeof resetWinnerCelebration;
     replayIntro: typeof replayIntro;
 
@@ -86,6 +88,7 @@ export function exposeUIToWindow(): void {
   window.showCompletionCelebration = showCompletionCelebration;
   window.triggerConfetti = triggerConfetti;
   window.triggerWinnerCelebration = triggerWinnerCelebration;
+  window.triggerNonWinnerCelebration = triggerNonWinnerCelebration;
   window.resetWinnerCelebration = resetWinnerCelebration;
   window.replayIntro = replayIntro;
 

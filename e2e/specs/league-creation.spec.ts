@@ -19,7 +19,7 @@ test.describe('League Creation', () => {
   });
 
   test('should show league creation form on game home', async ({ page }) => {
-    await page.goto(`/${TEST_GAME_ID}/`);
+    await page.goto(`/superbowl/${TEST_GAME_ID}`);
     await page.waitForLoadState('networkidle');
 
     // Should show league creation screen
@@ -30,7 +30,7 @@ test.describe('League Creation', () => {
   test('should allow creating a new league', async ({ page }) => {
     const leagueName = `E2E Test ${Date.now()}`;
 
-    await page.goto(`/${TEST_GAME_ID}/`);
+    await page.goto(`/superbowl/${TEST_GAME_ID}`);
     await page.waitForLoadState('networkidle');
 
     // Wait for league creation form to be visible
@@ -43,7 +43,7 @@ test.describe('League Creation', () => {
     await page.locator('#leagueForm button[type="submit"]').click();
 
     // Should navigate to the new league
-    await page.waitForURL(new RegExp(`/${TEST_GAME_ID}/[^/]+`), { timeout: 10000 });
+    await page.waitForURL(new RegExp(`/superbowl/${TEST_GAME_ID}/[^/]+`), { timeout: 10000 });
 
     // Should show team entry screen
     await expect(page.locator('#teamNameEntry')).toBeVisible({ timeout: 10000 });

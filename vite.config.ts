@@ -11,9 +11,21 @@ const getGitCommit = (): string => {
   }
 };
 
+// Get git commit message at build time
+const getGitCommitMessage = (): string => {
+  try {
+    // Get first line of commit message (subject)
+    return execSync('git log -1 --pretty=%s').toString().trim();
+  } catch {
+    return 'No commit message';
+  }
+};
+
 export default defineConfig({
+  base: '/superbowl/',
   define: {
     __GIT_COMMIT__: JSON.stringify(getGitCommit()),
+    __GIT_COMMIT_MESSAGE__: JSON.stringify(getGitCommitMessage()),
   },
   // Environment variable handling - Vite exposes VITE_* vars to client
   envPrefix: 'VITE_',

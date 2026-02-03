@@ -1,5 +1,18 @@
 /* Question card and form styles */
 
+/* Auto-save status sticky positioning */
+#autoSaveStatus {
+  position: sticky;
+  top: 64px; /* Below header */
+  z-index: 10;
+  padding: 12px 16px;
+  background: var(--color-background-alt);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  text-align: center;
+  transition: opacity 0.3s;
+}
+
 .question-card {
   background: var(--color-input-bg);
   border-radius: 16px;

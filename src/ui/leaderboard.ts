@@ -4,7 +4,7 @@ import { getState } from '../state/store';
 import type { Prediction } from '../types';
 import { getCurrentGameConfig } from '../utils/game';
 
-import { triggerWinnerCelebration } from './celebration';
+import { triggerWinnerCelebration, triggerNonWinnerCelebration } from './celebration';
 
 /**
  * Sort predictions by score (desc), then tiebreak diff (asc), then team name (alphabetic).
@@ -191,11 +191,21 @@ export function renderLeaderboard(): void {
 
   leaderboardDiv.innerHTML = html;
 
-  // Trigger winner celebration if there's a first place winner
+  // Trigger appropriate celebration if all questions are answered
   if (shouldCelebrate && answeredCount === totalQuestions) {
+    // Find current user's position
+    const currentUserPrediction = sorted.find((p) => p.userId === state.currentUserId);
+    const userPosition = currentUserPrediction ? sorted.indexOf(currentUserPrediction) : -1;
+
     // Small delay to let the DOM update
     setTimeout(() => {
-      triggerWinnerCelebration();
+      if (userPosition === 0) {
+        // User is the winner - show confetti
+        triggerWinnerCelebration();
+      } else if (userPosition > 0) {
+        // User participated but didn't win - show encouraging message
+        triggerNonWinnerCelebration(userPosition);
+      }
     }, 300);
   }
 }

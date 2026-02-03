@@ -4,7 +4,7 @@
  */
 
 import { setExpectedLeagueSlug } from '../state/store';
-import { getCurrentGameId } from '../utils/game';
+import { getCurrentGameId, buildGamePath } from '../utils/game';
 
 /**
  * Show league not found screen.
@@ -38,10 +38,11 @@ export function showLeagueCreation(): void {
   // Clear localStorage
   localStorage.removeItem('currentLeagueSlug');
 
-  // Clear URL to game home (e.g., /lx/ instead of /lx/gbaa123) and reload
+  // Clear URL to game home (e.g., /superbowl/lx/) and reload
   // Reload is necessary to tear down the old league subscriptions
   const gameId = getCurrentGameId();
-  window.history.replaceState({}, '', `/${gameId}/`);
+  const path = buildGamePath(gameId);
+  window.history.replaceState({}, '', path);
   window.location.reload();
 }
 
@@ -54,7 +55,8 @@ export function clearLeagueAndReload(): void {
 
   // Clear URL to game home and reload
   const gameId = getCurrentGameId();
-  window.history.replaceState({}, '', `/${gameId}/`);
+  const path = buildGamePath(gameId);
+  window.history.replaceState({}, '', path);
   window.location.reload();
 }
 
