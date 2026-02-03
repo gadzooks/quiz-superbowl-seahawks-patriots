@@ -132,12 +132,10 @@ export function renderLeaderboard(): void {
     // Determine place styling
     let placeClass = '';
     let placeEmoji = '';
-    let shimmerClass = '';
 
     if (isFirst) {
       placeClass = 'place-gold';
       placeEmoji = '<span class="trophy-bounce leaderboard-trophy">🏆</span>';
-      shimmerClass = 'winner-shimmer';
       shouldCelebrate = true;
     } else if (isSecond) {
       placeClass = 'place-silver';
@@ -148,7 +146,7 @@ export function renderLeaderboard(): void {
     }
 
     html += `
-      <div class="card bg-base-200 ${placeClass} ${shimmerClass}">
+      <div class="card bg-base-200 ${placeClass}">
         <div class="card-body p-4">
           <div class="flex justify-between items-center">
             <div class="flex-1">
