@@ -6,7 +6,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="color-scheme" content="dark only">
+    <meta name="description" content="Make your Super Bowl predictions and compete with friends">
     <title>Super Bowl Prediction Game</title>
+
+    <!-- Open Graph (iMessage, Facebook, Slack, etc.) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Super Bowl Prediction Game">
+    <meta property="og:description" content="Make your Super Bowl predictions and compete with friends">
+    <meta property="og:image" content="https://nfl.weekendwanderings.com/superbowl/lx/images/og-preview.png">
+    <meta property="og:url" content="https://nfl.weekendwanderings.com/superbowl/lx/">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Super Bowl Prediction Game">
+    <meta name="twitter:description" content="Make your Super Bowl predictions and compete with friends">
+    <meta name="twitter:image" content="https://nfl.weekendwanderings.com/superbowl/lx/images/og-preview.png">
 
     <!-- Favicon - Seahawks themed -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -48,7 +61,7 @@
     <!-- Header -->
     <div class="app-header sticky top-0 z-50">
         <!-- Team logo (top-left) -->
-        <img id="team-logo" class="team-logo-header" src="https://a.espncdn.com/i/teamlogos/nfl/500/nfl.png" alt="NFL" />
+        <img id="team-logo" class="team-logo-header" src="/images/logos/nfl.png" alt="NFL" />
         <button id="soundToggle" class="sound-toggle" onclick="SoundManager.toggle()" title="Toggle sound">
             🔇
         </button>
