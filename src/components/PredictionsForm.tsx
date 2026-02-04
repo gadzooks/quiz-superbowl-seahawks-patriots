@@ -37,6 +37,7 @@ export function PredictionsForm({
   const lastChangedQuestionIdRef = useRef<string | null>(null);
   const formDataRef = useRef<Record<string, string | number>>({});
   const previousAnswerCountRef = useRef<number>(0);
+  const hasCheckedCompletionThisSessionRef = useRef<boolean>(false);
 
   // Initialize form data from userPrediction
   useEffect(() => {
@@ -101,6 +102,12 @@ export function PredictionsForm({
       const answeredCount = countAnsweredQuestions(currentFormData, questions);
       const wasIncomplete = previousAnswerCountRef.current < questions.length;
       const isNowComplete = answeredCount === questions.length;
+      const isFirstSaveInSession = !hasCheckedCompletionThisSessionRef.current;
+
+      // Celebrate if:
+      // 1. Transitioning from incomplete to complete, OR
+      // 2. First save in this session and already complete
+      const shouldCelebrate = isNowComplete && (wasIncomplete || isFirstSaveInSession);
 
       console.log('[PredictionsForm] Save completed:', {
         answeredCount,
@@ -108,12 +115,14 @@ export function PredictionsForm({
         previousCount: previousAnswerCountRef.current,
         wasIncomplete,
         isNowComplete,
-        willCelebrate: wasIncomplete && isNowComplete,
+        isFirstSaveInSession,
+        willCelebrate: shouldCelebrate,
       });
 
-      if (wasIncomplete && isNowComplete) {
+      if (shouldCelebrate) {
         console.log('[PredictionsForm] Triggering completion celebration!');
         onCompletionCelebration();
+        hasCheckedCompletionThisSessionRef.current = true;
       }
 
       // Always update the count after each save
