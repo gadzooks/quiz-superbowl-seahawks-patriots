@@ -25,6 +25,10 @@ const config: KnipConfig = {
     // System/CI binaries that don't need to be in package.json
     'netlify',
   ],
+  ignoreDependencies: [
+    // Used in scripts via shell commands (execSync)
+    'instant-cli',
+  ],
   // Allow certain patterns of unused exports
   ignoreExportsUsedInFile: true,
 };
