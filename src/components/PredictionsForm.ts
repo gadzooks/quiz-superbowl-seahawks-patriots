@@ -151,12 +151,19 @@ function attachAutoSaveListeners(form: HTMLFormElement): void {
   });
 
   // Number inputs use 'input' event (fires on every keystroke, debounced in handleAutoSave)
+  // and 'blur' event (fires when focus leaves, saves immediately)
   const numberInputs = form.querySelectorAll<HTMLInputElement>('input[type="number"]');
   numberInputs.forEach((input) => {
     input.addEventListener('input', () => {
       // Extract questionId from input name
       const questionId = input.name.replace('prediction-', '');
       void handleAutoSave(questionId);
+    });
+
+    // Save immediately when user moves to next field (blur event)
+    input.addEventListener('blur', () => {
+      const questionId = input.name.replace('prediction-', '');
+      void handleAutoSave(questionId, true); // true = immediate save
     });
   });
 }
@@ -167,7 +174,7 @@ function attachAutoSaveListeners(form: HTMLFormElement): void {
 let autoSaveTimeout: ReturnType<typeof setTimeout> | null = null;
 let lastChangedQuestionId: string | null = null;
 
-async function handleAutoSave(questionId?: string): Promise<void> {
+async function handleAutoSave(questionId?: string, immediate = false): Promise<void> {
   const { currentLeague, currentUserId, allPredictions, questions } = getState();
 
   // Track which question was changed
@@ -177,8 +184,11 @@ async function handleAutoSave(questionId?: string): Promise<void> {
 
   if (!currentLeague?.isOpen) return;
 
-  // Debounce to avoid too many saves
+  // Clear any pending auto-save
   if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
+
+  // If immediate save (blur event), save right away with no debounce
+  const delay = immediate ? 0 : 2500; // 2.5 seconds for typing, immediate for blur
 
   autoSaveTimeout = setTimeout(() => {
     void (async () => {
@@ -247,7 +257,7 @@ async function handleAutoSave(questionId?: string): Promise<void> {
         }
       }
     })();
-  }, 1200);
+  }, delay);
 }
 
 /**
