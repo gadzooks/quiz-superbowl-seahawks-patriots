@@ -1,9 +1,12 @@
 import confetti from 'canvas-confetti';
 import { useCallback, useEffect, useState } from 'react';
 
+import { CELEBRATION, INTRO } from '../constants/timing';
+import { useAppContext } from '../context/AppContext';
 import { SoundManager } from '../sound/manager';
 import { getCurrentTeamId } from '../theme/apply';
 import { getTeamTheme } from '../theme/teams';
+import { logger } from '../utils/logger';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -20,14 +23,18 @@ const INTRO_IMAGES: Record<string, string[]> = {
   default: [`${BASE}images/intro/default/superbowl-logo.svg`],
 };
 
-// Celebration hook state tracking
-let winnerCelebrationTriggered = false;
-let nonWinnerCelebrationTriggered = false;
-
 /**
  * Hook providing confetti celebration effects with theme colors
+ * Uses AppContext to track celebration state across component instances
  */
 export function useConfetti() {
+  const {
+    hasTriggeredWinnerCelebration,
+    setHasTriggeredWinnerCelebration,
+    hasTriggeredNonWinnerCelebration,
+    setHasTriggeredNonWinnerCelebration,
+  } = useAppContext();
+
   const getThemeColors = useCallback(() => {
     const teamId = getCurrentTeamId();
     const theme = getTeamTheme(teamId);
@@ -62,18 +69,18 @@ export function useConfetti() {
   }, [getThemeColors]);
 
   const showCompletionCelebration = useCallback(() => {
-    console.log('[Celebration] showCompletionCelebration called', {
+    logger.debug('[Celebration] showCompletionCelebration called', {
       reducedMotion: shouldReduceMotion(),
     });
 
     if (shouldReduceMotion()) {
-      console.log('[Celebration] Skipping confetti due to prefers-reduced-motion');
+      logger.debug('[Celebration] Skipping confetti due to prefers-reduced-motion');
       return;
     }
 
-    console.log('[Celebration] Starting confetti animation!');
+    logger.debug('[Celebration] Starting confetti animation!');
     const colors = getThemeColors();
-    const duration = 3000;
+    const duration = CELEBRATION.CONFETTI_DURATION;
     const animationEnd = Date.now() + duration;
 
     const randomInRange = (min: number, max: number) => {
@@ -113,15 +120,15 @@ export function useConfetti() {
         colors,
         disableForReducedMotion: true,
       });
-    }, 250);
+    }, CELEBRATION.PARTICLE_INTERVAL);
   }, [getThemeColors, shouldReduceMotion]);
 
   const triggerWinnerCelebration = useCallback(() => {
-    if (winnerCelebrationTriggered) {
+    if (hasTriggeredWinnerCelebration) {
       return;
     }
 
-    winnerCelebrationTriggered = true;
+    setHasTriggeredWinnerCelebration(true);
 
     if (shouldReduceMotion()) {
       SoundManager.playSuccess();
@@ -129,7 +136,7 @@ export function useConfetti() {
     }
 
     const colors = getThemeColors();
-    const duration = 5000;
+    const duration = CELEBRATION.WINNER_DURATION;
     const animationEnd = Date.now() + duration;
 
     SoundManager.playSuccess();
@@ -156,31 +163,39 @@ export function useConfetti() {
         colors,
         disableForReducedMotion: true,
       });
-    }, 250);
-  }, [getThemeColors, shouldReduceMotion]);
+    }, CELEBRATION.PARTICLE_INTERVAL);
+  }, [
+    getThemeColors,
+    shouldReduceMotion,
+    hasTriggeredWinnerCelebration,
+    setHasTriggeredWinnerCelebration,
+  ]);
 
-  const triggerNonWinnerCelebration = useCallback((position: number) => {
-    if (nonWinnerCelebrationTriggered) {
-      return;
-    }
+  const triggerNonWinnerCelebration = useCallback(
+    (position: number) => {
+      if (hasTriggeredNonWinnerCelebration) {
+        return;
+      }
 
-    nonWinnerCelebrationTriggered = true;
+      setHasTriggeredNonWinnerCelebration(true);
 
-    SoundManager.playClick();
+      SoundManager.playClick();
 
-    // Show toast with position
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = `You finished in position #${position}! Great job!`;
-    document.body.appendChild(toast);
+      // Show toast with position
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = `You finished in position #${position}! Great job!`;
+      document.body.appendChild(toast);
 
-    setTimeout(() => {
-      toast.classList.add('toast-hide');
       setTimeout(() => {
-        document.body.removeChild(toast);
-      }, 300);
-    }, 3000);
-  }, []);
+        toast.classList.add('toast-hide');
+        setTimeout(() => {
+          document.body.removeChild(toast);
+        }, CELEBRATION.TOAST_FADE_DELAY);
+      }, CELEBRATION.TOAST_DURATION);
+    },
+    [hasTriggeredNonWinnerCelebration, setHasTriggeredNonWinnerCelebration]
+  );
 
   return {
     triggerConfetti,
@@ -218,8 +233,8 @@ export function IntroOverlay({ teamName, onComplete }: IntroOverlayProps) {
   }, [teamId, triggerConfetti]);
 
   useEffect(() => {
-    // Slideshow timer - 2000ms per image with 150ms transition
-    const totalDuration = images.length * 2000;
+    // Slideshow timer
+    const totalDuration = images.length * INTRO.IMAGE_DURATION;
     const imageInterval = setInterval(() => {
       setCurrentImageIndex((prev) => {
         const next = prev + 1;
@@ -229,16 +244,16 @@ export function IntroOverlay({ teamName, onComplete }: IntroOverlayProps) {
         }
         return next;
       });
-    }, 2000);
+    }, INTRO.IMAGE_DURATION);
 
     // Auto-dismiss after slideshow completes
     const dismissTimer = setTimeout(() => {
       setIsVisible(false);
 
-      // Wait for fade-out animation (500ms) then call onComplete
+      // Wait for fade-out animation then call onComplete
       setTimeout(() => {
         onComplete();
-      }, 500);
+      }, INTRO.FADE_OUT_DURATION);
     }, totalDuration);
 
     return () => {

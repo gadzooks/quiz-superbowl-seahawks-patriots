@@ -1,3 +1,5 @@
+import { AUDIO } from '../constants/timing';
+
 /**
  * SoundManager - Uses Web Audio API for synthesized sounds and Seahawks audio clips.
  */
@@ -48,7 +50,7 @@ class SoundManagerClass {
     if (!this.enabled) return;
     try {
       const audio = new Audio(url);
-      audio.volume = 0.7;
+      audio.volume = AUDIO.VOLUME;
       audio.play().catch((e) => console.log('Audio play failed:', e));
     } catch {
       console.log('Audio not available');
@@ -61,7 +63,7 @@ class SoundManagerClass {
   playIntro(): void {
     try {
       const audio = new Audio(this.audioUrls.intro);
-      audio.volume = 0.7;
+      audio.volume = AUDIO.VOLUME;
       audio.play().catch((e) => console.log('Audio play failed:', e));
     } catch {
       console.log('Audio not available');
@@ -90,14 +92,17 @@ class SoundManagerClass {
       oscillator.connect(gainNode);
       gainNode.connect(ctx.destination);
 
-      oscillator.frequency.value = 880;
+      oscillator.frequency.value = AUDIO.SUCCESS_FREQUENCY;
       oscillator.type = 'sine';
 
-      gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+      gainNode.gain.setValueAtTime(AUDIO.SUCCESS_GAIN, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(
+        AUDIO.FINAL_GAIN,
+        ctx.currentTime + AUDIO.SUCCESS_DURATION
+      );
 
       oscillator.start(ctx.currentTime);
-      oscillator.stop(ctx.currentTime + 0.3);
+      oscillator.stop(ctx.currentTime + AUDIO.SUCCESS_DURATION);
     } catch {
       console.log('Web Audio not available');
     }
@@ -116,14 +121,17 @@ class SoundManagerClass {
       oscillator.connect(gainNode);
       gainNode.connect(ctx.destination);
 
-      oscillator.frequency.value = 440;
+      oscillator.frequency.value = AUDIO.CLICK_FREQUENCY;
       oscillator.type = 'sine';
 
-      gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+      gainNode.gain.setValueAtTime(AUDIO.CLICK_GAIN, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(
+        AUDIO.FINAL_GAIN,
+        ctx.currentTime + AUDIO.CLICK_DURATION
+      );
 
       oscillator.start(ctx.currentTime);
-      oscillator.stop(ctx.currentTime + 0.05);
+      oscillator.stop(ctx.currentTime + AUDIO.CLICK_DURATION);
     } catch {
       console.log('Web Audio not available');
     }

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { AUTO_SAVE } from '../constants/timing';
 import { saveResults } from '../db/queries';
 import type { League, Prediction, Question } from '../types';
 
@@ -48,17 +49,17 @@ export function ResultsForm({ questions, league, predictions, showToast }: Resul
             await saveResults(league.id, updatedResults, predictions, questions);
             setSaveStatus('saved');
 
-            // Clear saved status after 2 seconds
+            // Clear saved status after delay
             setTimeout(() => {
               setSaveStatus('idle');
-            }, 2000);
+            }, AUTO_SAVE.SAVED_INDICATOR_DURATION);
           } catch (error) {
             console.error('Results auto-save error:', error);
             setSaveStatus('error');
             showToast('Error saving results', 'error');
           }
         })();
-      }, 500);
+      }, AUTO_SAVE.RESULTS_INPUT_DELAY);
     },
     [league.id, predictions, questions, showToast]
   );

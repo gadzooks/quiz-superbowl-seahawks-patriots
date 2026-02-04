@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
+import { AUTO_SAVE } from '../constants/timing';
 import { savePrediction } from '../db/queries';
 import type { Question, Prediction, League } from '../types';
+import { logger } from '../utils/logger';
 
 import { isAnswerCorrect, formatSlugForDisplay, countAnsweredQuestions } from './helpers';
 
@@ -64,12 +66,12 @@ export function PredictionsForm({
     onProgressUpdate(percentage);
   }, [formData, questions, onProgressUpdate]);
 
-  // Clear saved indicator after 2 seconds
+  // Clear saved indicator after delay
   useEffect(() => {
     if (savedQuestionId) {
       const timer = setTimeout(() => {
         setSavedQuestionId(null);
-      }, 2000);
+      }, AUTO_SAVE.SAVED_INDICATOR_DURATION);
       return () => clearTimeout(timer);
     }
   }, [savedQuestionId]);
@@ -109,7 +111,7 @@ export function PredictionsForm({
       // 2. First save in this session and already complete
       const shouldCelebrate = isNowComplete && (wasIncomplete || isFirstSaveInSession);
 
-      console.log('[PredictionsForm] Save completed:', {
+      logger.debug('[PredictionsForm] Save completed:', {
         answeredCount,
         totalQuestions: questions.length,
         previousCount: previousAnswerCountRef.current,
@@ -120,7 +122,7 @@ export function PredictionsForm({
       });
 
       if (shouldCelebrate) {
-        console.log('[PredictionsForm] Triggering completion celebration!');
+        logger.debug('[PredictionsForm] Triggering completion celebration!');
         onCompletionCelebration();
         hasCheckedCompletionThisSessionRef.current = true;
       }
@@ -157,8 +159,8 @@ export function PredictionsForm({
         clearTimeout(autoSaveTimeoutRef.current);
       }
 
-      // Save with delay (2.5s for typing, immediate for radio/blur)
-      const delay = immediate ? 0 : 2500;
+      // Save with delay (typing delay for number inputs, immediate for radio/blur)
+      const delay = immediate ? 0 : AUTO_SAVE.PREDICTIONS_TYPING_DELAY;
       autoSaveTimeoutRef.current = setTimeout(() => {
         void performSave();
       }, delay);
