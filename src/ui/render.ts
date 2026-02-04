@@ -74,12 +74,14 @@ function restoreFocusState(focusState: {
   if (element) {
     element.focus();
 
-    // Move cursor to end of text (skip for number inputs which don't support selection)
-    if (
-      element.type !== 'number' &&
-      typeof element.setSelectionRange === 'function' &&
-      element.value
-    ) {
+    // Move cursor to end of text (skip for input types that don't support selection)
+    const supportsSelection =
+      element.type === 'text' ||
+      element.type === 'search' ||
+      element.type === 'url' ||
+      element.type === 'tel' ||
+      element.type === 'password';
+    if (supportsSelection && typeof element.setSelectionRange === 'function' && element.value) {
       const end = element.value.length;
       element.setSelectionRange(end, end);
     }
