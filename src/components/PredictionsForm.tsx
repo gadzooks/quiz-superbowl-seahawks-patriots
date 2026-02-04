@@ -97,7 +97,7 @@ export function PredictionsForm({
         setSavedQuestionId(lastChangedQuestionIdRef.current);
       }
 
-      // Check for completion celebration (only when transitioning to complete)
+      // Check for completion celebration after every successful save
       const answeredCount = countAnsweredQuestions(currentFormData, questions);
       const wasIncomplete = previousAnswerCountRef.current < questions.length;
       const isNowComplete = answeredCount === questions.length;
@@ -106,6 +106,7 @@ export function PredictionsForm({
         onCompletionCelebration();
       }
 
+      // Always update the count after each save
       previousAnswerCountRef.current = answeredCount;
     } catch (error) {
       console.error('Auto-save error:', error);
