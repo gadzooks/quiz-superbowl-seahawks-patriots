@@ -48,7 +48,6 @@ export function PredictionsForm({
     if (userPrediction?.predictions) {
       // Only reset if this is a different prediction or first load
       if (lastLoadedPredictionIdRef.current !== userPrediction.id) {
-        console.log('[PredictionsForm] Loading new prediction:', userPrediction.id);
         setFormData(userPrediction.predictions);
         formDataRef.current = userPrediction.predictions;
         lastLoadedPredictionIdRef.current = userPrediction.id;
@@ -186,8 +185,17 @@ export function PredictionsForm({
   // Handle number input change (debounced save)
   const handleNumberChange = useCallback(
     (questionId: string, value: string) => {
-      const numValue = value === '' ? '' : parseInt(value, 10) || 0;
-      handleChange(questionId, numValue, false);
+      // Handle empty input
+      if (value === '') {
+        handleChange(questionId, '', false);
+        return;
+      }
+
+      // Parse the number - only update if valid
+      const parsed = parseInt(value, 10);
+      if (!Number.isNaN(parsed)) {
+        handleChange(questionId, parsed, false);
+      }
     },
     [handleChange]
   );

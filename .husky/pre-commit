@@ -15,4 +15,7 @@ yarn run type-check || exit 1
 echo "🧪 Running tests..."
 yarn test || exit 1
 
+echo "🧹 Checking for unused dependencies..."
+yarn check:unused || exit 1
+
 echo "✅ All checks passed!"
