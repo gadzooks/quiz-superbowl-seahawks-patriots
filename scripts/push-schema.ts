@@ -42,16 +42,18 @@ function pushSchema() {
     process.exit(1);
   }
 
+  if (!adminToken) {
+    console.error('❌ Error: No admin token found');
+    console.error('\nSet INSTANT_ADMIN_TOKEN in .env or Netlify environment variables');
+    console.error('Or run: yarn instant-cli login');
+    console.error('\nSchema push is REQUIRED to prevent query timeout issues.');
+    process.exit(1);
+  }
+
   console.log(`\n📤 Pushing schema to app: ${appId.substring(0, 8)}...${appId.slice(-4)}\n`);
 
-  // Admin token should already be loaded from .env above
-  const tokenFlag = adminToken ? `-t ${adminToken}` : '';
+  const tokenFlag = `-t ${adminToken}`;
   const yesFlag = autoConfirm ? '-y' : '';
-
-  if (!adminToken) {
-    console.log('⚠️  No INSTANT_ADMIN_TOKEN found - you may need to login:');
-    console.log('   yarn instant-cli login\n');
-  }
 
   try {
     execSync(`yarn instant-cli push schema instant.schema.ts -a ${appId} ${tokenFlag} ${yesFlag}`, {
