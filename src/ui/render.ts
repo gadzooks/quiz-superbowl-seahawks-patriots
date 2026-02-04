@@ -91,8 +91,29 @@ function renderInternal(): void {
       win.renderPredictionsForm?.();
       win.renderParticipants?.();
 
-      // Tab rendering is handled by renderTabs() and individual tab content
-      // No need to call switchTab here as it would trigger state changes
+      // Show/hide sections based on current tab (without triggering state changes)
+      hideElement('predictionsSection');
+      hideElement('leaderboardSection');
+      hideElement('resultsTab');
+      hideElement('adminTab');
+
+      switch (state.currentTab) {
+        case 'predictions':
+          showElement('predictionsSection');
+          break;
+        case 'scores':
+          showElement('leaderboardSection');
+          win.renderLeaderboard?.();
+          break;
+        case 'results':
+          showElement('resultsTab');
+          win.renderResultsForm?.();
+          break;
+        case 'admin':
+          showElement('adminTab');
+          win.renderAdminControls?.();
+          break;
+      }
     }
   } else {
     // No league - check if we expected one
