@@ -72,25 +72,11 @@ function restoreFocusState(focusState: {
     `[name="${focusState.elementName}"], #${focusState.elementName}`
   ) as HTMLInputElement | null;
 
-  if (element) {
-    // Save current scroll position (preventScroll has poor mobile support)
-    const scrollX = window.scrollX;
-    const scrollY = window.scrollY;
+  if (!element) return;
 
-    // Restore focus
-    element.focus({ preventScroll: true });
-
-    // Restore scroll position after browser has a chance to scroll
-    // Use multiple techniques to ensure it works on all browsers
-    requestAnimationFrame(() => {
-      window.scrollTo(scrollX, scrollY);
-      // Double-check on next frame for mobile browsers
-      requestAnimationFrame(() => {
-        window.scrollTo(scrollX, scrollY);
-      });
-    });
-
-    // Move cursor to end of text (skip for input types that don't support selection)
+  // Check if this exact element is already focused
+  if (document.activeElement === element) {
+    // Element is already focused - just move cursor without calling focus() to avoid scroll
     const supportsSelection =
       element.type === 'text' ||
       element.type === 'search' ||
@@ -101,6 +87,47 @@ function restoreFocusState(focusState: {
       const end = element.value.length;
       element.setSelectionRange(end, end);
     }
+    return;
+  }
+
+  // Check if user has moved to a different input - if so, don't interrupt them
+  const currentlyFocused = document.activeElement as HTMLElement | null;
+  const isInDifferentInput =
+    currentlyFocused &&
+    currentlyFocused !== element &&
+    (currentlyFocused.tagName === 'INPUT' || currentlyFocused.tagName === 'TEXTAREA');
+
+  if (isInDifferentInput) {
+    return; // User has moved to a different input, don't restore focus
+  }
+
+  // Safe to restore focus - element was recreated or user clicked away
+  const scrollX = window.scrollX;
+  const scrollY = window.scrollY;
+
+  // Restore focus
+  element.focus({ preventScroll: true });
+
+  // Restore scroll position after browser has a chance to scroll
+  // Use multiple techniques to ensure it works on all browsers
+  requestAnimationFrame(() => {
+    window.scrollTo(scrollX, scrollY);
+    // Double-check on next frame for mobile browsers
+    requestAnimationFrame(() => {
+      window.scrollTo(scrollX, scrollY);
+    });
+  });
+
+  // Move cursor to end of text (skip for input types that don't support selection)
+  const supportsSelection =
+    element.type === 'text' ||
+    element.type === 'search' ||
+    element.type === 'url' ||
+    element.type === 'tel' ||
+    element.type === 'password';
+  if (supportsSelection && typeof element.setSelectionRange === 'function' && element.value) {
+    const end = element.value.length;
+    element.setSelectionRange(end, end);
   }
 }
 
