@@ -63,7 +63,12 @@ function pushSchema() {
         VITE_INSTANTDB_APP_ID: appId,
       },
     });
-  } catch {
+    console.log(
+      `\n✅ Schema pushed successfully to app: ${appId.substring(0, 8)}...${appId.slice(-4)}\n`
+    );
+  } catch (error) {
+    console.error('\n❌ Schema push failed!');
+    console.error('Error:', error instanceof Error ? error.message : String(error));
     process.exit(1);
   }
 }

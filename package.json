@@ -29,6 +29,7 @@
     "prepare": "husky",
     "db:check": "tsx scripts/schema-check.ts",
     "db:verify": "tsx scripts/verify-data.ts",
+    "db:verify-app-id": "tsx scripts/verify-app-id.ts",
     "db:export": "tsx scripts/export-data.ts",
     "db:push": "tsx scripts/push-schema.ts",
     "db:push-safe": "yarn db:check && yarn db:push",

@@ -13,7 +13,14 @@ const APP_ID =
       : undefined;
 
 if (!APP_ID) {
-  console.error('VITE_INSTANTDB_APP_ID is not set!');
+  console.error('❌ VITE_INSTANTDB_APP_ID is not set!');
+  console.error('This environment variable is required to connect to InstantDB.');
+} else {
+  console.log('✅ InstantDB App ID loaded:', `${APP_ID.substring(0, 8)}...${APP_ID.slice(-4)}`);
+  console.log(
+    '📍 Environment:',
+    typeof import.meta.env !== 'undefined' ? 'Vite/Browser' : 'Node.js'
+  );
 }
 
 // Initialize InstantDB client with schema for typed queries

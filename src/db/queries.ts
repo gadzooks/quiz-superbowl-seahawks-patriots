@@ -54,7 +54,12 @@ export async function leagueExists(gameId: string, slug: string, retries = 2): P
 
       // If query times out or fails after retries, assume league doesn't exist
       // This prevents blocking league creation due to transient errors
-      console.warn('leagueExists query failed after retries, assuming false:', error);
+      console.error('❌ leagueExists query failed after retries:', {
+        gameId,
+        slug,
+        error: error instanceof Error ? error.message : String(error),
+        errorDetails: error,
+      });
       return false;
     }
   }
@@ -92,7 +97,11 @@ export async function getGameByGameId(
         continue;
       }
 
-      console.error('getGameByGameId query failed after retries:', error);
+      console.error('❌ getGameByGameId query failed after retries:', {
+        gameId,
+        error: error instanceof Error ? error.message : String(error),
+        errorDetails: error,
+      });
       throw error; // Re-throw since this is critical for seedGame
     }
   }
@@ -126,7 +135,12 @@ export async function seedGame(config: {
     ]);
     return gameInstantId;
   } catch (error) {
-    console.error('seedGame failed:', error);
+    console.error('❌ seedGame failed:', {
+      gameId: config.gameId,
+      displayName: config.displayName,
+      error: error instanceof Error ? error.message : String(error),
+      errorDetails: error,
+    });
     throw new Error(
       `Failed to seed game ${config.gameId}: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
