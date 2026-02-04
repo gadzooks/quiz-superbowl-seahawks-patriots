@@ -235,7 +235,8 @@ export async function saveResults(
   // Recalculate scores for all predictions
   for (const pred of predictions) {
     const score = calculateScore(pred.predictions, results, questions);
-    const tiebreakDiff = calculateTiebreakDiff(pred.predictions, results);
+    const diff = calculateTiebreakDiff(pred.predictions, results);
+    const tiebreakDiff = Number.isFinite(diff) ? diff : 0;
     updates.push(db.tx.predictions[pred.id].update({ score, tiebreakDiff }));
   }
 
@@ -273,9 +274,15 @@ export async function savePrediction(data: {
     data.actualResults && data.questions
       ? calculateScore(data.predictions, data.actualResults, data.questions)
       : 0;
-  const tiebreakDiff = data.actualResults
-    ? calculateTiebreakDiff(data.predictions, data.actualResults)
-    : 0;
+
+  // Only calculate tiebreakDiff if actualResults exists and has data
+  // calculateTiebreakDiff can return Infinity which breaks InstantDB, so convert to 0
+  const hasActualResults = data.actualResults && Object.keys(data.actualResults).length > 0;
+  let tiebreakDiff = 0;
+  if (hasActualResults) {
+    const diff = calculateTiebreakDiff(data.predictions, data.actualResults);
+    tiebreakDiff = Number.isFinite(diff) ? diff : 0;
+  }
 
   const txs: TransactionUpdate[] = [
     db.tx.predictions[predictionId].update({
@@ -334,7 +341,8 @@ export async function recalculateAllScores(
 
   for (const pred of predictions) {
     const score = calculateScore(pred.predictions, actualResults, questions);
-    const tiebreakDiff = calculateTiebreakDiff(pred.predictions, actualResults);
+    const diff = calculateTiebreakDiff(pred.predictions, actualResults);
+    const tiebreakDiff = Number.isFinite(diff) ? diff : 0;
     updates.push(db.tx.predictions[pred.id].update({ score, tiebreakDiff }));
   }
 

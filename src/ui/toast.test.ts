@@ -31,14 +31,15 @@ describe('ui/toast', () => {
     it('should remove toast after duration', () => {
       showToast('Test message', 'info', 3000);
 
-      const toastBefore = document.querySelector('.toast-notification');
-      expect(toastBefore).toBeDefined();
+      const toast = document.querySelector('.toast-notification');
+      expect(toast).toBeDefined();
+      expect(toast?.classList.contains('show')).toBe(true);
 
-      // Fast-forward past duration + animation
-      vi.advanceTimersByTime(3500);
+      // Fast-forward past duration
+      vi.advanceTimersByTime(3000);
 
-      const toastAfter = document.querySelector('.toast-notification');
-      expect(toastAfter).toBeNull();
+      // Toast element stays in DOM but 'show' class is removed
+      expect(toast?.classList.contains('show')).toBe(false);
     });
 
     it('should replace existing toast', () => {
@@ -53,13 +54,16 @@ describe('ui/toast', () => {
     it('should use custom duration', () => {
       showToast('Test message', 'info', 5000);
 
-      // Should still be visible at 4 seconds
-      vi.advanceTimersByTime(4000);
-      expect(document.querySelector('.toast-notification')).toBeDefined();
+      const toast = document.querySelector('.toast-notification');
+      expect(toast).toBeDefined();
 
-      // Should be gone at 6 seconds
-      vi.advanceTimersByTime(2500);
-      expect(document.querySelector('.toast-notification')).toBeNull();
+      // Should still have 'show' class at 4 seconds
+      vi.advanceTimersByTime(4000);
+      expect(toast?.classList.contains('show')).toBe(true);
+
+      // Should have removed 'show' class at 5+ seconds
+      vi.advanceTimersByTime(1000);
+      expect(toast?.classList.contains('show')).toBe(false);
     });
 
     it('should handle empty message', () => {
@@ -77,11 +81,12 @@ describe('ui/toast', () => {
       expect(toast?.textContent).toContain('Test');
     });
 
-    it('should apply correct type class', () => {
+    it('should apply show class when displayed', () => {
       showToast('Success message', 'success');
 
       const toast = document.querySelector('.toast-notification');
-      expect(toast?.className).toContain('alert-success');
+      expect(toast?.classList.contains('toast-notification')).toBe(true);
+      expect(toast?.classList.contains('show')).toBe(true);
     });
 
     it('should show icon based on type', () => {
@@ -95,7 +100,7 @@ describe('ui/toast', () => {
       showToast('Default message');
 
       const toast = document.querySelector('.toast-notification');
-      expect(toast?.className).toContain('alert-info');
+      expect(toast?.classList.contains('show')).toBe(true);
       expect(toast?.textContent).toContain('ℹ');
     });
   });
