@@ -175,9 +175,6 @@ async function handleAutoSave(questionId?: string): Promise<void> {
     lastChangedQuestionId = questionId;
   }
 
-  // Always update progress bar on change
-  updateProgressBar();
-
   if (!currentLeague?.isOpen) return;
 
   // Debounce to avoid too many saves
@@ -187,6 +184,9 @@ async function handleAutoSave(questionId?: string): Promise<void> {
     void (async () => {
       const form = document.getElementById('predictionsForm') as HTMLFormElement;
       if (!form) return;
+
+      // Update progress bar before saving
+      updateProgressBar();
 
       const formData = new FormData(form);
       const predictions: Record<string, string | number> = {};
