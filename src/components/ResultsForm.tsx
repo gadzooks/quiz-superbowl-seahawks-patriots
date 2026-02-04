@@ -25,11 +25,16 @@ export function ResultsForm({ questions, league, predictions, showToast }: Resul
 
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastLoadedLeagueIdRef = useRef<string | null>(null);
 
-  // Update local state when league.actualResults changes externally
+  // Only sync from external data on initial load or when switching to a different league
+  // This prevents race conditions where real-time updates overwrite local edits
   useEffect(() => {
-    setResults(league.actualResults ?? {});
-  }, [league.actualResults]);
+    if (lastLoadedLeagueIdRef.current !== league.id) {
+      setResults(league.actualResults ?? {});
+      lastLoadedLeagueIdRef.current = league.id;
+    }
+  }, [league.id, league.actualResults]);
 
   // Debounced save function
   const debouncedSave = useCallback(
