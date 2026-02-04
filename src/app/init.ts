@@ -229,9 +229,9 @@ export function render(): void {
   console.log('=== RENDER CALLED ===');
   document.getElementById('loading')?.classList.add('hidden');
 
-  // Hide sound toggle for non-Seahawks themes
+  // Hide play sound button for non-Seahawks themes
   if (getCurrentTeamId() !== 'seahawks') {
-    document.getElementById('soundToggle')?.classList.add('hidden');
+    document.getElementById('playSound')?.classList.add('hidden');
   }
 
   const state = getState();

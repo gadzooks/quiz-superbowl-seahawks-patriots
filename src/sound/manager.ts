@@ -15,15 +15,12 @@ class SoundManagerClass {
   };
 
   init(): void {
-    // Load preference from localStorage
-    const saved = localStorage.getItem('soundEnabled');
-    this.enabled = saved === 'true';
-    this.updateButton();
+    // Sound is always enabled (no toggle state)
+    this.enabled = true;
 
-    // Check for reduced motion preference
+    // Disable for reduced motion preference
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       this.enabled = false;
-      localStorage.setItem('soundEnabled', 'false');
     }
   }
 
@@ -37,15 +34,11 @@ class SoundManagerClass {
     return this.audioContext;
   }
 
-  toggle(): void {
-    this.enabled = !this.enabled;
-    localStorage.setItem('soundEnabled', this.enabled.toString());
-    this.updateButton();
-
-    // Play a random Seahawks sound when enabling
-    if (this.enabled) {
-      this.playRandomSound();
-    }
+  /**
+   * Play a random Seahawks chant. Called from the play sound button.
+   */
+  playRandom(): void {
+    this.playRandomSound();
   }
 
   /**
@@ -82,17 +75,6 @@ class SoundManagerClass {
     const sounds = this.audioUrls.random;
     const randomIndex = Math.floor(Math.random() * sounds.length);
     this.playAudio(sounds[randomIndex]);
-  }
-
-  /**
-   * Update the sound toggle button text.
-   */
-  updateButton(): void {
-    const btn = document.getElementById('soundToggle');
-    if (btn) {
-      btn.textContent = this.enabled ? '🔊' : '🔇';
-      btn.title = this.enabled ? 'Sound On (click to mute)' : 'Sound Off (click to unmute)';
-    }
   }
 
   /**

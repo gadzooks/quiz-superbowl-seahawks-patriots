@@ -184,8 +184,8 @@
   letter-spacing: 0.05em;
 }
 
-/* Sound toggle button */
-.sound-toggle {
+/* Play sound button */
+.play-sound-btn {
   position: absolute;
   right: 16px;
   bottom: 68px;
@@ -202,12 +202,12 @@
   transition: all var(--duration-micro) var(--ease-micro);
 }
 
-.sound-toggle:hover {
+.play-sound-btn:hover {
   background: rgba(var(--color-primary-rgb), 0.2);
   border-color: var(--color-primary);
 }
 
-.sound-toggle:active {
+.play-sound-btn:active {
   transform: scale(0.95);
 }
 
