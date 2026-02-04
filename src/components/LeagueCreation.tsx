@@ -1,5 +1,6 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, useEffect, useRef } from 'react';
 
+import { db } from '../db/client';
 import { handleLeagueCreation } from '../handlers/league';
 import { buildGamePath } from '../utils/game';
 
@@ -10,6 +11,59 @@ interface LeagueCreationProps {
 export function LeagueCreation({ gameId }: LeagueCreationProps) {
   const [leagueName, setLeagueName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pendingSlug, setPendingSlug] = useState<string | null>(null);
+  const navigationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Wait for league to exist in InstantDB before navigating
+  // Query through game relationship to ensure we find the right league
+  const leagueQuery = db.useQuery(
+    pendingSlug
+      ? {
+          games: {
+            $: { where: { gameId } },
+            leagues: {
+              $: { where: { slug: pendingSlug } },
+            },
+          },
+        }
+      : null
+  );
+
+  // Navigate once league is available in the subscription
+  useEffect(() => {
+    if (!pendingSlug) return;
+
+    // Check if league exists in query results (nested under games)
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    const gameData = leagueQuery.data?.games?.[0];
+    const leagueExists =
+      gameData &&
+      'leagues' in gameData &&
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      gameData.leagues &&
+      Array.isArray(gameData.leagues) &&
+      gameData.leagues.length > 0;
+
+    if (leagueExists) {
+      // League found! Navigate immediately
+      window.history.pushState({}, '', buildGamePath(gameId, pendingSlug));
+      window.location.reload();
+    } else if (!leagueQuery.isLoading) {
+      // If query finished but league not found, set a timeout fallback
+      // In case of subscription delay, navigate after 2 seconds
+      navigationTimeoutRef.current ??= setTimeout(() => {
+        window.history.pushState({}, '', buildGamePath(gameId, pendingSlug));
+        window.location.reload();
+      }, 2000);
+    }
+
+    return () => {
+      if (navigationTimeoutRef.current) {
+        clearTimeout(navigationTimeoutRef.current);
+        navigationTimeoutRef.current = null;
+      }
+    };
+  }, [pendingSlug, leagueQuery.data, leagueQuery.isLoading, gameId]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,11 +79,10 @@ export function LeagueCreation({ gameId }: LeagueCreationProps) {
       const result = await handleLeagueCreation(leagueName.trim());
 
       if (result.success && result.slug) {
-        // Navigate to the new league URL
-        window.history.pushState({}, '', buildGamePath(gameId, result.slug));
-        window.location.reload();
+        // Set pending slug to trigger subscription and wait for league to exist
+        setPendingSlug(result.slug);
       } else {
-        alert(result.error || 'Failed to create league');
+        alert(result.error ?? 'Failed to create league');
         setIsSubmitting(false);
       }
     } catch (error) {
