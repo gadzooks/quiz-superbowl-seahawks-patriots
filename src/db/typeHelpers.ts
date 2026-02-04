@@ -38,7 +38,7 @@ export function parseLeague(raw: unknown): League | null {
 
   // Check required fields
   if (typeof raw.id !== 'string') return null;
-  if (typeof raw.gameId !== 'string') return null;
+  // Note: gameId is stored as a relationship, not a field
   if (typeof raw.slug !== 'string') return null;
   if (typeof raw.creatorId !== 'string') return null;
   if (typeof raw.isOpen !== 'boolean') return null;
@@ -73,7 +73,7 @@ export function parsePrediction(raw: unknown): Prediction | null {
 
   // Check required fields
   if (typeof raw.id !== 'string') return null;
-  if (typeof raw.leagueId !== 'string') return null;
+  // Note: leagueId is stored as a relationship, not a field
   if (typeof raw.userId !== 'string') return null;
   if (typeof raw.teamName !== 'string') return null;
 
