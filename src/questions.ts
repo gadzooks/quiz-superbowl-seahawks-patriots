@@ -1,3 +1,5 @@
+// questions.ts
+
 import type { GameConfig } from './config/games';
 import type { Question } from './types';
 
@@ -9,26 +11,52 @@ export function createQuestions(teams: [string, string]): Question[] {
   const [team1, team2] = teams;
 
   return [
-    { id: 'winner', label: 'Who wins?', type: 'radio', options: [team1, team2], points: 5 },
-    { id: 'totalTDs', label: 'Total touchdowns?', type: 'number', points: 5 },
-    { id: 'overtime', label: 'Overtime?', type: 'radio', options: ['Yes', 'No'], points: 5 },
+    { id: 'winner', label: `The winner is ...`, type: 'radio', options: [team1, team2], points: 6 },
     {
       id: 'winningMargin',
       label: 'Winning margin?',
       type: 'radio',
       options: ['1-7', '8-14', '15+'],
-      points: 5,
+      points: 6,
     },
-    { id: 'totalFieldGoals', label: 'Total field goals?', type: 'number', points: 5 },
     {
       id: 'firstHalfLeader',
       label: 'Halftime leader?',
       type: 'radio',
       options: [team1, team2, 'Tied'],
-      points: 5,
+      points: 3,
     },
-    // Tiebreaker question - 0 points
-    { id: 'totalPoints', label: 'TIEBREAKER: Total combined points', type: 'number', points: 0 },
+    { id: 'totalTDs', label: 'Total touchdowns?', type: 'number', points: 3 },
+    { id: 'overtime', label: 'Overtime?', type: 'radio', options: ['Yes', 'No'], points: 3 },
+    {
+      id: 'defensiveTD',
+      label: 'Defensive/special teams TD?',
+      type: 'radio',
+      options: ['Yes', 'No'],
+      points: 2,
+    },
+    {
+      id: 'successfulTwoPoints',
+      label: 'Successful 2-point conversion?',
+      type: 'radio',
+      options: ['Yes', 'No'],
+      points: 2,
+    },
+    {
+      id: 'finalScoreSumEvenOdd',
+      label: 'Final score sum even/odd?',
+      type: 'radio',
+      options: ['Even', 'Odd'],
+      points: 1,
+    },
+    {
+      id: 'longestTD',
+      label: 'Longest TD (passing/running)?',
+      type: 'radio',
+      options: ['20-39', '40-59', '60+'],
+      points: 1,
+    },
+    { id: 'totalPoints', label: 'Total combined points', type: 'number', points: 0 },
   ];
 }
 

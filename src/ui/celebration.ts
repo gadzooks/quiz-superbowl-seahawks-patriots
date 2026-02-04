@@ -369,6 +369,7 @@ export function showIntroOverlay(teamName: string): void {
  * Replay intro from header button.
  */
 export function replayIntro(): void {
+  if (getCurrentTeamId() !== 'seahawks') return;
   const { currentTeamName } = getState();
   if (currentTeamName) {
     showIntroOverlay(currentTeamName);

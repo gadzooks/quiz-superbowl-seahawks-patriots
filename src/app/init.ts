@@ -17,6 +17,7 @@ import {
   setHasUnviewedScoreUpdate,
   setExpectedLeagueSlug,
 } from '../state/store';
+import { getCurrentTeamId } from '../theme/apply';
 import type { Prediction } from '../types';
 import { showIntroOverlay } from '../ui/celebration';
 import { showLeagueNotFound } from '../ui/screens';
@@ -228,6 +229,11 @@ export function render(): void {
   console.log('=== RENDER CALLED ===');
   document.getElementById('loading')?.classList.add('hidden');
 
+  // Hide sound toggle for non-Seahawks themes
+  if (getCurrentTeamId() !== 'seahawks') {
+    document.getElementById('soundToggle')?.classList.add('hidden');
+  }
+
   const state = getState();
   const { currentLeague, expectedLeagueSlug, currentUserId, allPredictions } = state;
 
@@ -280,8 +286,10 @@ export function render(): void {
     setCurrentTeamName(userPrediction.teamName);
     setIsManager(userPrediction.isManager === true);
 
-    // Show the intro replay button for returning users
-    document.getElementById('introReplayBtn')?.classList.remove('hidden');
+    // Show the intro replay button for returning users (Seahawks only)
+    if (getCurrentTeamId() === 'seahawks') {
+      document.getElementById('introReplayBtn')?.classList.remove('hidden');
+    }
 
     // Tab labels are static "Questions" - no need to update dynamically
 
@@ -379,11 +387,11 @@ export async function handleTeamNameSubmit(e: Event): Promise<void> {
   // Hide team name entry
   document.getElementById('teamNameEntry')?.classList.add('hidden');
 
-  // Show celebratory intro overlay
-  showIntroOverlay(teamName);
-
-  // Show the intro replay button in header
-  document.getElementById('introReplayBtn')?.classList.remove('hidden');
+  // Show celebratory intro overlay (Seahawks only)
+  if (getCurrentTeamId() === 'seahawks') {
+    showIntroOverlay(teamName);
+    document.getElementById('introReplayBtn')?.classList.remove('hidden');
+  }
 }
 
 /**
