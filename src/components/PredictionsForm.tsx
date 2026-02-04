@@ -248,8 +248,7 @@ export function PredictionsForm({
         {questions.map((q, index) => {
           const userAnswer = formData[q.questionId];
           const correctAnswer = league.actualResults?.[q.questionId];
-          const hasCorrectAnswer =
-            correctAnswer !== undefined && correctAnswer !== null && correctAnswer !== '';
+          const hasCorrectAnswer = correctAnswer !== undefined && correctAnswer !== '';
 
           const isCorrect = hasCorrectAnswer && isAnswerCorrect(q, userAnswer, correctAnswer);
 
@@ -316,7 +315,8 @@ export function PredictionsForm({
                 <input
                   type="number"
                   name={`prediction-${q.questionId}`}
-                  value={userAnswer === undefined ? '' : userAnswer}
+                  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- key may not exist at runtime
+                  value={userAnswer ?? ''}
                   min="0"
                   disabled={!league.isOpen}
                   placeholder="Enter number"

@@ -20,7 +20,7 @@ type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 export function ResultsForm({ questions, league, predictions, showToast }: ResultsFormProps) {
   // Initialize local state from league.actualResults
   const [results, setResults] = useState<Record<string, string | number>>(() => {
-    return league.actualResults || {};
+    return league.actualResults ?? {};
   });
 
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
@@ -28,7 +28,7 @@ export function ResultsForm({ questions, league, predictions, showToast }: Resul
 
   // Update local state when league.actualResults changes externally
   useEffect(() => {
-    setResults(league.actualResults || {});
+    setResults(league.actualResults ?? {});
   }, [league.actualResults]);
 
   // Debounced save function
@@ -140,10 +140,8 @@ export function ResultsForm({ questions, league, predictions, showToast }: Resul
   return (
     <form id="resultsForm">
       {questions.map((q, index) => {
-        const hasValue =
-          results[q.questionId] !== undefined &&
-          results[q.questionId] !== null &&
-          results[q.questionId] !== '';
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- key may not exist at runtime
+        const hasValue = results[q.questionId] !== undefined && results[q.questionId] !== '';
 
         return (
           <div key={q.questionId} className="question-card results-question-card">

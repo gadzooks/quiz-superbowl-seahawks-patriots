@@ -174,9 +174,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
   }
 
   // Compute progress from user prediction
-  const userAnswered = currentUserPrediction
-    ? countAnsweredQuestions(currentUserPrediction.predictions, questions)
-    : 0;
+  const userAnswered = countAnsweredQuestions(currentUserPrediction.predictions, questions);
   const computedProgress =
     questions.length > 0 ? Math.round((userAnswered / questions.length) * 100) : 0;
 

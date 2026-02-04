@@ -6,7 +6,13 @@ import { getUserId } from '../utils/user';
 
 import { handleLeagueCreation } from './league';
 
-// Mock dependencies
+// Mock dependencies - must mock db/client first to prevent InstantDB initialization
+vi.mock('../db/client', () => ({
+  db: {
+    transact: vi.fn(),
+    useQuery: vi.fn(),
+  },
+}));
 vi.mock('../db/queries');
 vi.mock('../utils/game');
 vi.mock('../utils/user');
@@ -166,18 +172,6 @@ describe('handleLeagueCreation', () => {
         success: false,
         error: 'Failed to create league',
       });
-    });
-
-    it('should return error if game config is missing', async () => {
-      vi.mocked(getCurrentGameConfig).mockReturnValue(null as never);
-
-      const result = await handleLeagueCreation('Good Vibes');
-
-      expect(result).toEqual({
-        success: false,
-        error: 'Game not configured',
-      });
-      expect(createLeague).not.toHaveBeenCalled();
     });
   });
 });

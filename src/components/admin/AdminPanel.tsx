@@ -106,7 +106,7 @@ export function AdminPanel({
       try {
         await toggleManagerQuery(predictionId, makeManager);
         const pred = predictions.find((p) => p.id === predictionId);
-        const teamName = pred?.teamName || 'Team';
+        const teamName = pred?.teamName ?? 'Team';
         showToast(
           makeManager ? `${teamName} is now a manager!` : `${teamName} is no longer a manager.`
         );

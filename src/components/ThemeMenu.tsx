@@ -72,7 +72,7 @@ export function ThemeMenu() {
   const teams = getTeamOptions();
   for (const team of teams) {
     const division = TEAM_DIVISIONS[team.id];
-    if (division && teamsByDivision[division]) {
+    if (division) {
       teamsByDivision[division].push(team);
     }
   }
@@ -147,7 +147,7 @@ export function ThemeMenu() {
         <div className="theme-menu-scroll">
           {DIVISION_ORDER.map((division) => {
             const divisionTeams = teamsByDivision[division];
-            if (!divisionTeams || divisionTeams.length === 0) return null;
+            if (divisionTeams.length === 0) return null;
 
             return (
               <div key={division}>

@@ -220,7 +220,7 @@ export function IntroOverlay({ teamName, onComplete }: IntroOverlayProps) {
   const { triggerConfetti } = useConfetti();
 
   const teamId = getCurrentTeamId();
-  const images = INTRO_IMAGES[teamId] || INTRO_IMAGES.default;
+  const images = INTRO_IMAGES[teamId] ?? INTRO_IMAGES.default;
 
   useEffect(() => {
     // Trigger confetti on mount
