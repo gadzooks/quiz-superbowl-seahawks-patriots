@@ -140,11 +140,16 @@ export function renderPredictionsForm(): void {
  * Attach auto-save listeners to form inputs.
  */
 function attachAutoSaveListeners(form: HTMLFormElement): void {
-  const inputs = form.querySelectorAll<HTMLInputElement>(
-    'input[type="radio"], input[type="number"]'
-  );
-  inputs.forEach((input) => {
+  // Radio buttons use 'change' event (fires on click)
+  const radioInputs = form.querySelectorAll<HTMLInputElement>('input[type="radio"]');
+  radioInputs.forEach((input) => {
     input.addEventListener('change', () => void handleAutoSave());
+  });
+
+  // Number inputs use 'input' event (fires on every keystroke, debounced in handleAutoSave)
+  const numberInputs = form.querySelectorAll<HTMLInputElement>('input[type="number"]');
+  numberInputs.forEach((input) => {
+    input.addEventListener('input', () => void handleAutoSave());
   });
 }
 
