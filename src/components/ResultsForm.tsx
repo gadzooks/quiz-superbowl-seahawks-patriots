@@ -25,16 +25,40 @@ export function ResultsForm({ questions, league, predictions, showToast }: Resul
 
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastLoadedLeagueIdRef = useRef<string | null>(null);
 
-  // Only sync from external data on initial load or when switching to a different league
-  // This prevents race conditions where real-time updates overwrite local edits
+  // Track pending results for flush on unmount
+  const pendingResultsRef = useRef<Record<string, string | number> | null>(null);
+  const leagueIdRef = useRef(league.id);
+  const predictionsRef = useRef(predictions);
+  const questionsRef = useRef(questions);
+
+  // Keep refs in sync with props for use in cleanup
   useEffect(() => {
-    if (lastLoadedLeagueIdRef.current !== league.id) {
-      setResults(league.actualResults ?? {});
-      lastLoadedLeagueIdRef.current = league.id;
-    }
-  }, [league.id, league.actualResults]);
+    leagueIdRef.current = league.id;
+    predictionsRef.current = predictions;
+    questionsRef.current = questions;
+  }, [league.id, predictions, questions]);
+
+  // Perform the actual save
+  const performSave = useCallback(
+    async (resultsToSave: Record<string, string | number>) => {
+      try {
+        await saveResults(league.id, resultsToSave, predictions, questions);
+        pendingResultsRef.current = null;
+        setSaveStatus('saved');
+
+        // Clear saved status after delay
+        setTimeout(() => {
+          setSaveStatus('idle');
+        }, AUTO_SAVE.SAVED_INDICATOR_DURATION);
+      } catch (error) {
+        console.error('Results auto-save error:', error);
+        setSaveStatus('error');
+        showToast('Error saving results', 'error');
+      }
+    },
+    [league.id, predictions, questions, showToast]
+  );
 
   // Debounced save function
   const debouncedSave = useCallback(
@@ -44,36 +68,34 @@ export function ResultsForm({ questions, league, predictions, showToast }: Resul
         clearTimeout(saveTimeoutRef.current);
       }
 
+      // Track pending results for flush on unmount
+      pendingResultsRef.current = updatedResults;
+
       // Set saving status immediately
       setSaveStatus('saving');
 
       // Debounce the actual save
       saveTimeoutRef.current = setTimeout(() => {
-        void (async () => {
-          try {
-            await saveResults(league.id, updatedResults, predictions, questions);
-            setSaveStatus('saved');
-
-            // Clear saved status after delay
-            setTimeout(() => {
-              setSaveStatus('idle');
-            }, AUTO_SAVE.SAVED_INDICATOR_DURATION);
-          } catch (error) {
-            console.error('Results auto-save error:', error);
-            setSaveStatus('error');
-            showToast('Error saving results', 'error');
-          }
-        })();
+        void performSave(updatedResults);
       }, AUTO_SAVE.RESULTS_INPUT_DELAY);
     },
-    [league.id, predictions, questions, showToast]
+    [performSave]
   );
 
-  // Cleanup timeout on unmount
+  // Flush pending save on unmount (don't lose user's work!)
   useEffect(() => {
     return () => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
+      }
+      // If there are pending results, save them immediately
+      if (pendingResultsRef.current) {
+        void saveResults(
+          leagueIdRef.current,
+          pendingResultsRef.current,
+          predictionsRef.current,
+          questionsRef.current
+        );
       }
     };
   }, []);
