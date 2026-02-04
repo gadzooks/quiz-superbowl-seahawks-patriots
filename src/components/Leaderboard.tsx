@@ -234,14 +234,29 @@ function AnswerDetails({ prediction, questions, actualResults }: AnswerDetailsPr
         // Determine if answer is correct and set class
         let statusIcon = '';
         let answerClass = 'answer-neutral';
+        let pointsEarned = 0;
+        let pointsDisplay = '';
 
         if (correctAnswer !== undefined && correctAnswer !== null && correctAnswer !== '') {
-          if (isAnswerCorrect(q, userAnswer, correctAnswer)) {
+          const isCorrect = isAnswerCorrect(q, userAnswer, correctAnswer);
+
+          if (q.isTiebreaker) {
+            // For tiebreaker, show the difference
+            const predicted = parseInt(String(userAnswer || 0));
+            const actual = parseInt(String(correctAnswer));
+            const diff = Math.abs(predicted - actual);
+            answerClass = 'answer-neutral';
+            statusIcon = '';
+            pointsDisplay = `(off by ${diff})`;
+          } else if (isCorrect) {
             answerClass = 'answer-correct';
             statusIcon = '✓';
+            pointsEarned = q.points;
+            pointsDisplay = `+${pointsEarned} pt${pointsEarned !== 1 ? 's' : ''}`;
           } else {
             answerClass = 'answer-incorrect';
             statusIcon = '✗';
+            pointsDisplay = '0 pts';
           }
         }
 
@@ -251,6 +266,14 @@ function AnswerDetails({ prediction, questions, actualResults }: AnswerDetailsPr
             <span className="answer-detail-value">
               {displayAnswer || '-'}
               {statusIcon && <strong className="answer-status-icon"> {statusIcon}</strong>}
+              {pointsDisplay && (
+                <strong
+                  className={`answer-points-badge ${pointsEarned > 0 ? 'points-earned' : 'points-none'}`}
+                >
+                  {' '}
+                  {pointsDisplay}
+                </strong>
+              )}
             </span>
           </div>
         );
