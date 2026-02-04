@@ -87,9 +87,10 @@ export function ResultsForm({ questions, league, predictions, showToast }: Resul
   const handleNumberChange = useCallback(
     (questionId: string, value: string) => {
       const numValue = parseInt(value, 10);
+      const finalValue = Number.isNaN(numValue) ? '' : numValue;
       const updatedResults = {
         ...results,
-        [questionId]: Number.isNaN(numValue) ? 0 : numValue,
+        [questionId]: finalValue,
       };
       setResults(updatedResults);
       debouncedSave(updatedResults);

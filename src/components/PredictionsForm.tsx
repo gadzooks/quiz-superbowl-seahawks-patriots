@@ -40,17 +40,24 @@ export function PredictionsForm({
   const formDataRef = useRef<Record<string, string | number>>({});
   const previousAnswerCountRef = useRef<number>(0);
   const hasCheckedCompletionThisSessionRef = useRef<boolean>(false);
+  const lastLoadedPredictionIdRef = useRef<string | null>(null);
 
   // Initialize form data from userPrediction
+  // Only reset formData when loading a DIFFERENT prediction (not on every re-render)
   useEffect(() => {
     if (userPrediction?.predictions) {
-      setFormData(userPrediction.predictions);
-      formDataRef.current = userPrediction.predictions;
-      // Initialize previous count to prevent false triggers on first render
-      previousAnswerCountRef.current = countAnsweredQuestions(
-        userPrediction.predictions,
-        questions
-      );
+      // Only reset if this is a different prediction or first load
+      if (lastLoadedPredictionIdRef.current !== userPrediction.id) {
+        console.log('[PredictionsForm] Loading new prediction:', userPrediction.id);
+        setFormData(userPrediction.predictions);
+        formDataRef.current = userPrediction.predictions;
+        lastLoadedPredictionIdRef.current = userPrediction.id;
+        // Initialize previous count to prevent false triggers on first render
+        previousAnswerCountRef.current = countAnsweredQuestions(
+          userPrediction.predictions,
+          questions
+        );
+      }
     }
   }, [userPrediction, questions]);
 
@@ -179,7 +186,7 @@ export function PredictionsForm({
   // Handle number input change (debounced save)
   const handleNumberChange = useCallback(
     (questionId: string, value: string) => {
-      const numValue = value === '' ? '' : parseInt(value) || 0;
+      const numValue = value === '' ? '' : parseInt(value, 10) || 0;
       handleChange(questionId, numValue, false);
     },
     [handleChange]
