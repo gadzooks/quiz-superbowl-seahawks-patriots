@@ -36,14 +36,20 @@ export function PredictionsForm({
   const autoSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastChangedQuestionIdRef = useRef<string | null>(null);
   const formDataRef = useRef<Record<string, string | number>>({});
+  const previousAnswerCountRef = useRef<number>(0);
 
   // Initialize form data from userPrediction
   useEffect(() => {
     if (userPrediction?.predictions) {
       setFormData(userPrediction.predictions);
       formDataRef.current = userPrediction.predictions;
+      // Initialize previous count to prevent false triggers on first render
+      previousAnswerCountRef.current = countAnsweredQuestions(
+        userPrediction.predictions,
+        questions
+      );
     }
-  }, [userPrediction]);
+  }, [userPrediction, questions]);
 
   // Keep ref in sync with state
   useEffect(() => {
@@ -91,11 +97,16 @@ export function PredictionsForm({
         setSavedQuestionId(lastChangedQuestionIdRef.current);
       }
 
-      // Check for completion celebration (only once)
+      // Check for completion celebration (only when transitioning to complete)
       const answeredCount = countAnsweredQuestions(currentFormData, questions);
-      if (answeredCount === questions.length) {
+      const wasIncomplete = previousAnswerCountRef.current < questions.length;
+      const isNowComplete = answeredCount === questions.length;
+
+      if (wasIncomplete && isNowComplete) {
         onCompletionCelebration();
       }
+
+      previousAnswerCountRef.current = answeredCount;
     } catch (error) {
       console.error('Auto-save error:', error);
       showToast('Failed to save prediction', 'error');
