@@ -21,32 +21,82 @@ type TransactionUpdate =
 
 /**
  * Check if a league with the given slug exists for a specific game.
+ * Retries with exponential backoff on timeout errors.
  */
-export async function leagueExists(gameId: string, slug: string): Promise<boolean> {
-  const result = await db.queryOnce({
-    games: {
-      $: { where: { gameId } },
-      leagues: { $: { where: { slug } } },
-    },
-  });
-  const gameData = result.data.games[0];
-  if (!gameData) return false;
-  const leagues = (gameData as unknown as { leagues?: unknown[] }).leagues;
-  return (leagues?.length ?? 0) > 0;
+export async function leagueExists(gameId: string, slug: string, retries = 2): Promise<boolean> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const result = await db.queryOnce({
+        games: {
+          $: { where: { gameId } },
+          leagues: { $: { where: { slug } } },
+        },
+      });
+      const gameData = result.data.games[0];
+      if (!gameData) return false;
+      const leagues = (gameData as unknown as { leagues?: unknown[] }).leagues;
+      return (leagues?.length ?? 0) > 0;
+    } catch (error) {
+      const isLastAttempt = attempt === retries;
+      const isTimeoutError =
+        error instanceof Error &&
+        (error.message.includes('timeout') || error.message.includes('timed out'));
+
+      if (isTimeoutError && !isLastAttempt) {
+        // Wait with exponential backoff: 100ms, 200ms
+        const delay = 100 * Math.pow(2, attempt);
+        console.warn(
+          `leagueExists query timed out, retrying in ${delay}ms (attempt ${attempt + 1}/${retries + 1})`
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        continue;
+      }
+
+      // If query times out or fails after retries, assume league doesn't exist
+      // This prevents blocking league creation due to transient errors
+      console.warn('leagueExists query failed after retries, assuming false:', error);
+      return false;
+    }
+  }
+  return false; // Should never reach here
 }
 
 /**
  * Get a game by its gameId. Returns the game's InstantDB id or null.
+ * Retries with exponential backoff on timeout errors.
  */
 export async function getGameByGameId(
-  gameId: string
+  gameId: string,
+  retries = 2
 ): Promise<(Game & { _instantDbId: string }) | null> {
-  const result = await db.queryOnce({
-    games: { $: { where: { gameId } } },
-  });
-  const game = result.data.games[0];
-  if (!game) return null;
-  return { ...(game as unknown as Game), _instantDbId: game.id };
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const result = await db.queryOnce({
+        games: { $: { where: { gameId } } },
+      });
+      const game = result.data.games[0];
+      if (!game) return null;
+      return { ...(game as unknown as Game), _instantDbId: game.id };
+    } catch (error) {
+      const isLastAttempt = attempt === retries;
+      const isTimeoutError =
+        error instanceof Error &&
+        (error.message.includes('timeout') || error.message.includes('timed out'));
+
+      if (isTimeoutError && !isLastAttempt) {
+        const delay = 100 * Math.pow(2, attempt);
+        console.warn(
+          `getGameByGameId query timed out, retrying in ${delay}ms (attempt ${attempt + 1}/${retries + 1})`
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        continue;
+      }
+
+      console.error('getGameByGameId query failed after retries:', error);
+      throw error; // Re-throw since this is critical for seedGame
+    }
+  }
+  return null; // Should never reach here
 }
 
 /**
@@ -60,20 +110,27 @@ export async function seedGame(config: {
   team1: string;
   team2: string;
 }): Promise<string> {
-  const existing = await getGameByGameId(config.gameId);
-  if (existing) return existing._instantDbId;
+  try {
+    const existing = await getGameByGameId(config.gameId);
+    if (existing) return existing._instantDbId;
 
-  const gameInstantId = id();
-  await db.transact([
-    db.tx.games[gameInstantId].update({
-      gameId: config.gameId,
-      displayName: config.displayName,
-      year: config.year,
-      team1: config.team1,
-      team2: config.team2,
-    }),
-  ]);
-  return gameInstantId;
+    const gameInstantId = id();
+    await db.transact([
+      db.tx.games[gameInstantId].update({
+        gameId: config.gameId,
+        displayName: config.displayName,
+        year: config.year,
+        team1: config.team1,
+        team2: config.team2,
+      }),
+    ]);
+    return gameInstantId;
+  } catch (error) {
+    console.error('seedGame failed:', error);
+    throw new Error(
+      `Failed to seed game ${config.gameId}: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
 }
 
 /**
