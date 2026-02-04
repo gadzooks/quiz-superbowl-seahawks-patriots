@@ -27,13 +27,22 @@ class SoundManagerClass {
   }
 
   private getContext(): AudioContext {
-    if (!this.audioContext) {
-      this.audioContext = new (
-        window.AudioContext ||
-        (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
-      )();
-    }
+    this.audioContext ??= this.createAudioContext();
     return this.audioContext;
+  }
+
+  private createAudioContext(): AudioContext {
+    // Standard AudioContext
+    if (typeof window.AudioContext !== 'undefined') {
+      return new window.AudioContext();
+    }
+    // Safari/webkit prefix fallback
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, no-restricted-syntax
+    const webkitAudioContext = (window as any).webkitAudioContext;
+    if (typeof webkitAudioContext !== 'undefined') {
+      return new webkitAudioContext();
+    }
+    throw new Error('AudioContext not supported');
   }
 
   /**

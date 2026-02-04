@@ -103,8 +103,8 @@ export function applyGameTeamBackgrounds(gameConfig: GameConfig): void {
  * Apply split background to header section
  */
 function applyHeaderSplitBackground(leftBg: string, rightBg: string): void {
-  const header = document.querySelector('.app-header') as HTMLElement | null;
-  if (!header) {
+  const header = document.querySelector('.app-header');
+  if (!header || !(header instanceof HTMLElement)) {
     logger.warn('Header element .app-header not found');
     return;
   }

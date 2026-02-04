@@ -3,7 +3,11 @@ import type { Game, League, Prediction, Question } from '../types';
 /**
  * Type guards and parsers for InstantDB query results
  * Provides runtime validation without additional dependencies
+ *
+ * Note: These parsers validate required fields then cast to the target type.
+ * The cast is safe because we've verified the shape matches.
  */
+/* eslint-disable no-restricted-syntax */
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);

@@ -1,6 +1,14 @@
 import type { Game, League, Prediction, Question, TabType, AppState } from '../types';
 
 // Initial state
+function getInitialTab(): TabType {
+  const saved = localStorage.getItem('currentTab');
+  if (saved === 'predictions' || saved === 'scores' || saved === 'results' || saved === 'admin') {
+    return saved;
+  }
+  return 'predictions';
+}
+
 const initialState: AppState = {
   currentLeague: null,
   currentGame: null,
@@ -10,7 +18,7 @@ const initialState: AppState = {
   currentTeamName: '',
   isLeagueCreator: false,
   isManager: false,
-  currentTab: (localStorage.getItem('currentTab') as TabType) || 'predictions',
+  currentTab: getInitialTab(),
   hasShownCompletionCelebration: false,
   hasTriggeredNonWinnerCelebration: false,
   previousActualResults: null,

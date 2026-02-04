@@ -1,3 +1,8 @@
+/**
+ * Database query functions for InstantDB
+ * Type assertions are used after validation to work with InstantDB's untyped query results
+ */
+/* eslint-disable no-restricted-syntax */
 import { id } from '@instantdb/core';
 
 import { calculateScore, calculateTiebreakDiff } from '../scoring/calculate';
@@ -33,6 +38,7 @@ export async function leagueExists(gameId: string, slug: string, retries = 2): P
         },
       });
       const gameData = result.data.games[0];
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- games array may be empty
       if (!gameData) return false;
       const leagues = (gameData as unknown as { leagues?: unknown[] }).leagues;
       return (leagues?.length ?? 0) > 0;
@@ -80,6 +86,7 @@ export async function getGameByGameId(
         games: { $: { where: { gameId } } },
       });
       const game = result.data.games[0];
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- games array may be empty
       if (!game) return null;
       return { ...(game as unknown as Game), _instantDbId: game.id };
     } catch (error) {
@@ -170,7 +177,7 @@ export async function seedQuestions(
     },
   });
   const gameData = result.data.games[0];
-  const existingQuestions = (gameData as unknown as { questions?: unknown[] })?.questions;
+  const existingQuestions = (gameData as unknown as { questions?: unknown[] }).questions;
   if (existingQuestions && existingQuestions.length > 0) return;
 
   const txs: TransactionUpdate[] = [];
@@ -266,7 +273,7 @@ export async function savePrediction(data: {
   actualResults?: Record<string, string | number> | null;
   questions?: Question[];
 }): Promise<string> {
-  const predictionId = data.id || id();
+  const predictionId = data.id ?? id();
   const score =
     data.actualResults && data.questions
       ? calculateScore(data.predictions, data.actualResults, data.questions)

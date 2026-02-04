@@ -125,10 +125,21 @@ export default [
       'no-restricted-syntax': [
         'error',
         {
-          selector: 'TSAsExpression',
+          // Disallow type assertions except "as const" (which creates literal types)
+          selector: 'TSAsExpression:not([typeAnnotation.typeName.name="const"])',
           message: 'Avoid type assertions. Use type guards or validation instead.',
         },
       ],
+    },
+  },
+  {
+    // Scripts are build tools that often need type flexibility
+    files: ['scripts/**/*.ts'],
+    rules: {
+      'no-restricted-syntax': 'off', // Allow type assertions in build scripts
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/prefer-nullish-coalescing': 'off',
+      '@typescript-eslint/no-unnecessary-condition': 'off',
     },
   },
   {

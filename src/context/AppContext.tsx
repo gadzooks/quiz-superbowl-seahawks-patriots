@@ -24,12 +24,18 @@ interface AppContextValue {
 
 const AppContext = createContext<AppContextValue | null>(null);
 
+function getInitialTab(): TabType {
+  const saved = localStorage.getItem('currentTab');
+  if (saved === 'predictions' || saved === 'scores' || saved === 'results' || saved === 'admin') {
+    return saved;
+  }
+  return 'predictions';
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const [currentUserId] = useState(() => getUserId());
-  const [currentTab, setCurrentTabRaw] = useState<TabType>(
-    () => (localStorage.getItem('currentTab') as TabType) || 'predictions'
-  );
-  const [currentTeamId, setCurrentTeamIdRaw] = useState(() => getSavedTeamId() || DEFAULT_TEAM_ID);
+  const [currentTab, setCurrentTabRaw] = useState<TabType>(getInitialTab);
+  const [currentTeamId, setCurrentTeamIdRaw] = useState(() => getSavedTeamId() ?? DEFAULT_TEAM_ID);
   const [hasShownCompletionCelebration, setHasShownCompletionCelebration] = useState(false);
   const [hasTriggeredWinnerCelebration, setHasTriggeredWinnerCelebration] = useState(false);
   const [hasTriggeredNonWinnerCelebration, setHasTriggeredNonWinnerCelebration] = useState(false);

@@ -1,5 +1,4 @@
 /* global process */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { init } from '@instantdb/core';
 
 const appId = process.env.INSTANT_APP_ID || process.env.VITE_INSTANTDB_APP_ID;

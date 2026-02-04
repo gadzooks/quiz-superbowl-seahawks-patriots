@@ -197,7 +197,9 @@ export function validatePredictions(
 
   for (const question of questions) {
     const value = predictions[question.questionId];
-    const result = validateAnswer(question, value as string);
+    // validateAnswer accepts string | undefined | null, so convert number to string if needed
+    const stringValue = typeof value === 'number' ? String(value) : value;
+    const result = validateAnswer(question, stringValue);
 
     if (result.valid) {
       answeredCount++;

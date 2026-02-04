@@ -102,7 +102,7 @@ function detectSchemaChanges(): SchemaChange[] {
           const oldMatch = trimmedLine.match(/(\w+):\s*i\.(\w+)\(/);
           const newMatch = nextLine.trim().match(/(\w+):\s*i\.(\w+)\(/);
 
-          if (oldMatch && newMatch && oldMatch[1] === newMatch[1]) {
+          if (oldMatch && oldMatch[1] === newMatch?.[1]) {
             const [, fieldName, oldType] = oldMatch;
             const newType = newMatch[2];
 
