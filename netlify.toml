@@ -53,8 +53,7 @@
 
 # Deploy previews (pull requests → QA)
 [context.deploy-preview]
-  # Skip schema push for PR previews (read-only testing)
-  command = "yarn install && yarn build"
+  command = "yarn install && (test -n \"$INSTANT_ADMIN_TOKEN\" && yarn tsx scripts/push-schema.ts -y || echo 'Skipping schema push - no admin token') && yarn build"
   publish = "dist"
 
 # ============================================================================
