@@ -1,3 +1,4 @@
+/* global requestAnimationFrame */
 import { getState, subscribe } from '../state/store';
 
 import { showLeagueNotFound } from './screens';
@@ -79,8 +80,15 @@ function restoreFocusState(focusState: {
     // Restore focus
     element.focus({ preventScroll: true });
 
-    // Restore scroll position (in case preventScroll didn't work on mobile)
-    window.scrollTo(scrollX, scrollY);
+    // Restore scroll position after browser has a chance to scroll
+    // Use multiple techniques to ensure it works on all browsers
+    requestAnimationFrame(() => {
+      window.scrollTo(scrollX, scrollY);
+      // Double-check on next frame for mobile browsers
+      requestAnimationFrame(() => {
+        window.scrollTo(scrollX, scrollY);
+      });
+    });
 
     // Move cursor to end of text (skip for input types that don't support selection)
     const supportsSelection =
