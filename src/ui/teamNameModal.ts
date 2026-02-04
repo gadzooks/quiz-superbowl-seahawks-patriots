@@ -3,7 +3,7 @@
  * Handles the modal dialog for editing team names.
  */
 
-import { getDb } from '../app/init';
+import { db } from '../db/client';
 import { getState } from '../state/store';
 
 import { showToast } from './toast';
@@ -145,12 +145,6 @@ async function handleTeamNameChange(e: Event): Promise<void> {
   }
 
   try {
-    const db = getDb();
-    if (!db) {
-      showToast('Database not available');
-      return;
-    }
-
     await db.transact([
       db.tx.predictions[predictionToUpdate.id].update({
         teamName: newName,

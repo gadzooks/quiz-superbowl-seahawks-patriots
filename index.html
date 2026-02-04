@@ -29,13 +29,30 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Confetti loaded on demand -->
     <script defer src="https://cdn.jsdelivr.net/yarn/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <script type="module">
-        import { init } from 'https://cdn.jsdelivr.net/yarn/@instantdb/core/+esm';
-        window.InstantDBInit = init;
-    </script>
-    <!-- Vite module entry point - sets window.VITE_APP_ID -->
+    <!-- Vite module entry point - sets window.VITE_APP_ID and initializes InstantDB from npm -->
     <script type="module" src="/src/main.ts"></script>
     <script>
+        // Preload team logo from localStorage to avoid NFL logo flash
+        (function() {
+            const savedTeamId = localStorage.getItem('selectedTeam');
+            const logoEl = document.getElementById('team-logo');
+            if (logoEl) {
+                if (savedTeamId) {
+                    const baseUrl = window.location.origin + (import.meta?.env?.BASE_URL || '/superbowl/');
+                    logoEl.src = baseUrl + 'images/logos/' + savedTeamId + '.png';
+                    logoEl.alt = savedTeamId + ' logo';
+                }
+                // Fade in the logo once it's loaded
+                logoEl.onload = function() {
+                    logoEl.style.opacity = '1';
+                };
+                // Show NFL logo if no team saved (also fade in)
+                if (!savedTeamId) {
+                    logoEl.style.opacity = '1';
+                }
+            }
+        })();
+
         // Configure Tailwind to use CSS custom properties for dynamic theming
         tailwind.config = {
             theme: {
@@ -61,7 +78,7 @@
     <!-- Header -->
     <div class="app-header sticky top-0 z-50">
         <!-- Team logo (top-left) -->
-        <img id="team-logo" class="team-logo-header" src="/images/logos/nfl.png" alt="NFL" />
+        <img id="team-logo" class="team-logo-header" src="/images/logos/nfl.png" alt="NFL" style="opacity: 0; transition: opacity 0.2s;" />
         <button id="playSound" class="play-sound-btn" onclick="SoundManager.playRandom()" title="Play Seahawks chant">
             🔊
         </button>
@@ -335,21 +352,6 @@
         </div>
     </div>
 
-    <script>
-        // All functionality is in TypeScript modules (src/).
-        // This script only initializes the app after DOM is ready.
-        window.addEventListener('DOMContentLoaded', async () => {
-            // Wait for Vite module initialization (team picker, theme, etc.)
-            if (window.waitForAppReady) {
-                await window.waitForAppReady();
-            }
-            // Call the module-provided initApp function
-            if (window.initApp) {
-                window.initApp();
-            } else {
-                console.error('initApp not found - modules may not have loaded');
-            }
-        });
-    </script>
+    <!-- All functionality is in TypeScript modules (src/main.ts) which auto-initializes -->
 </body>
 </html>

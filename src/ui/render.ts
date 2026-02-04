@@ -1,13 +1,31 @@
 import { getState, subscribe } from '../state/store';
 
-import { renderLeaderboard } from './leaderboard';
-import { renderTabs } from './tabs';
+import { showLeagueNotFound } from './screens';
+
+// Guard to prevent infinite render loops
+let isRendering = false;
 
 /**
  * Main render function - called when state changes.
  * Orchestrates rendering of all UI components.
  */
 export function render(): void {
+  // Prevent re-entry during rendering
+  if (isRendering) {
+    console.warn('Render called while already rendering - skipping to prevent infinite loop');
+    return;
+  }
+
+  isRendering = true;
+
+  try {
+    renderInternal();
+  } finally {
+    isRendering = false;
+  }
+}
+
+function renderInternal(): void {
   const state = getState();
 
   console.log('=== RENDER ===');
@@ -15,37 +33,80 @@ export function render(): void {
 
   // Update UI based on current state
   if (state.currentLeague) {
-    // Show main app content
+    // League found - render main app
     hideElement('loading');
     hideElement('leagueCreation');
+    hideElement('leagueNotFound');
+    hideElement('teamNameEntry');
 
-    // Update league name in header
-    const leagueNameEl = document.getElementById('leagueName');
-    if (leagueNameEl) {
-      leagueNameEl.textContent = state.currentLeague.name;
-    }
+    // Get render functions from window (they're exposed by exposeComponentsToWindow)
+    const win = window as Window & {
+      renderLeagueName?: () => void;
+      renderPredictionsForm?: () => void;
+      renderParticipants?: () => void;
+      renderAdminControls?: () => void;
+      switchTab?: (tab: string) => void;
+      switchUserTab?: (tab: string) => void;
+    };
 
-    // Render tabs
-    renderTabs();
+    // Render league name in header
+    win.renderLeagueName?.();
 
-    // Render tab-specific content based on current tab
-    switch (state.currentTab) {
-      case 'predictions':
-        // Will be implemented: renderPredictionsForm()
-        break;
-      case 'scores':
-        renderLeaderboard();
-        break;
-      case 'results':
-        // Will be implemented: renderResultsForm()
-        break;
-      case 'admin':
-        // Will be implemented: renderAdminPanel()
-        break;
+    // Check if user has registered
+    const userPrediction = state.allPredictions.find((p) => p.userId === state.currentUserId);
+
+    if (!userPrediction) {
+      // Show team name entry screen
+      showElement('teamNameEntry');
+      hideElement('leaderboardSection');
+
+      // Set up form handler
+      const form = document.getElementById('teamNameForm') as HTMLFormElement | null;
+      if (form && !form.onsubmit) {
+        form.onsubmit = (e) => {
+          e.preventDefault();
+          const handleTeamNameForm = (
+            window as Window & { handleTeamNameForm?: (e: Event) => void }
+          ).handleTeamNameForm;
+          if (handleTeamNameForm) {
+            void handleTeamNameForm(e);
+          }
+        };
+      }
+    } else {
+      // User is registered - show main content
+      hideElement('teamNameEntry');
+
+      // Show appropriate panel (admin or user)
+      if (state.isLeagueCreator) {
+        showElement('adminPanel');
+        hideElement('userPanel');
+        win.renderAdminControls?.();
+      } else {
+        hideElement('adminPanel');
+        showElement('userPanel');
+      }
+
+      // Render content
+      win.renderPredictionsForm?.();
+      win.renderParticipants?.();
+
+      // Tab rendering is handled by renderTabs() and individual tab content
+      // No need to call switchTab here as it would trigger state changes
     }
   } else {
-    // No league - show loading or creation form
-    showElement('loading');
+    // No league - check if we expected one
+    if (state.expectedLeagueSlug) {
+      // We're waiting for a specific league but didn't find it
+      hideElement('loading');
+      hideElement('leagueCreation');
+      showLeagueNotFound(state.expectedLeagueSlug);
+    } else {
+      // No league slug in URL - show creation form
+      hideElement('loading');
+      showElement('leagueCreation');
+      hideElement('leagueNotFound');
+    }
   }
 }
 

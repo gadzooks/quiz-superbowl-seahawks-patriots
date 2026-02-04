@@ -1,13 +1,22 @@
-// questions.ts
-// Seeding utility for creating question definitions for new games.
-
-import type { Question } from './types';
+/**
+ * Super Bowl LX Questions
+ * Seahawks vs Patriots - 2026
+ *
+ * ⚠️ WARNING: DO NOT IMPORT THIS FILE INTO src/ ⚠️
+ *
+ * This file is ONLY for seeding scripts (yarn seed-game).
+ * Questions should never be accessed from UI code.
+ * The UI loads questions from the database, not from this file.
+ *
+ * Location: data/games/ (outside of src/)
+ * Used by: scripts/seed-game.ts
+ */
 
 /**
- * Generate question seed data with dynamic team names from a game config.
- * Returns question objects ready for database seeding (with sortOrder, isTiebreaker, questionId).
+ * Generate question seed data with team names for Super Bowl LX.
+ * Returns question objects ready for database seeding.
  */
-export function createQuestions(teams: [string, string]): Array<{
+export function createLXQuestions(teams: [string, string]): Array<{
   questionId: string;
   label: string;
   type: string;

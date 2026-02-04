@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seed Game - Super Bowl Predictions</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .card {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 20px 0;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 4px;
+        }
+        .success { background: #065f46; }
+        .error { background: #7f1d1d; }
+        .warning { background: #78350f; }
+        pre {
+            background: #000;
+            padding: 12px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🏈 Seed Super Bowl Game</h1>
+        <p>This page seeds the game and questions into InstantDB.</p>
+        <p><strong>⚠️ Admin Only:</strong> Run this once per Super Bowl season.</p>
+
+        <div id="loading">⏳ Checking database...</div>
+        <div id="existingData" style="display: none;"></div>
+        <button id="seedBtn" onclick="seedGame()" style="display: none;">Seed Super Bowl LX</button>
+
+        <div id="status"></div>
+    </div>
+
+    <script type="module">
+        import { db } from './src/db/client.ts';
+        import { seedGame, seedQuestions } from './src/db/queries.ts';
+        import { createLXQuestions } from './data/games/lx-questions.ts';
+        import { GAMES } from './src/config/games.ts';
+
+        const gameId = 'lx';
+        const config = GAMES[gameId];
+
+        // Check database on load
+        async function checkDatabase() {
+            const loading = document.getElementById('loading');
+            const existingData = document.getElementById('existingData');
+            const seedBtn = document.getElementById('seedBtn');
+
+            try {
+                // Query for existing game and questions
+                const result = await db.queryOnce({
+                    games: {
+                        $: { where: { gameId: gameId } },
+                        questions: {},
+                    },
+                });
+
+                const game = result.data.games[0];
+                const questions = game?.questions || [];
+
+                loading.style.display = 'none';
+
+                if (game && questions.length > 0) {
+                    // Game exists - show data
+                    existingData.style.display = 'block';
+                    existingData.innerHTML = `
+                        <div class="status success">
+                            <h3>✓ Game Already Set Up</h3>
+                            <pre>Game: ${game.displayName}
+Year: ${game.year}
+Teams: ${game.team1} vs ${game.team2}
+Questions: ${questions.length} loaded
+InstantDB ID: ${game.id}</pre>
+                        </div>
+                        <div class="status warning" style="margin-top: 16px;">
+                            <strong>⚠️ Warning:</strong> Game is already seeded.
+                            Only re-seed if you need to add missing questions or recreate the game.
+                        </div>
+                    `;
+                    seedBtn.style.display = 'block';
+                    seedBtn.textContent = '🔄 Re-seed Game (will skip existing)';
+                } else if (game && questions.length === 0) {
+                    // Game exists but no questions
+                    existingData.style.display = 'block';
+                    existingData.innerHTML = `
+                        <div class="status warning">
+                            <h3>⚠️ Game Found, No Questions</h3>
+                            <pre>Game: ${game.displayName}
+Questions: 0 (needs seeding)</pre>
+                        </div>
+                    `;
+                    seedBtn.style.display = 'block';
+                    seedBtn.textContent = 'Seed Questions';
+                } else {
+                    // No game - needs full seeding
+                    existingData.style.display = 'block';
+                    existingData.innerHTML = `
+                        <div class="status warning">
+                            <h3>🆕 Game Not Found</h3>
+                            <p>Super Bowl ${config.displayName} needs to be seeded.</p>
+                        </div>
+                    `;
+                    seedBtn.style.display = 'block';
+                    seedBtn.textContent = 'Seed Super Bowl LX';
+                }
+            } catch (error) {
+                loading.style.display = 'none';
+                existingData.style.display = 'block';
+                existingData.innerHTML = `
+                    <div class="status error">
+                        <strong>❌ Error checking database:</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Run check on page load
+        checkDatabase();
+
+        window.seedGame = async function() {
+            const btn = document.getElementById('seedBtn');
+            const status = document.getElementById('status');
+
+            btn.disabled = true;
+            btn.textContent = '⏳ Seeding...';
+            status.innerHTML = '';
+
+            try {
+                status.innerHTML = '<div class="status warning">Creating game...</div>';
+
+                // Seed the game
+                const gameInstantId = await seedGame({
+                    gameId: config.gameId,
+                    displayName: config.displayName,
+                    year: config.year,
+                    team1: config.teams[0],
+                    team2: config.teams[1],
+                });
+
+                status.innerHTML += '<div class="status success">✓ Game created</div>';
+                status.innerHTML += '<div class="status warning">Creating questions...</div>';
+
+                // Generate and seed questions
+                const questionData = createLXQuestions(config.teams);
+                await seedQuestions(gameInstantId, questionData);
+
+                status.innerHTML += '<div class="status success">✓ ' + questionData.length + ' questions created</div>';
+                status.innerHTML += '<div class="status success">🎉 Seeding complete!</div>';
+                status.innerHTML += '<pre>Game ID: ' + gameId + '\nInstantDB ID: ' + gameInstantId + '</pre>';
+
+                btn.textContent = '✓ Seeding Complete';
+
+                // Offer to refresh to see updated data
+                setTimeout(() => {
+                    status.innerHTML += '<div class="status warning"><button onclick="location.reload()" style="background: #059669;">Refresh to See Updated Data</button></div>';
+                }, 1000);
+            } catch (error) {
+                console.error('Seeding error:', error);
+                status.innerHTML += '<div class="status error">❌ Error: ' + error.message + '</div>';
+                btn.disabled = false;
+                btn.textContent = 'Retry Seeding';
+            }
+        };
+    </script>
+</body>
+</html>

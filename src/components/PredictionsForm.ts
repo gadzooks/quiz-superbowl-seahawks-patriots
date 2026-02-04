@@ -13,6 +13,8 @@ import { isAnswerCorrect, formatSlugForDisplay, countAnsweredQuestions } from '.
 export function renderPredictionsForm(): void {
   const { currentLeague, currentUserId, allPredictions, questions } = getState();
 
+  console.log('renderPredictionsForm called, questions count:', questions.length);
+
   const predictionsSection = document.getElementById('predictionsSection');
   const statusDiv = document.getElementById('submissionsStatus');
   const form = document.getElementById('predictionsForm') as HTMLFormElement | null;

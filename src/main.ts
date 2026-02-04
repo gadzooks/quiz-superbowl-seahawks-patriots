@@ -4,9 +4,8 @@
 // Import all CSS styles
 import './styles/index.css';
 
-import { exposeAppToWindow } from './app';
+// Legacy app module removed - all functionality is in modern modules
 import { exposeComponentsToWindow } from './components';
-import { seedGameAndQuestions } from './config/games';
 import { subscribeToLeague } from './db/queries';
 import { exposeHandlersToWindow } from './handlers';
 import { SoundManager } from './sound/manager';
@@ -120,9 +119,54 @@ export async function initApp(): Promise<void> {
   setCurrentUserId(userId);
   console.log('Current user ID:', userId);
 
-  // Seed the game and questions into the DB (idempotent)
-  console.log('Seeding game data for:', gameId);
-  await seedGameAndQuestions(gameId);
+  // Load the game and questions into state
+  // Note: Game and questions must be seeded first using: yarn seed-game lx
+  console.log('Loading game data for:', gameId);
+  const { getGameByGameId } = await import('./db/queries');
+  const gameData = await getGameByGameId(gameId);
+
+  if (!gameData) {
+    console.error(`Game ${gameId} not found! Run: yarn seed-game ${gameId}`);
+    document.getElementById('loading')?.classList.add('hidden');
+    const container = document.querySelector('.container');
+    if (container) {
+      container.innerHTML = `
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h2 class="card-title text-error">Game Not Set Up</h2>
+            <p>This Super Bowl game hasn't been set up yet.</p>
+            <p class="text-sm text-base-content/60 mt-2">Admin: Run <code>yarn seed-game ${gameId}</code> to set up the game and questions.</p>
+          </div>
+        </div>
+      `;
+    }
+    return;
+  }
+
+  setCurrentGame({
+    id: gameData._instantDbId,
+    gameId: gameData.gameId,
+    displayName: gameData.displayName,
+    year: gameData.year,
+    team1: gameData.team1,
+    team2: gameData.team2,
+  });
+  console.log('Game loaded into state:', gameData);
+
+  // Expose the modern db client to window for any code that needs it
+  const { db } = await import('./db/client');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any).db = db;
+  console.log('Modern db client exposed to window');
+
+  // Expose state store to window for legacy inline scripts
+  exposeStoreToWindow();
+
+  // Expose handlers, components, UI, and app to window for legacy HTML onclick handlers
+  // Must be done before setting up form handlers below
+  exposeHandlersToWindow();
+  exposeComponentsToWindow();
+  exposeUIToWindow();
 
   // Check for league parameter
   const leagueSlug = getLeagueSlug();
@@ -134,19 +178,24 @@ export async function initApp(): Promise<void> {
     // Subscribe to league data via link-based query
     subscribeToLeague(gameId, leagueSlug, handleLeagueUpdate(adminOverride, leagueSlug));
   } else {
-    // No league parameter - the original code handles league creation
-    // This will be migrated later
-    console.log('No league slug found - original code will handle league creation');
+    // No league parameter - show league creation form
+    console.log('No league slug found - showing league creation form');
+    document.getElementById('loading')?.classList.add('hidden');
+    document.getElementById('leagueCreation')?.classList.remove('hidden');
+
+    // Set up form handler - the handler is already exposed to window by exposeHandlersToWindow()
+    const form = document.getElementById('leagueForm') as HTMLFormElement | null;
+    if (form) {
+      form.onsubmit = (e) => {
+        e.preventDefault();
+        const handleLeagueForm = (window as Window & { handleLeagueForm?: (e: Event) => void })
+          .handleLeagueForm;
+        if (handleLeagueForm) {
+          void handleLeagueForm(e);
+        }
+      };
+    }
   }
-
-  // Expose state store to window for legacy inline scripts
-  exposeStoreToWindow();
-
-  // Expose handlers, components, UI, and app to window for legacy HTML onclick handlers
-  exposeHandlersToWindow();
-  exposeComponentsToWindow();
-  exposeUIToWindow();
-  exposeAppToWindow();
 
   // Initialize render system
   // Note: The original index.html script still handles most rendering
@@ -234,6 +283,8 @@ function handleLeagueUpdate(adminOverride: boolean, expectedSlug: string) {
       setCurrentLeague(null);
       setAllPredictions([]);
     }
+
+    // State changes will trigger render via the subscription in initRender()
   };
 }
 

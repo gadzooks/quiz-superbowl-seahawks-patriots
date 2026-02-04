@@ -32,7 +32,8 @@
     "db:export": "tsx scripts/export-data.ts",
     "db:push": "tsx scripts/push-schema.ts",
     "db:push-safe": "yarn db:check && yarn db:push",
-    "db:push-prod-safe": "yarn db:check && yarn db:export && yarn db:push"
+    "db:push-prod-safe": "yarn db:check && yarn db:export && yarn db:push",
+    "seed-game": "tsx scripts/seed-game.ts"
   },
   "keywords": [
     "superbowl",

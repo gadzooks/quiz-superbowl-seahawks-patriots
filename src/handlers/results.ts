@@ -1,8 +1,11 @@
 // Results handlers
 // Handle game results submission (admin/manager only)
 
-import { getDb } from '../app/init';
-import { saveResults, clearResults } from '../db/queries';
+import {
+  saveResults,
+  clearResults,
+  recalculateAllScores as dbRecalculateScores,
+} from '../db/queries';
 import { parseResultsFromForm } from '../services/validation';
 import { getState } from '../state/store';
 import { showToast } from '../ui/toast';
@@ -160,15 +163,6 @@ export async function recalculateAllScores(): Promise<void> {
     return;
   }
 
-  const db = getDb();
-  if (!db) {
-    if (statusDiv) {
-      statusDiv.innerHTML =
-        '<div class="alert alert-error"><span>✗ Database not available</span></div>';
-    }
-    return;
-  }
-
   try {
     // Disable button and show processing status
     if (btn) {
@@ -180,36 +174,16 @@ export async function recalculateAllScores(): Promise<void> {
         '<div class="status-text-muted">Recalculating scores for all participants...</div>';
     }
 
-    // Import calculateScore dynamically to avoid circular deps
-    const { calculateScore } = await import('../scoring/calculate');
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updates: any[] = [];
-    const actualResults = currentLeague.actualResults;
-
-    // Recalculate scores for all predictions
-    allPredictions.forEach((pred) => {
-      if (pred.predictions) {
-        const score = calculateScore(pred.predictions, actualResults, questions);
-        const predTotalPoints = Number(pred.predictions?.totalPoints) || 0;
-        const actualTotalPoints = Number(actualResults.totalPoints) || 0;
-        const tiebreakDiff = Math.abs(predTotalPoints - actualTotalPoints);
-
-        updates.push(
-          db.tx.predictions[pred.id].update({
-            score,
-            tiebreakDiff,
-          })
-        );
-      }
-    });
-
-    // Execute all updates
-    await db.transact(updates);
+    // Use the database query function to recalculate scores
+    const updatedCount = await dbRecalculateScores(
+      allPredictions,
+      currentLeague.actualResults,
+      questions
+    );
 
     // Show success status
     if (statusDiv) {
-      statusDiv.innerHTML = `<div class="alert alert-success"><span>✓ Successfully recalculated scores for ${updates.length} participant(s)</span></div>`;
+      statusDiv.innerHTML = `<div class="alert alert-success"><span>✓ Successfully recalculated scores for ${updatedCount} participant(s)</span></div>`;
     }
 
     // Update leaderboard immediately
