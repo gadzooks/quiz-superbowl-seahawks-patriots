@@ -5,25 +5,6 @@ import type { Question, Prediction, League } from '../types';
 
 import { isAnswerCorrect, formatSlugForDisplay, countAnsweredQuestions } from './helpers';
 
-/**
- * Get football icon for point value.
- * 6 pts = touchdown, 3 pts = field goal, 2 pts = safety, 1 pt = extra point
- */
-function getPointsIcon(points: number): string {
-  switch (points) {
-    case 6:
-      return '🏈'; // Touchdown
-    case 3:
-      return '🥅'; // Field goal
-    case 2:
-      return '🛡️'; // Safety
-    case 1:
-      return '⚡'; // Extra point
-    default:
-      return '';
-  }
-}
-
 interface PredictionsFormProps {
   questions: Question[];
   userPrediction: Prediction | undefined;
@@ -262,11 +243,9 @@ export function PredictionsForm({
                 <br />
                 <span className="question-text">{q.label}</span>
                 {q.points > 0 ? (
-                  <span className="question-points-badge">
-                    {getPointsIcon(q.points)} {q.points} pt{q.points !== 1 ? 's' : ''}
-                  </span>
+                  <span className="question-points-badge">{q.points} pts</span>
                 ) : (
-                  <span className="question-tiebreaker-badge">🎯 Tiebreaker</span>
+                  <span className="question-tiebreaker-badge">Tiebreaker</span>
                 )}
                 {/* Saved indicator */}
                 {savedQuestionId === q.questionId && (

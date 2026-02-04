@@ -278,8 +278,6 @@ describe('PredictionsForm', () => {
       />
     );
 
-    const tiebreakerBadge = document.querySelector('.question-tiebreaker-badge');
-    expect(tiebreakerBadge).toBeInTheDocument();
-    expect(tiebreakerBadge?.textContent).toContain('Tiebreaker');
+    expect(screen.getByText('Tiebreaker')).toBeInTheDocument();
   });
 });
