@@ -43,7 +43,7 @@ export function AllPredictionsTable({
       <table className="table table-zebra w-full">
         <thead>
           <tr>
-            <th className="text-base-content">Team</th>
+            <th className="text-base-content sticky left-0 z-10 bg-base-200">Team</th>
             {questions.map((question) => (
               <th key={question.id} className="text-base-content">
                 {question.label}
@@ -52,9 +52,15 @@ export function AllPredictionsTable({
           </tr>
         </thead>
         <tbody>
-          {predictions.map((prediction) => (
+          {predictions.map((prediction, idx) => (
             <tr key={prediction.id}>
-              <td className="font-semibold text-base-content">{prediction.teamName}</td>
+              <td
+                className={`font-semibold text-base-content sticky left-0 z-10 ${
+                  idx % 2 === 0 ? 'bg-base-200' : 'bg-base-100'
+                }`}
+              >
+                {prediction.teamName}
+              </td>
               {questions.map((question) => {
                 const answer = prediction.predictions?.[question.questionId];
                 const hasResults = actualResults !== null && actualResults !== undefined;
@@ -81,7 +87,7 @@ export function AllPredictionsTable({
           {/* Correct answers row */}
           {actualResults && Object.keys(actualResults).length > 0 && (
             <tr className="border-t-2 border-primary bg-base-300">
-              <td className="font-bold text-primary">✓ Correct Answers</td>
+              <td className="font-bold text-primary sticky left-0 z-10 bg-base-300">Answers</td>
               {questions.map((question) => {
                 const correctAnswer = actualResults[question.questionId];
                 return (
