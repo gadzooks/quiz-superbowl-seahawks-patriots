@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useAppContext } from '../context/AppContext';
 import type { Question, League, Prediction } from '../types';
@@ -35,6 +35,9 @@ export function Leaderboard({
     setHasTriggeredNonWinnerCelebration,
   } = useAppContext();
 
+  // Track previous completion state
+  const previouslyCompleteRef = useRef(false);
+
   // Filter predictions that have data
   const teamsWithPredictions = predictions.filter((p) => p.predictions);
 
@@ -49,24 +52,38 @@ export function Leaderboard({
   const totalQuestions = questions.length;
   const allQuestionsAnswered = answeredCount === totalQuestions;
 
-  // Trigger celebration when all questions are answered
+  // Trigger celebration only when results transition from incomplete to complete
   useEffect(() => {
-    if (!allQuestionsAnswered || sorted.length === 0) return;
+    const wasIncomplete = !previouslyCompleteRef.current;
+    const isNowComplete = allQuestionsAnswered && sorted.length > 0;
+
+    // Only trigger on transition from incomplete to complete
+    if (!wasIncomplete || !isNowComplete) {
+      previouslyCompleteRef.current = allQuestionsAnswered;
+      return;
+    }
 
     const currentUserPrediction = sorted.find((p) => p.userId === currentUserId);
     const userPosition = currentUserPrediction ? sorted.indexOf(currentUserPrediction) : -1;
+
+    // Only celebrate for top 3 positions
+    if (userPosition < 0 || userPosition > 2) {
+      previouslyCompleteRef.current = allQuestionsAnswered;
+      return;
+    }
 
     // Small delay to let the DOM update
     const timer = setTimeout(() => {
       if (userPosition === 0 && !hasTriggeredWinnerCelebration) {
         setHasTriggeredWinnerCelebration(true);
         onWinnerCelebration();
-      } else if (userPosition > 0 && !hasTriggeredNonWinnerCelebration) {
+      } else if ((userPosition === 1 || userPosition === 2) && !hasTriggeredNonWinnerCelebration) {
         setHasTriggeredNonWinnerCelebration(true);
         onNonWinnerCelebration(userPosition + 1);
       }
     }, 300);
 
+    previouslyCompleteRef.current = allQuestionsAnswered;
     return () => clearTimeout(timer);
   }, [
     allQuestionsAnswered,

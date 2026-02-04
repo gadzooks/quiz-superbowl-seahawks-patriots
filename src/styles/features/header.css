@@ -1,3 +1,5 @@
+/* header.css */
+
 /* Header styles */
 
 .app-header {
@@ -285,7 +287,7 @@
     width: auto;
   }
   .superbowl-logo {
-    height: 28px;
+    height: 58px;
   }
   .header-matchup-row {
     gap: 8px;
