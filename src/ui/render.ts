@@ -74,13 +74,10 @@ function restoreFocusState(focusState: {
   if (element) {
     element.focus();
 
-    // Restore cursor position for text/number inputs
-    if (
-      focusState.selectionStart !== null &&
-      focusState.selectionEnd !== null &&
-      typeof element.setSelectionRange === 'function'
-    ) {
-      element.setSelectionRange(focusState.selectionStart, focusState.selectionEnd);
+    // Move cursor to end of text for text/number inputs
+    if (typeof element.setSelectionRange === 'function' && element.value) {
+      const end = element.value.length;
+      element.setSelectionRange(end, end);
     }
   }
 }

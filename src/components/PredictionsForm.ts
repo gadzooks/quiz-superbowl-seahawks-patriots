@@ -248,7 +248,7 @@ async function handleAutoSave(): Promise<void> {
         }
       }
     })();
-  }, 500);
+  }, 1200);
 }
 
 /**
