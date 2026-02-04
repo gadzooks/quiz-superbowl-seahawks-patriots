@@ -3,11 +3,9 @@
 
 import { getDb } from '../app/init';
 import { saveResults, clearResults } from '../db/queries';
-import { getQuestionsForGame } from '../questions';
 import { parseResultsFromForm } from '../services/validation';
 import { getState } from '../state/store';
 import { showToast } from '../ui/toast';
-import { getCurrentGameConfig } from '../utils/game';
 
 /**
  * Handle results form submission.
@@ -16,9 +14,7 @@ import { getCurrentGameConfig } from '../utils/game';
 export async function handleResultsSubmit(
   formData: FormData
 ): Promise<{ success: boolean; error?: string }> {
-  const { currentLeague, allPredictions } = getState();
-  const gameConfig = getCurrentGameConfig();
-  const questions = getQuestionsForGame(gameConfig);
+  const { currentLeague, allPredictions, questions } = getState();
 
   if (!currentLeague) {
     return { success: false, error: 'No league selected' };
@@ -28,7 +24,7 @@ export async function handleResultsSubmit(
   const results = parseResultsFromForm(formData, questions);
 
   try {
-    await saveResults(currentLeague.id, results, allPredictions);
+    await saveResults(currentLeague.id, results, allPredictions, questions);
     return { success: true };
   } catch (error) {
     console.error('Error saving results:', error);
@@ -99,7 +95,7 @@ export function initResultsAutoSave(form: HTMLFormElement): void {
  * Clear a single result field.
  */
 export async function clearResult(questionId: string): Promise<void> {
-  const { currentLeague, allPredictions } = getState();
+  const { currentLeague, allPredictions, questions } = getState();
 
   if (!currentLeague?.actualResults) {
     return;
@@ -110,7 +106,7 @@ export async function clearResult(questionId: string): Promise<void> {
   delete updatedResults[questionId];
 
   try {
-    await saveResults(currentLeague.id, updatedResults, allPredictions);
+    await saveResults(currentLeague.id, updatedResults, allPredictions, questions);
     showToast('Result cleared');
   } catch (error) {
     console.error('Error clearing result:', error);
@@ -151,7 +147,7 @@ export async function handleClearAllResults(): Promise<boolean> {
  * Recalculate scores for all participants.
  */
 export async function recalculateAllScores(): Promise<void> {
-  const { currentLeague, allPredictions } = getState();
+  const { currentLeague, allPredictions, questions } = getState();
   const statusDiv = document.getElementById('recalculateScoresStatus');
   const btn = document.getElementById('recalculateScoresBtn') as HTMLButtonElement | null;
 
@@ -194,7 +190,7 @@ export async function recalculateAllScores(): Promise<void> {
     // Recalculate scores for all predictions
     allPredictions.forEach((pred) => {
       if (pred.predictions) {
-        const score = calculateScore(pred.predictions, actualResults);
+        const score = calculateScore(pred.predictions, actualResults, questions);
         const predTotalPoints = Number(pred.predictions?.totalPoints) || 0;
         const actualTotalPoints = Number(actualResults.totalPoints) || 0;
         const tiebreakDiff = Math.abs(predTotalPoints - actualTotalPoints);

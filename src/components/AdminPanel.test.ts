@@ -25,7 +25,6 @@ describe('components/AdminPanel', () => {
       document.body.innerHTML = '';
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -53,7 +52,6 @@ describe('components/AdminPanel', () => {
     it('should render submissions controls when open', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -76,7 +74,6 @@ describe('components/AdminPanel', () => {
     it('should render submissions controls when closed', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -99,7 +96,6 @@ describe('components/AdminPanel', () => {
     it('should render show predictions controls', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -121,7 +117,6 @@ describe('components/AdminPanel', () => {
     it('should check hidden radio when showAllPredictions is false', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -144,7 +139,6 @@ describe('components/AdminPanel', () => {
     it('should check visible radio when showAllPredictions is true', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -167,7 +161,6 @@ describe('components/AdminPanel', () => {
     it('should render invite section with share URL', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -190,7 +183,6 @@ describe('components/AdminPanel', () => {
     it('should render QR code for share URL', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -215,7 +207,6 @@ describe('components/AdminPanel', () => {
     it('should render git commit and app ID', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -247,7 +238,6 @@ describe('components/AdminPanel', () => {
 
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -267,7 +257,6 @@ describe('components/AdminPanel', () => {
     it('should handle onclick handlers', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',

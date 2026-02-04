@@ -234,7 +234,7 @@ function validateEnvironment() {
   // Helpful next steps
   log('Next steps:', 'bright');
   if (context === 'local-development') {
-    log('   • Run: npm run dev', 'cyan');
+    log('   • Run: yarn run dev', 'cyan');
     log('   • Test the app at http://localhost:8080', 'cyan');
   } else {
     log('   • Build will proceed with the configuration above', 'cyan');

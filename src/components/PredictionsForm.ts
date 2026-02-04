@@ -3,9 +3,7 @@
 // Predictions Form Component
 // Renders the user's prediction form
 
-import { getQuestionsForGame } from '../questions';
 import { getState } from '../state/store';
-import { getCurrentGameConfig } from '../utils/game';
 
 import { isAnswerCorrect, formatSlugForDisplay, countAnsweredQuestions } from './helpers';
 
@@ -13,9 +11,7 @@ import { isAnswerCorrect, formatSlugForDisplay, countAnsweredQuestions } from '.
  * Render the predictions form.
  */
 export function renderPredictionsForm(): void {
-  const { currentLeague, currentUserId, allPredictions } = getState();
-  const gameConfig = getCurrentGameConfig();
-  const questions = getQuestionsForGame(gameConfig);
+  const { currentLeague, currentUserId, allPredictions, questions } = getState();
 
   const predictionsSection = document.getElementById('predictionsSection');
   const statusDiv = document.getElementById('submissionsStatus');
@@ -65,8 +61,8 @@ export function renderPredictionsForm(): void {
   }
 
   questions.forEach((q, index) => {
-    const userAnswer = userPrediction?.predictions?.[q.id];
-    const correctAnswer = currentLeague.actualResults?.[q.id];
+    const userAnswer = userPrediction?.predictions?.[q.questionId];
+    const correctAnswer = currentLeague.actualResults?.[q.questionId];
     const hasCorrectAnswer =
       correctAnswer !== undefined && correctAnswer !== null && correctAnswer !== '';
 
@@ -94,7 +90,7 @@ export function renderPredictionsForm(): void {
         }
         html += `
           <label class="radio-option ${answerClass}">
-            <input type="radio" name="prediction-${q.id}" value="${value}" ${checked} ${!currentLeague.isOpen ? 'disabled' : ''}>
+            <input type="radio" name="prediction-${q.questionId}" value="${value}" ${checked} ${!currentLeague.isOpen ? 'disabled' : ''}>
             <span>${option}</span>
           </label>
         `;
@@ -106,14 +102,14 @@ export function renderPredictionsForm(): void {
       if (showCorrectAnswers && hasCorrectAnswer && value !== '') {
         inputClass = isCorrect ? 'user-answer-correct' : 'user-answer-incorrect';
       }
-      html += `<input type="number" name="prediction-${q.id}" value="${value}" min="0" ${!currentLeague.isOpen ? 'disabled' : ''} placeholder="Enter number" class="${inputClass}">`;
+      html += `<input type="number" name="prediction-${q.questionId}" value="${value}" min="0" ${!currentLeague.isOpen ? 'disabled' : ''} placeholder="Enter number" class="${inputClass}">`;
     }
 
     // Show correct answer indicator when submissions are closed and results exist
     if (showCorrectAnswers && hasCorrectAnswer) {
       const displayCorrectAnswer = formatSlugForDisplay(String(correctAnswer));
       const indicatorClass = isCorrect ? 'correct' : 'incorrect';
-      const indicatorIcon = isCorrect ? '✓' : '✗';
+      const indicatorIcon = isCorrect ? '\u2713' : '\u2717';
       const indicatorText = isCorrect ? 'Correct!' : `Correct answer: ${displayCorrectAnswer}`;
 
       html += `
@@ -156,9 +152,7 @@ function attachAutoSaveListeners(form: HTMLFormElement): void {
 let autoSaveTimeout: ReturnType<typeof setTimeout> | null = null;
 
 async function handleAutoSave(): Promise<void> {
-  const { currentLeague, currentUserId, allPredictions } = getState();
-  const gameConfig = getCurrentGameConfig();
-  const questions = getQuestionsForGame(gameConfig);
+  const { currentLeague, currentUserId, allPredictions, questions } = getState();
 
   // Always update progress bar on change
   updateProgressBar();
@@ -184,12 +178,12 @@ async function handleAutoSave(): Promise<void> {
       const predictions: Record<string, string | number> = {};
 
       questions.forEach((q) => {
-        const value = formData.get(`prediction-${q.id}`);
+        const value = formData.get(`prediction-${q.questionId}`);
         if (value !== null && value !== '') {
           if (q.type === 'number') {
-            predictions[q.id] = parseInt(String(value)) || 0;
+            predictions[q.questionId] = parseInt(String(value)) || 0;
           } else {
-            predictions[q.id] = String(value);
+            predictions[q.questionId] = String(value);
           }
         }
       });
@@ -201,22 +195,21 @@ async function handleAutoSave(): Promise<void> {
         try {
           // Import db dynamically to avoid circular dependency
           const { savePrediction } = await import('../db/queries');
-          const { getCurrentGameId } = await import('../utils/game');
 
           await savePrediction({
             id: userPrediction.id,
-            gameId: getCurrentGameId(),
             leagueId: currentLeague.id,
             userId: currentUserId,
             teamName: userPrediction.teamName,
             predictions,
             isManager: userPrediction.isManager,
             actualResults: currentLeague.actualResults,
+            questions,
           });
 
           // Show saved status
           if (statusDiv) {
-            statusDiv.textContent = '✓ Saved';
+            statusDiv.textContent = '\u2713 Saved';
             statusDiv.style.color = 'var(--color-primary)';
             setTimeout(() => {
               statusDiv.textContent = '';
@@ -241,7 +234,7 @@ async function handleAutoSave(): Promise<void> {
           }
         } catch (error) {
           if (statusDiv) {
-            statusDiv.textContent = '✗ Error saving';
+            statusDiv.textContent = '\u2717 Error saving';
             statusDiv.style.color = '#dc2626';
           }
           console.error('Auto-save error:', error);
@@ -255,9 +248,7 @@ async function handleAutoSave(): Promise<void> {
  * Update the progress bar in the header.
  */
 export function updateProgressBar(): void {
-  const { currentUserId, allPredictions } = getState();
-  const gameConfig = getCurrentGameConfig();
-  const questions = getQuestionsForGame(gameConfig);
+  const { currentUserId, allPredictions, questions } = getState();
 
   const userPrediction = allPredictions.find((p) => p.userId === currentUserId);
   const answered = countAnsweredQuestions(userPrediction?.predictions, questions);

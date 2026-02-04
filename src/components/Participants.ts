@@ -1,9 +1,7 @@
 // Participants Component
 // Renders the list of participants with their progress
 
-import { getQuestionsForGame } from '../questions';
 import { getState } from '../state/store';
-import { getCurrentGameConfig } from '../utils/game';
 import { getLeagueUrl } from '../utils/url';
 
 import {
@@ -17,9 +15,7 @@ import {
  * Render the participants list.
  */
 export function renderParticipants(): void {
-  const { currentLeague, allPredictions, isLeagueCreator } = getState();
-  const gameConfig = getCurrentGameConfig();
-  const questions = getQuestionsForGame(gameConfig);
+  const { currentLeague, allPredictions, isLeagueCreator, questions } = getState();
 
   const participantsDiv = document.getElementById('participantsList');
   if (!participantsDiv || !currentLeague) return;
@@ -85,7 +81,7 @@ export function renderParticipants(): void {
             <div class="ml-4">
               ${
                 isComplete
-                  ? '<div class="badge badge-success badge-lg">✓</div>'
+                  ? '<div class="badge badge-success badge-lg">\u2713</div>'
                   : `<div class="radial-progress text-primary" style="--value:${percentage}; --size:3rem;">${percentage}%</div>`
               }
             </div>

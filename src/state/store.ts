@@ -1,8 +1,10 @@
-import type { League, Prediction, TabType, AppState } from '../types';
+import type { Game, League, Prediction, Question, TabType, AppState } from '../types';
 
 // Initial state
 const initialState: AppState = {
   currentLeague: null,
+  currentGame: null,
+  questions: [],
   allPredictions: [],
   currentUserId: '',
   currentTeamName: '',
@@ -52,6 +54,16 @@ function notifyListeners(): void {
 
 export function setCurrentLeague(league: League | null): void {
   state = { ...state, currentLeague: league };
+  notifyListeners();
+}
+
+export function setCurrentGame(game: Game | null): void {
+  state = { ...state, currentGame: game };
+  notifyListeners();
+}
+
+export function setQuestions(questions: Question[]): void {
+  state = { ...state, questions };
   notifyListeners();
 }
 
@@ -166,6 +178,8 @@ declare global {
       subscribe: typeof subscribe;
       updateState: typeof updateState;
       setCurrentLeague: typeof setCurrentLeague;
+      setCurrentGame: typeof setCurrentGame;
+      setQuestions: typeof setQuestions;
       setAllPredictions: typeof setAllPredictions;
       setCurrentUserId: typeof setCurrentUserId;
       setCurrentTeamName: typeof setCurrentTeamName;
@@ -195,6 +209,8 @@ export function exposeStoreToWindow(): void {
     subscribe,
     updateState,
     setCurrentLeague,
+    setCurrentGame,
+    setQuestions,
     setAllPredictions,
     setCurrentUserId,
     setCurrentTeamName,

@@ -89,7 +89,7 @@ Build now runs validation before deploying.
 **Build Command:**
 
 ```bash
-node validate-netlify-env.js && npm test && node build.js
+node validate-netlify-env.js && yarn test && node build.js
 ```
 
 **Benefits:**
@@ -124,7 +124,7 @@ Updated test command to exit cleanly.
 "test": "echo 'No automated tests configured. Manual testing: Open app and go to Admin tab → Test Scoring Logic' && exit 0"
 ```
 
-**Why:** Ensures `npm test` always exits with success (exit code 0) so build chain doesn't fail.
+**Why:** Ensures `yarn test` always exits with success (exit code 0) so build chain doesn't fail.
 
 ### Documentation Updates
 
@@ -166,7 +166,7 @@ Added documentation for new features:
 
 ```bash
 # Test full build chain
-node validate-netlify-env.js && npm test && echo "Build would succeed"
+node validate-netlify-env.js && yarn test && echo "Build would succeed"
 
 # Test validation catches errors
 unset INSTANTDB_APP_ID

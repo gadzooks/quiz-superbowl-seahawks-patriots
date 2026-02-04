@@ -13,7 +13,7 @@ export function countAnsweredQuestions(
 
   let count = 0;
   for (const q of questions) {
-    const value = predictions[q.id];
+    const value = predictions[q.questionId];
     if (value !== undefined && value !== null && value !== '') {
       count++;
     }

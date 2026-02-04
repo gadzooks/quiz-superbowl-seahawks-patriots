@@ -15,6 +15,8 @@ import {
   setPreviousActualResults,
   setHasUnviewedScoreUpdate,
   setExpectedLeagueSlug,
+  setCurrentGame,
+  setQuestions,
 } from './store';
 
 describe('state/store', () => {
@@ -23,6 +25,8 @@ describe('state/store', () => {
     updateState({
       currentUserId: '',
       currentLeague: null,
+      currentGame: null,
+      questions: [],
       allPredictions: [],
       isLeagueCreator: false,
       currentTeamName: '',
@@ -43,6 +47,8 @@ describe('state/store', () => {
       expect(state).toHaveProperty('currentUserId');
       expect(state).toHaveProperty('currentLeague');
       expect(state).toHaveProperty('allPredictions');
+      expect(state).toHaveProperty('currentGame');
+      expect(state).toHaveProperty('questions');
     });
 
     it('should return initial state values', () => {
@@ -50,6 +56,8 @@ describe('state/store', () => {
 
       expect(state.currentUserId).toBe('');
       expect(state.currentLeague).toBeNull();
+      expect(state.currentGame).toBeNull();
+      expect(state.questions).toEqual([]);
       expect(state.allPredictions).toEqual([]);
       expect(state.isLeagueCreator).toBe(false);
       expect(state.currentTab).toBe('predictions');
@@ -93,7 +101,6 @@ describe('state/store', () => {
     it('should set league', () => {
       const league: League = {
         id: 'league-1',
-        gameId: 'lx',
         slug: 'test-league',
         name: 'Test League',
         creatorId: 'user-123',
@@ -112,7 +119,6 @@ describe('state/store', () => {
     it('should allow setting to null', () => {
       const league: League = {
         id: 'league-1',
-        gameId: 'lx',
         slug: 'test-league',
         name: 'Test League',
         creatorId: 'user-123',
@@ -130,13 +136,52 @@ describe('state/store', () => {
     });
   });
 
+  describe('setCurrentGame', () => {
+    it('should set game', () => {
+      const game = {
+        id: 'game-1',
+        gameId: 'lx',
+        displayName: 'Super Bowl LX',
+        year: 2026,
+        team1: 'Seahawks',
+        team2: 'Patriots',
+      };
+
+      setCurrentGame(game);
+
+      const state = getState();
+      expect(state.currentGame).toEqual(game);
+    });
+  });
+
+  describe('setQuestions', () => {
+    it('should set questions', () => {
+      const questions = [
+        {
+          id: '1',
+          questionId: 'winner',
+          label: 'Who wins?',
+          type: 'radio' as const,
+          options: ['Seahawks', 'Patriots'],
+          points: 6,
+          sortOrder: 0,
+          isTiebreaker: false,
+        },
+      ];
+
+      setQuestions(questions);
+
+      const state = getState();
+      expect(state.questions).toEqual(questions);
+      expect(state.questions.length).toBe(1);
+    });
+  });
+
   describe('setAllPredictions', () => {
     it('should set predictions array', () => {
       const predictions: Prediction[] = [
         {
           id: 'pred-1',
-          gameId: 'lx',
-          leagueId: 'league-1',
           userId: 'user-123',
           teamName: 'Team 1',
           predictions: { winner: 'seahawks' },

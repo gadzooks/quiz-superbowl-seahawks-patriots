@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { updateState, resetState } from '../state/store';
-import type { League, Prediction } from '../types';
+import type { League, Prediction, Question } from '../types';
 
 import {
   renderParticipants,
@@ -9,27 +9,36 @@ import {
   exposeParticipantFunctions,
 } from './Participants';
 
-// Mock dependencies
-vi.mock('../utils/game', () => ({
-  getCurrentGameConfig: () => ({ id: 'lx', name: 'Super Bowl LX' }),
-  getCurrentGameId: () => 'lx',
-  buildGamePath: (gameId: string, slug?: string) => (slug ? `/${gameId}/${slug}` : `/${gameId}`),
-}));
-
-vi.mock('../questions', () => ({
-  getQuestionsForGame: () => [
-    { id: 'q1', label: 'Question 1', type: 'radio', points: 10, options: ['A', 'B'] },
-    { id: 'q2', label: 'Question 2', type: 'number', points: 5 },
-  ],
-}));
-
 vi.mock('../ui/toast', () => ({
   showToast: vi.fn(),
 }));
 
+const testQuestions: Question[] = [
+  {
+    id: 'q1-id',
+    questionId: 'q1',
+    label: 'Question 1',
+    type: 'radio',
+    options: ['A', 'B'],
+    points: 10,
+    sortOrder: 0,
+    isTiebreaker: false,
+  },
+  {
+    id: 'q2-id',
+    questionId: 'q2',
+    label: 'Question 2',
+    type: 'number',
+    points: 5,
+    sortOrder: 1,
+    isTiebreaker: false,
+  },
+];
+
 describe('components/Participants', () => {
   beforeEach(() => {
     resetState();
+    updateState({ questions: testQuestions, currentGame: null });
     document.body.innerHTML = '<div id="participantsList"></div>';
     // Mock clipboard API
     Object.defineProperty(navigator, 'clipboard', {
@@ -45,7 +54,6 @@ describe('components/Participants', () => {
     it('should show "no participants" message when empty', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -66,7 +74,6 @@ describe('components/Participants', () => {
       document.body.innerHTML = '';
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -85,7 +92,6 @@ describe('components/Participants', () => {
     it('should render participants list', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -98,8 +104,6 @@ describe('components/Participants', () => {
         {
           id: 'p1',
           userId: 'u1',
-          gameId: 'lx',
-          leagueId: 'l1',
           teamName: 'Team A',
           predictions: { q1: 'a', q2: 10 },
           score: 0,
@@ -120,7 +124,6 @@ describe('components/Participants', () => {
     it('should show completion percentage', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -133,8 +136,6 @@ describe('components/Participants', () => {
         {
           id: 'p1',
           userId: 'u1',
-          gameId: 'lx',
-          leagueId: 'l1',
           teamName: 'Team A',
           predictions: { q1: 'a' },
           score: 0,
@@ -155,7 +156,6 @@ describe('components/Participants', () => {
     it('should show complete badge when all questions answered', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -168,8 +168,6 @@ describe('components/Participants', () => {
         {
           id: 'p1',
           userId: 'u1',
-          gameId: 'lx',
-          leagueId: 'l1',
           teamName: 'Team A',
           predictions: { q1: 'a', q2: 10 },
           score: 0,
@@ -190,7 +188,6 @@ describe('components/Participants', () => {
     it('should show manager badge for managers', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -203,8 +200,6 @@ describe('components/Participants', () => {
         {
           id: 'p1',
           userId: 'u1',
-          gameId: 'lx',
-          leagueId: 'l1',
           teamName: 'Team A',
           predictions: { q1: 'a' },
           score: 0,
@@ -224,7 +219,6 @@ describe('components/Participants', () => {
     it('should show manager toggle for league creators', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -237,8 +231,6 @@ describe('components/Participants', () => {
         {
           id: 'p1',
           userId: 'u2',
-          gameId: 'lx',
-          leagueId: 'l1',
           teamName: 'Team A',
           predictions: { q1: 'a' },
           score: 0,
@@ -259,7 +251,6 @@ describe('components/Participants', () => {
     it('should show delete button for league creators', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -272,8 +263,6 @@ describe('components/Participants', () => {
         {
           id: 'p1',
           userId: 'u2',
-          gameId: 'lx',
-          leagueId: 'l1',
           teamName: 'Team A',
           predictions: { q1: 'a' },
           score: 0,
@@ -294,7 +283,6 @@ describe('components/Participants', () => {
     it('should show recovery link button', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -307,8 +295,6 @@ describe('components/Participants', () => {
         {
           id: 'p1',
           userId: 'u1',
-          gameId: 'lx',
-          leagueId: 'l1',
           teamName: 'Team A',
           predictions: { q1: 'a' },
           score: 0,
@@ -329,7 +315,6 @@ describe('components/Participants', () => {
     it('should sort by completion then alphabetically', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -342,8 +327,6 @@ describe('components/Participants', () => {
         {
           id: 'p1',
           userId: 'u1',
-          gameId: 'lx',
-          leagueId: 'l1',
           teamName: 'Team Z',
           predictions: { q1: 'a' },
           score: 0,
@@ -354,8 +337,6 @@ describe('components/Participants', () => {
         {
           id: 'p2',
           userId: 'u2',
-          gameId: 'lx',
-          leagueId: 'l1',
           teamName: 'Team A',
           predictions: { q1: 'a', q2: 10 },
           score: 0,
@@ -378,7 +359,6 @@ describe('components/Participants', () => {
     it('should escape team names for onclick handlers', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -391,8 +371,6 @@ describe('components/Participants', () => {
         {
           id: 'p1',
           userId: 'u1',
-          gameId: 'lx',
-          leagueId: 'l1',
           teamName: "Team's Name",
           predictions: { q1: 'a' },
           score: 0,
@@ -415,7 +393,6 @@ describe('components/Participants', () => {
     it('should copy recovery link to clipboard', async () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -449,7 +426,7 @@ describe('components/Participants', () => {
       // Wait for the promise chain to complete
       await vi.waitFor(() => {
         expect(mockWriteText).toHaveBeenCalledWith(
-          'http://localhost:3000/lx/test-league?user=u123'
+          'http://localhost:3000/superbowl/lx/test-league?user=u123'
         );
       });
     });

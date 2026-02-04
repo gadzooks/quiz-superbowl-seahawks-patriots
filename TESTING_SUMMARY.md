@@ -140,7 +140,7 @@ All metrics **exceed the 70% threshold** configured in `vitest.config.ts`.
   - localStorage/sessionStorage reset
   - crypto.randomUUID mock
 
-### NPM Scripts
+### yarn Scripts
 
 ```json
 {

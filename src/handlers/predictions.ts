@@ -2,7 +2,6 @@
 // Handle prediction form submission
 
 import { savePrediction } from '../db/queries';
-import { getQuestionsForGame } from '../questions';
 import {
   validatePredictions,
   parsePredictionsFromForm,
@@ -11,7 +10,6 @@ import {
 import { getState, setHasShownCompletionCelebration } from '../state/store';
 import { showCompletionCelebration } from '../ui/celebration';
 import { showToast } from '../ui/toast';
-import { getCurrentGameId, getCurrentGameConfig } from '../utils/game';
 
 /**
  * Handle predictions form submission.
@@ -20,10 +18,7 @@ import { getCurrentGameId, getCurrentGameConfig } from '../utils/game';
 export async function handlePredictionsSubmit(
   formData: FormData
 ): Promise<{ success: boolean; error?: string }> {
-  const { currentLeague, currentUserId, allPredictions } = getState();
-  const gameId = getCurrentGameId();
-  const gameConfig = getCurrentGameConfig();
-  const questions = getQuestionsForGame(gameConfig);
+  const { currentLeague, currentUserId, allPredictions, questions } = getState();
 
   if (!currentLeague) {
     return { success: false, error: 'No league selected' };
@@ -52,13 +47,13 @@ export async function handlePredictionsSubmit(
   try {
     await savePrediction({
       id: existingPrediction.id,
-      gameId,
       leagueId: currentLeague.id,
       userId: currentUserId,
       teamName: existingPrediction.teamName,
       predictions,
       isManager: existingPrediction.isManager,
       actualResults: currentLeague.actualResults,
+      questions,
     });
 
     // Check if just completed all predictions
@@ -131,8 +126,7 @@ export function handlePredictionAutoSave(form: HTMLFormElement): void {
  * Update the progress bar based on form completion.
  */
 function updateProgressBar(form: HTMLFormElement): void {
-  const gameConfig = getCurrentGameConfig();
-  const questions = getQuestionsForGame(gameConfig);
+  const { questions } = getState();
   const formData = new FormData(form);
   const predictions = parsePredictionsFromForm(formData, questions);
   const completion = getPredictionCompletion(questions, predictions);

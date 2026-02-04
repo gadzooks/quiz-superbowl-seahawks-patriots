@@ -1,12 +1,18 @@
 #!/bin/sh
 
+# Check for schema changes
+if git diff --cached --name-only | grep -q "instant.schema.ts"; then
+  echo "📋 Schema changes detected, running safety check..."
+  yarn run db:check || exit 1
+fi
+
 echo "🔧 Running lint-staged (auto-fix + verify)..."
 npx lint-staged || exit 1
 
 echo "📝 Running TypeScript type check..."
-npm run type-check || exit 1
+yarn run type-check || exit 1
 
 echo "🧪 Running tests..."
-npm test || exit 1
+yarn test || exit 1
 
 echo "✅ All checks passed!"

@@ -62,3 +62,31 @@ export function isValidGameId(gameId: string): boolean {
 export function getAvailableGameIds(): string[] {
   return Object.keys(GAMES);
 }
+
+/**
+ * Seed a game and its questions into the database if they don't already exist.
+ * Called during app init to ensure the game data exists.
+ */
+export async function seedGameAndQuestions(gameId: string): Promise<string | null> {
+  const config = getGameConfig(gameId);
+  if (!config) {
+    console.error(`No game config found for: ${gameId}`);
+    return null;
+  }
+
+  const { seedGame, seedQuestions } = await import('../db/queries');
+  const { createQuestions } = await import('../questions');
+
+  const gameInstantId = await seedGame({
+    gameId: config.gameId,
+    displayName: config.displayName,
+    year: config.year,
+    team1: config.teams[0],
+    team2: config.teams[1],
+  });
+
+  const questionData = createQuestions(config.teams);
+  await seedQuestions(gameInstantId, questionData);
+
+  return gameInstantId;
+}

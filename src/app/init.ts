@@ -88,15 +88,19 @@ export function initApp(): void {
     const gameId = (window as Window & { GAME_ID?: string }).GAME_ID || 'lx';
 
     // Subscribe to this specific league by slug
+    // Use nested predictions under leagues so they come through the link
     db.subscribeQuery(
       {
-        leagues: { $: { where: { gameId, slug: leagueParam } } },
-        predictions: { $: { where: { gameId } } },
+        leagues: {
+          $: { where: { slug: leagueParam } },
+          predictions: {},
+        },
       },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (result: any) => {
         console.log('=== INSTANTDB SUBSCRIPTION UPDATE ===');
         console.log('Result:', result);
+        console.log('GameId (for context):', gameId);
 
         if (result.error) {
           console.error('InstantDB error:', result.error);
@@ -132,11 +136,9 @@ export function initApp(): void {
             currentActualResults ? JSON.parse(JSON.stringify(currentActualResults)) : null
           );
 
-          // Filter predictions for this league
-          const predictions = result.data.predictions.filter(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (p: any) => p.leagueId === league.id
-          );
+          // Get predictions from league's linked predictions (via nested query)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const predictions = (league as any).predictions || [];
           setAllPredictions(predictions);
 
           const isCreator = league.creatorId === currentUserId || isAdminOverride;
@@ -190,7 +192,7 @@ export async function handleLeagueCreation(e: Event): Promise<void> {
 
   // Check if a league with this slug already exists
   const existingLeague = await db.queryOnce({
-    leagues: { $: { where: { gameId, slug: leagueSlug } } },
+    leagues: { $: { where: { slug: leagueSlug } } },
   });
 
   if (existingLeague.data.leagues && existingLeague.data.leagues.length > 0) {
@@ -201,17 +203,26 @@ export async function handleLeagueCreation(e: Event): Promise<void> {
   // Generate UUID for league
   const leagueId = crypto.randomUUID();
 
-  // Create league
-  await db.transact([
+  // Create league and link to game
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const state = getState() as any;
+  const gameInstantId = state.currentGame?.id;
+
+  const txs = [
     db.tx.leagues[leagueId].update({
-      gameId: gameId,
       slug: leagueSlug,
       name: leagueName,
       creatorId: currentUserId,
       isOpen: true,
       createdAt: Date.now(),
     }),
-  ]);
+  ];
+
+  if (gameInstantId) {
+    txs.push(db.tx.leagues[leagueId].link({ game: gameInstantId }));
+  }
+
+  await db.transact(txs);
 
   // Update URL
   const newUrl = buildGamePath(gameId, leagueSlug);
@@ -363,13 +374,10 @@ export async function handleTeamNameSubmit(e: Event): Promise<void> {
 
   // Generate UUID for prediction
   const predictionId = crypto.randomUUID();
-  const gameId = (window as Window & { GAME_ID?: string }).GAME_ID || 'lx';
 
-  // Create initial prediction entry
-  await db.transact([
+  // Create initial prediction entry and link to league
+  const txs = [
     db.tx.predictions[predictionId].update({
-      gameId: gameId,
-      leagueId: currentLeague.id,
       userId: currentUserId,
       teamName: teamName,
       submittedAt: Date.now(),
@@ -377,7 +385,10 @@ export async function handleTeamNameSubmit(e: Event): Promise<void> {
       tiebreakDiff: 0,
       isManager: false,
     }),
-  ]);
+    db.tx.predictions[predictionId].link({ league: currentLeague.id }),
+  ];
+
+  await db.transact(txs);
 
   // Hide team name entry
   document.getElementById('teamNameEntry')?.classList.add('hidden');

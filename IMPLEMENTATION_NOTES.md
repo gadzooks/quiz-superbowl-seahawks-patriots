@@ -87,7 +87,7 @@ Build now validates environment before deploying.
 **Build command chain:**
 
 ```bash
-node validate-netlify-env.js && npm test && node build.js
+node validate-netlify-env.js && yarn test && node build.js
 ```
 
 **What it does:**
@@ -98,7 +98,7 @@ node validate-netlify-env.js && npm test && node build.js
    - Shows current deploy context
    - Provides helpful error messages
 
-2. **Tests** (`npm test`):
+2. **Tests** (`yarn test`):
    - Currently: Informational message + exit 0
    - Ready for future automated tests
    - Won't fail build
@@ -152,7 +152,7 @@ http://localhost:8080?league=test&isAdmin=true
 
 ```bash
 # Test locally (should pass)
-node validate-netlify-env.js && npm test
+node validate-netlify-env.js && yarn test
 # Output: ✓ INSTANTDB_APP_ID is set and valid
 
 # Test failure (remove env var)

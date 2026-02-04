@@ -10,25 +10,25 @@ Super Bowl prediction game — a mobile-first web app where users create leagues
 
 ```bash
 # Development
-npm run dev              # Vite dev server on port 8000
-npm run build            # TypeScript check + Vite production build
+yarn run dev              # Vite dev server on port 8000
+yarn run build            # TypeScript check + Vite production build
 
 # Testing
-npm run test             # Vitest unit tests (single run)
-npm run test:watch       # Vitest watch mode
+yarn run test             # Vitest unit tests (single run)
+yarn run test:watch       # Vitest watch mode
 npx vitest run src/path/to/file.test.ts  # Run single test file
-npm run test:e2e         # Playwright E2E tests (starts dev server)
-npm run test:e2e:headed  # E2E with visible browser
+yarn run test:e2e         # Playwright E2E tests (starts dev server)
+yarn run test:e2e:headed  # E2E with visible browser
 
 # Code quality
-npm run lint             # ESLint check
-npm run lint:fix         # ESLint auto-fix
-npm run type-check       # TypeScript check (tsc --noEmit)
-npm run validate         # Full suite: lint + format + type-check + test
-npm run check:unused     # Knip unused code detection
+yarn run lint             # ESLint check
+yarn run lint:fix         # ESLint auto-fix
+yarn run type-check       # TypeScript check (tsc --noEmit)
+yarn run validate         # Full suite: lint + format + type-check + test
+yarn run check:unused     # Knip unused code detection
 
 # Deploy
-npm run validate:build   # Build + asset validation
+yarn run validate:build   # Build + asset validation
 ```
 
 **Pre-commit hooks** (Husky + lint-staged): ESLint fix, Prettier format, type-check, and full test suite run on every commit. If the hook fails, the commit did not happen — create a new commit after fixing, do not amend.

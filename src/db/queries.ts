@@ -1,29 +1,51 @@
 import { id } from '@instantdb/core';
 
 import { calculateScore, calculateTiebreakDiff } from '../scoring/calculate';
-import type { League, Prediction } from '../types';
+import type { Game, League, Prediction, Question } from '../types';
 
 import { db } from './client';
 
 // Re-export id helper for generating IDs
 export { id };
 
-// Type for InstantDB transaction updates
-type TransactionUpdate = ReturnType<(typeof db.tx.leagues)[string]['update']>;
+// Type for InstantDB transaction chunks (supports mixed entity types)
+type TransactionUpdate =
+  | ReturnType<(typeof db.tx.leagues)[string]['update']>
+  | ReturnType<(typeof db.tx.leagues)[string]['link']>
+  | ReturnType<(typeof db.tx.games)[string]['update']>
+  | ReturnType<(typeof db.tx.questions)[string]['update']>
+  | ReturnType<(typeof db.tx.questions)[string]['link']>
+  | ReturnType<(typeof db.tx.predictions)[string]['update']>
+  | ReturnType<(typeof db.tx.predictions)[string]['link']>
+  | ReturnType<(typeof db.tx.predictions)[string]['delete']>;
 
 /**
- * Subscribe to a league and its predictions by slug within a specific game.
+ * Subscribe to a game, its league (by slug), league predictions, and game questions.
+ * Uses link-based nested queries.
  * Returns an unsubscribe function.
  */
 export function subscribeToLeague(
   gameId: string,
   slug: string,
-  callback: (data: { league: League | null; predictions: Prediction[] }) => void
+  callback: (data: {
+    game: Game | null;
+    league: League | null;
+    predictions: Prediction[];
+    questions: Question[];
+  }) => void
 ): () => void {
   return db.subscribeQuery(
     {
-      leagues: { $: { where: { gameId, slug } } },
-      predictions: { $: { where: { gameId } } },
+      games: {
+        $: { where: { gameId } },
+        questions: {
+          $: { order: { serverCreatedAt: 'asc' } },
+        },
+      },
+      leagues: {
+        $: { where: { slug } },
+        predictions: {},
+      },
     },
     (result) => {
       if (result.error) {
@@ -31,31 +53,140 @@ export function subscribeToLeague(
         return;
       }
 
-      const league = (result.data.leagues[0] as League | undefined) || null;
-      const predictions = league
-        ? (result.data.predictions as Prediction[]).filter((p) => p.leagueId === league.id)
-        : [];
+      const gameData = result.data.games[0] || null;
+      const game = gameData ? ({ ...gameData } as unknown as Game) : null;
 
-      callback({ league, predictions });
+      // League is queried as a top-level entity (not nested under game)
+      // so it works even if the league isn't linked to the game yet
+      const leagueData = result.data.leagues[0] || null;
+      const league = leagueData ? ({ ...leagueData } as unknown as League) : null;
+
+      let predictions: Prediction[] = [];
+      if (leagueData) {
+        const predData = (leagueData as unknown as { predictions?: unknown[] })?.predictions;
+        predictions = (predData || []) as unknown as Prediction[];
+      }
+
+      let questions: Question[] = [];
+      if (gameData) {
+        const qData = (gameData as unknown as { questions?: unknown[] }).questions;
+        questions = ((qData || []) as unknown as Question[]).sort(
+          (a, b) => a.sortOrder - b.sortOrder
+        );
+      }
+
+      callback({ game, league, predictions, questions });
     }
   );
 }
 
 /**
- * Check if a league with the given slug exists within a specific game.
+ * Check if a league with the given slug exists for a specific game.
  */
 export async function leagueExists(gameId: string, slug: string): Promise<boolean> {
   const result = await db.queryOnce({
-    leagues: { $: { where: { gameId, slug } } },
+    games: {
+      $: { where: { gameId } },
+      leagues: { $: { where: { slug } } },
+    },
   });
-  return result.data.leagues.length > 0;
+  const gameData = result.data.games[0];
+  if (!gameData) return false;
+  const leagues = (gameData as unknown as { leagues?: unknown[] }).leagues;
+  return (leagues?.length ?? 0) > 0;
 }
 
 /**
- * Create a new league within a specific game.
+ * Get a game by its gameId. Returns the game's InstantDB id or null.
+ */
+export async function getGameByGameId(
+  gameId: string
+): Promise<(Game & { _instantDbId: string }) | null> {
+  const result = await db.queryOnce({
+    games: { $: { where: { gameId } } },
+  });
+  const game = result.data.games[0];
+  if (!game) return null;
+  return { ...(game as unknown as Game), _instantDbId: game.id };
+}
+
+/**
+ * Seed a game into the database if it doesn't exist.
+ * Returns the InstantDB id of the game.
+ */
+export async function seedGame(config: {
+  gameId: string;
+  displayName: string;
+  year: number;
+  team1: string;
+  team2: string;
+}): Promise<string> {
+  const existing = await getGameByGameId(config.gameId);
+  if (existing) return existing._instantDbId;
+
+  const gameInstantId = id();
+  await db.transact([
+    db.tx.games[gameInstantId].update({
+      gameId: config.gameId,
+      displayName: config.displayName,
+      year: config.year,
+      team1: config.team1,
+      team2: config.team2,
+    }),
+  ]);
+  return gameInstantId;
+}
+
+/**
+ * Seed questions for a game if none exist.
+ */
+export async function seedQuestions(
+  gameInstantId: string,
+  questions: Array<{
+    questionId: string;
+    label: string;
+    type: string;
+    options?: string[];
+    points: number;
+    sortOrder: number;
+    isTiebreaker: boolean;
+  }>
+): Promise<void> {
+  // Check if questions already exist for this game
+  const result = await db.queryOnce({
+    games: {
+      $: { where: { id: gameInstantId } },
+      questions: {},
+    },
+  });
+  const gameData = result.data.games[0];
+  const existingQuestions = (gameData as unknown as { questions?: unknown[] })?.questions;
+  if (existingQuestions && existingQuestions.length > 0) return;
+
+  const txs: TransactionUpdate[] = [];
+  for (const q of questions) {
+    const qId = id();
+    txs.push(
+      db.tx.questions[qId].update({
+        questionId: q.questionId,
+        label: q.label,
+        type: q.type,
+        options: q.options ?? null,
+        points: q.points,
+        sortOrder: q.sortOrder,
+        isTiebreaker: q.isTiebreaker,
+      })
+    );
+    txs.push(db.tx.questions[qId].link({ game: gameInstantId }));
+  }
+  await db.transact(txs);
+}
+
+/**
+ * Create a new league linked to a game.
  */
 export async function createLeague(data: {
-  gameId: string;
+  gameInstantId: string;
   name: string;
   slug: string;
   creatorId: string;
@@ -63,7 +194,6 @@ export async function createLeague(data: {
   const leagueId = id();
   await db.transact([
     db.tx.leagues[leagueId].update({
-      gameId: data.gameId,
       slug: data.slug,
       name: data.name,
       creatorId: data.creatorId,
@@ -72,6 +202,7 @@ export async function createLeague(data: {
       actualResults: null,
       showAllPredictions: false,
     }),
+    db.tx.leagues[leagueId].link({ game: data.gameInstantId }),
   ]);
   return leagueId;
 }
@@ -96,13 +227,14 @@ export async function updateShowAllPredictions(leagueId: string, show: boolean):
 export async function saveResults(
   leagueId: string,
   results: Record<string, string | number>,
-  predictions: Prediction[]
+  predictions: Prediction[],
+  questions: Question[]
 ): Promise<void> {
   const updates: TransactionUpdate[] = [db.tx.leagues[leagueId].update({ actualResults: results })];
 
   // Recalculate scores for all predictions
   for (const pred of predictions) {
-    const score = calculateScore(pred.predictions, results);
+    const score = calculateScore(pred.predictions, results, questions);
     const tiebreakDiff = calculateTiebreakDiff(pred.predictions, results);
     updates.push(db.tx.predictions[pred.id].update({ score, tiebreakDiff }));
   }
@@ -124,28 +256,29 @@ export async function clearResults(leagueId: string, predictions: Prediction[]):
 }
 
 /**
- * Create or update a prediction within a specific game.
+ * Create or update a prediction linked to a league.
  */
 export async function savePrediction(data: {
   id?: string;
-  gameId: string;
   leagueId: string;
   userId: string;
   teamName: string;
   predictions: Record<string, string | number>;
   isManager?: boolean;
   actualResults?: Record<string, string | number> | null;
+  questions?: Question[];
 }): Promise<string> {
   const predictionId = data.id || id();
-  const score = data.actualResults ? calculateScore(data.predictions, data.actualResults) : 0;
+  const score =
+    data.actualResults && data.questions
+      ? calculateScore(data.predictions, data.actualResults, data.questions)
+      : 0;
   const tiebreakDiff = data.actualResults
     ? calculateTiebreakDiff(data.predictions, data.actualResults)
     : 0;
 
-  await db.transact([
+  const txs: TransactionUpdate[] = [
     db.tx.predictions[predictionId].update({
-      gameId: data.gameId,
-      leagueId: data.leagueId,
       userId: data.userId,
       teamName: data.teamName,
       predictions: data.predictions,
@@ -154,7 +287,14 @@ export async function savePrediction(data: {
       tiebreakDiff,
       isManager: data.isManager ?? false,
     }),
-  ]);
+  ];
+
+  // Only link on creation (no existing id)
+  if (!data.id) {
+    txs.push(db.tx.predictions[predictionId].link({ league: data.leagueId }));
+  }
+
+  await db.transact(txs);
 
   return predictionId;
 }
@@ -185,14 +325,15 @@ export async function deletePrediction(predictionId: string): Promise<void> {
  */
 export async function recalculateAllScores(
   predictions: Prediction[],
-  actualResults: Record<string, string | number> | null
+  actualResults: Record<string, string | number> | null,
+  questions: Question[]
 ): Promise<number> {
   if (!actualResults) return 0;
 
   const updates: TransactionUpdate[] = [];
 
   for (const pred of predictions) {
-    const score = calculateScore(pred.predictions, actualResults);
+    const score = calculateScore(pred.predictions, actualResults, questions);
     const tiebreakDiff = calculateTiebreakDiff(pred.predictions, actualResults);
     updates.push(db.tx.predictions[pred.id].update({ score, tiebreakDiff }));
   }

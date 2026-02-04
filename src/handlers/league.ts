@@ -28,7 +28,11 @@ export async function handleLeagueCreation(
 
   const slug = toLeagueSlug(leagueName);
   const gameId = getCurrentGameId();
-  const { currentUserId } = getState();
+  const { currentUserId, currentGame } = getState();
+
+  if (!currentGame) {
+    return { success: false, error: 'Game not loaded yet' };
+  }
 
   // Check if league already exists
   const exists = await leagueExists(gameId, slug);
@@ -41,7 +45,7 @@ export async function handleLeagueCreation(
 
   try {
     await createLeague({
-      gameId,
+      gameInstantId: currentGame.id,
       name: leagueName.trim(),
       slug,
       creatorId: currentUserId,

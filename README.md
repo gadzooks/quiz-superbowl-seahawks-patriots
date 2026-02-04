@@ -54,7 +54,7 @@ A single-file HTML/JavaScript application for a family Super Bowl prediction gam
 **Option B: Netlify CLI**
 
 ```bash
-npm install -g netlify-cli
+yarn install -g netlify-cli
 netlify deploy --prod --dir .
 ```
 

@@ -6,7 +6,14 @@ import importPlugin from 'eslint-plugin-import-x';
 
 export default [
   {
-    ignores: ['dist/**', 'coverage/**', 'node_modules/**', '*.config.js', '*.config.ts'],
+    ignores: [
+      'dist/**',
+      'coverage/**',
+      'node_modules/**',
+      '*.config.js',
+      '*.config.ts',
+      'instant.schema.backup.ts',
+    ],
   },
   {
     files: ['**/*.ts', '**/*.tsx'],

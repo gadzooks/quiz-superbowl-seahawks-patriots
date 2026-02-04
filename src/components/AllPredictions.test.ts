@@ -1,23 +1,33 @@
 // AllPredictions.test.ts
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 import { updateState } from '../state/store';
-import type { League, Prediction } from '../types';
+import type { League, Prediction, Question } from '../types';
 
 import { renderAllPredictions, hideAllPredictions } from './AllPredictions';
 
-// Mock dependencies
-vi.mock('../utils/game', () => ({
-  getCurrentGameConfig: () => ({ id: 'lx', name: 'Super Bowl LX' }),
-}));
-
-vi.mock('../questions', () => ({
-  getQuestionsForGame: () => [
-    { id: 'q1', label: 'Question 1', type: 'radio', points: 10, options: ['A', 'B'] },
-    { id: 'q2', label: 'Question 2', type: 'number', points: 5 },
-  ],
-}));
+const testQuestions: Question[] = [
+  {
+    id: '1',
+    questionId: 'q1',
+    label: 'Question 1',
+    type: 'radio',
+    options: ['A', 'B'],
+    points: 10,
+    sortOrder: 0,
+    isTiebreaker: false,
+  },
+  {
+    id: '2',
+    questionId: 'q2',
+    label: 'Question 2',
+    type: 'number',
+    points: 5,
+    sortOrder: 1,
+    isTiebreaker: false,
+  },
+];
 
 describe('components/AllPredictions', () => {
   beforeEach(() => {
@@ -32,7 +42,6 @@ describe('components/AllPredictions', () => {
     it('should hide section when no teams have predictions', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -41,7 +50,7 @@ describe('components/AllPredictions', () => {
         actualResults: null,
         createdAt: Date.now(),
       };
-      updateState({ currentLeague: league, allPredictions: [] });
+      updateState({ currentLeague: league, allPredictions: [], questions: testQuestions });
 
       renderAllPredictions();
 
@@ -53,7 +62,6 @@ describe('components/AllPredictions', () => {
       document.body.innerHTML = '';
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -62,7 +70,7 @@ describe('components/AllPredictions', () => {
         actualResults: null,
         createdAt: Date.now(),
       };
-      updateState({ currentLeague: league, allPredictions: [] });
+      updateState({ currentLeague: league, allPredictions: [], questions: testQuestions });
 
       renderAllPredictions();
 
@@ -72,7 +80,6 @@ describe('components/AllPredictions', () => {
     it('should render table with predictions', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -85,8 +92,6 @@ describe('components/AllPredictions', () => {
         {
           id: 'p1',
           userId: 'u1',
-          gameId: 'lx',
-          leagueId: 'l1',
           teamName: 'Team A',
           predictions: { q1: 'a', q2: 10 },
           score: 0,
@@ -95,7 +100,7 @@ describe('components/AllPredictions', () => {
           submittedAt: Date.now(),
         },
       ];
-      updateState({ currentLeague: league, allPredictions: predictions });
+      updateState({ currentLeague: league, allPredictions: predictions, questions: testQuestions });
 
       renderAllPredictions();
 
@@ -109,7 +114,6 @@ describe('components/AllPredictions', () => {
     it('should show correct answers when results are entered', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -122,8 +126,6 @@ describe('components/AllPredictions', () => {
         {
           id: 'p1',
           userId: 'u1',
-          gameId: 'lx',
-          leagueId: 'l1',
           teamName: 'Team A',
           predictions: { q1: 'a', q2: 10 },
           score: 15,
@@ -132,7 +134,7 @@ describe('components/AllPredictions', () => {
           submittedAt: Date.now(),
         },
       ];
-      updateState({ currentLeague: league, allPredictions: predictions });
+      updateState({ currentLeague: league, allPredictions: predictions, questions: testQuestions });
 
       renderAllPredictions();
 
@@ -143,7 +145,6 @@ describe('components/AllPredictions', () => {
     it('should highlight correct answers with CSS class', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -156,8 +157,6 @@ describe('components/AllPredictions', () => {
         {
           id: 'p1',
           userId: 'u1',
-          gameId: 'lx',
-          leagueId: 'l1',
           teamName: 'Team A',
           predictions: { q1: 'a', q2: 10 },
           score: 15,
@@ -166,7 +165,7 @@ describe('components/AllPredictions', () => {
           submittedAt: Date.now(),
         },
       ];
-      updateState({ currentLeague: league, allPredictions: predictions });
+      updateState({ currentLeague: league, allPredictions: predictions, questions: testQuestions });
 
       renderAllPredictions();
 
@@ -177,7 +176,6 @@ describe('components/AllPredictions', () => {
     it('should show dash for unanswered questions', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -190,8 +188,6 @@ describe('components/AllPredictions', () => {
         {
           id: 'p1',
           userId: 'u1',
-          gameId: 'lx',
-          leagueId: 'l1',
           teamName: 'Team A',
           predictions: { q1: 'a' },
           score: 0,
@@ -200,7 +196,7 @@ describe('components/AllPredictions', () => {
           submittedAt: Date.now(),
         },
       ];
-      updateState({ currentLeague: league, allPredictions: predictions });
+      updateState({ currentLeague: league, allPredictions: predictions, questions: testQuestions });
 
       renderAllPredictions();
 
@@ -211,7 +207,6 @@ describe('components/AllPredictions', () => {
     it('should show both teams even if one has empty predictions object', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -224,8 +219,6 @@ describe('components/AllPredictions', () => {
         {
           id: 'p1',
           userId: 'u1',
-          gameId: 'lx',
-          leagueId: 'l1',
           teamName: 'Team A',
           predictions: { q1: 'a' },
           score: 0,
@@ -236,8 +229,6 @@ describe('components/AllPredictions', () => {
         {
           id: 'p2',
           userId: 'u2',
-          gameId: 'lx',
-          leagueId: 'l1',
           teamName: 'Team B',
           predictions: {},
           score: 0,
@@ -246,7 +237,7 @@ describe('components/AllPredictions', () => {
           submittedAt: Date.now(),
         },
       ];
-      updateState({ currentLeague: league, allPredictions: predictions });
+      updateState({ currentLeague: league, allPredictions: predictions, questions: testQuestions });
 
       renderAllPredictions();
 
@@ -258,7 +249,6 @@ describe('components/AllPredictions', () => {
     it('should show scores in table', () => {
       const league: League = {
         id: 'l1',
-        gameId: 'lx',
         name: 'Test League',
         slug: 'test-league',
         creatorId: 'u1',
@@ -271,8 +261,6 @@ describe('components/AllPredictions', () => {
         {
           id: 'p1',
           userId: 'u1',
-          gameId: 'lx',
-          leagueId: 'l1',
           teamName: 'Team A',
           predictions: { q1: 'a', q2: 10 },
           score: 15,
@@ -281,7 +269,7 @@ describe('components/AllPredictions', () => {
           submittedAt: Date.now(),
         },
       ];
-      updateState({ currentLeague: league, allPredictions: predictions });
+      updateState({ currentLeague: league, allPredictions: predictions, questions: testQuestions });
 
       renderAllPredictions();
 

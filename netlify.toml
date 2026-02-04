@@ -13,8 +13,8 @@
 #
 
 [build]
-  # Build command runs TypeScript check and Vite build
-  command = "yarn install && yarn build"
+  # Build command: Install deps, push schema (if admin token exists), then build
+  command = "yarn install && (test -n \"$INSTANT_ADMIN_TOKEN\" && yarn tsx scripts/push-schema.ts -y || echo 'Skipping schema push - no admin token') && yarn build"
   # Publish the dist directory created by Vite
   publish = "dist"
 
@@ -43,16 +43,17 @@
 
 # Production deployment from prod branch
 [context.production]
-  command = "yarn install && yarn build"
+  command = "yarn install && (test -n \"$INSTANT_ADMIN_TOKEN\" && yarn tsx scripts/push-schema.ts -y || echo 'Skipping schema push - no admin token') && yarn build"
   publish = "dist"
 
 # Branch deploys (e.g., master → QA)
 [context.branch-deploy]
-  command = "yarn install && yarn build"
+  command = "yarn install && (test -n \"$INSTANT_ADMIN_TOKEN\" && yarn tsx scripts/push-schema.ts -y || echo 'Skipping schema push - no admin token') && yarn build"
   publish = "dist"
 
 # Deploy previews (pull requests → QA)
 [context.deploy-preview]
+  # Skip schema push for PR previews (read-only testing)
   command = "yarn install && yarn build"
   publish = "dist"
 

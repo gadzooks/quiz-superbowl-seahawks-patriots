@@ -5,7 +5,6 @@ import { savePrediction, updateTeamName, deletePrediction, toggleManager } from 
 import { validateTeamNameFull } from '../services/validation';
 import { getState, setCurrentTeamName } from '../state/store';
 import { showToast } from '../ui/toast';
-import { getCurrentGameId } from '../utils/game';
 
 /**
  * Create a new team (prediction entry) for the current user.
@@ -15,7 +14,6 @@ export async function handleTeamNameSubmit(
   teamName: string
 ): Promise<{ success: boolean; error?: string }> {
   const { currentLeague, currentUserId, allPredictions } = getState();
-  const gameId = getCurrentGameId();
 
   if (!currentLeague) {
     return { success: false, error: 'No league selected' };
@@ -29,7 +27,6 @@ export async function handleTeamNameSubmit(
 
   try {
     await savePrediction({
-      gameId,
       leagueId: currentLeague.id,
       userId: currentUserId,
       teamName: teamName.trim(),

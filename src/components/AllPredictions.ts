@@ -3,9 +3,7 @@
 // All Predictions Component
 // Renders the table showing all predictions (admin/visible mode)
 
-import { getQuestionsForGame } from '../questions';
 import { getState } from '../state/store';
-import { getCurrentGameConfig } from '../utils/game';
 
 import { isAnswerCorrect } from './helpers';
 
@@ -13,9 +11,7 @@ import { isAnswerCorrect } from './helpers';
  * Render the all predictions table.
  */
 export function renderAllPredictions(): void {
-  const { currentLeague, allPredictions } = getState();
-  const gameConfig = getCurrentGameConfig();
-  const questions = getQuestionsForGame(gameConfig);
+  const { currentLeague, allPredictions, questions } = getState();
 
   const section = document.getElementById('allPredictionsSection');
   const tableContainer = document.getElementById('allPredictionsTable');
@@ -50,9 +46,10 @@ export function renderAllPredictions(): void {
       <td class="predictions-td predictions-td-sticky">${pred.teamName}</td>`;
 
     questions.forEach((q) => {
-      const value = pred.predictions?.[q.id] || '-';
-      const actual = currentLeague.actualResults?.[q.id];
-      const correct = actual !== undefined && isAnswerCorrect(q, pred.predictions?.[q.id], actual);
+      const value = pred.predictions?.[q.questionId] || '-';
+      const actual = currentLeague.actualResults?.[q.questionId];
+      const correct =
+        actual !== undefined && isAnswerCorrect(q, pred.predictions?.[q.questionId], actual);
 
       const correctClass = correct ? ' predictions-td-correct' : '';
 
@@ -69,7 +66,7 @@ export function renderAllPredictions(): void {
       <td class="predictions-actual-td predictions-actual-td-sticky">RESULTS</td>`;
 
     questions.forEach((q) => {
-      const value = actualResults[q.id];
+      const value = actualResults[q.questionId];
       html += `<td class="predictions-actual-td">${value !== undefined && value !== null ? value : '-'}</td>`;
     });
 

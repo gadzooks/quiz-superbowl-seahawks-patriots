@@ -2,18 +2,14 @@
 // Renders the admin results entry form
 
 import { saveResults } from '../db/queries';
-import { getQuestionsForGame } from '../questions';
 import { getState } from '../state/store';
 import { showToast } from '../ui/toast';
-import { getCurrentGameConfig } from '../utils/game';
 
 /**
  * Render the results form for entering actual game results.
  */
 export function renderResultsForm(): void {
-  const { currentLeague } = getState();
-  const gameConfig = getCurrentGameConfig();
-  const questions = getQuestionsForGame(gameConfig);
+  const { currentLeague, questions } = getState();
 
   const form = document.getElementById('resultsForm') as HTMLFormElement | null;
   if (!form || !currentLeague) return;
@@ -22,9 +18,9 @@ export function renderResultsForm(): void {
 
   questions.forEach((q, index) => {
     const hasValue =
-      currentLeague.actualResults?.[q.id] !== undefined &&
-      currentLeague.actualResults?.[q.id] !== null &&
-      currentLeague.actualResults?.[q.id] !== '';
+      currentLeague.actualResults?.[q.questionId] !== undefined &&
+      currentLeague.actualResults?.[q.questionId] !== null &&
+      currentLeague.actualResults?.[q.questionId] !== '';
 
     html += `<div class="question-card results-question-card">`;
     html += `<div class="results-question-header">
@@ -33,24 +29,24 @@ export function renderResultsForm(): void {
         <span>${q.label}</span>
         <span class="results-points-badge">${q.points} pts</span>
       </label>
-      ${hasValue ? `<button type="button" onclick="clearResult('${q.id}')" class="results-clear-btn">✕ Clear</button>` : ''}
+      ${hasValue ? `<button type="button" onclick="clearResult('${q.questionId}')" class="results-clear-btn">\u2715 Clear</button>` : ''}
     </div>`;
 
     if (q.type === 'radio' && q.options) {
       q.options.forEach((option) => {
         const value = option.toLowerCase().replace(/\s+/g, '-');
-        const checked = currentLeague.actualResults?.[q.id] === value ? 'checked' : '';
+        const checked = currentLeague.actualResults?.[q.questionId] === value ? 'checked' : '';
         const selectedClass = checked ? 'results-radio-selected' : 'results-radio-unselected';
         html += `
           <label class="radio-option ${selectedClass}">
-            <input type="radio" name="result-${q.id}" value="${value}" ${checked}>
+            <input type="radio" name="result-${q.questionId}" value="${value}" ${checked}>
             <span>${option}</span>
           </label>
         `;
       });
     } else {
-      const value = currentLeague.actualResults?.[q.id] ?? '';
-      html += `<input type="number" name="result-${q.id}" value="${value}" min="0" placeholder="Enter number" class="results-number-input">`;
+      const value = currentLeague.actualResults?.[q.questionId] ?? '';
+      html += `<input type="number" name="result-${q.questionId}" value="${value}" min="0" placeholder="Enter number" class="results-number-input">`;
     }
 
     html += `</div>`;
@@ -87,9 +83,7 @@ function attachResultsAutoSaveListeners(form: HTMLFormElement): void {
 let resultsAutoSaveTimeout: ReturnType<typeof setTimeout> | null = null;
 
 async function handleResultsAutoSave(): Promise<void> {
-  const { currentLeague, allPredictions } = getState();
-  const gameConfig = getCurrentGameConfig();
-  const questions = getQuestionsForGame(gameConfig);
+  const { currentLeague, allPredictions, questions } = getState();
 
   // Show saving status
   const statusDiv = document.getElementById('resultsAutoSaveStatus');
@@ -110,21 +104,21 @@ async function handleResultsAutoSave(): Promise<void> {
       const actualResults: Record<string, string | number> = {};
 
       questions.forEach((q) => {
-        const value = formData.get(`result-${q.id}`);
+        const value = formData.get(`result-${q.questionId}`);
         if (value !== null && value !== '') {
           if (q.type === 'number') {
-            actualResults[q.id] = parseInt(String(value)) || 0;
+            actualResults[q.questionId] = parseInt(String(value)) || 0;
           } else {
-            actualResults[q.id] = String(value);
+            actualResults[q.questionId] = String(value);
           }
         }
       });
 
       try {
-        await saveResults(currentLeague.id, actualResults, allPredictions);
+        await saveResults(currentLeague.id, actualResults, allPredictions, questions);
 
         if (statusDiv) {
-          statusDiv.textContent = '✓ Saved & scores updated';
+          statusDiv.textContent = '\u2713 Saved & scores updated';
           statusDiv.style.color = 'var(--color-primary)';
           setTimeout(() => {
             statusDiv.textContent = '';
@@ -136,7 +130,7 @@ async function handleResultsAutoSave(): Promise<void> {
         renderLeaderboard();
       } catch (error) {
         if (statusDiv) {
-          statusDiv.textContent = '✗ Error saving';
+          statusDiv.textContent = '\u2717 Error saving';
           statusDiv.style.color = 'var(--color-error)';
         }
         console.error('Results auto-save error:', error);
@@ -149,7 +143,7 @@ async function handleResultsAutoSave(): Promise<void> {
  * Clear a specific result field.
  */
 export async function clearResult(questionId: string): Promise<void> {
-  const { currentLeague, allPredictions } = getState();
+  const { currentLeague, allPredictions, questions } = getState();
 
   if (!currentLeague?.actualResults) return;
 
@@ -158,11 +152,11 @@ export async function clearResult(questionId: string): Promise<void> {
   delete updatedResults[questionId];
 
   try {
-    await saveResults(currentLeague.id, updatedResults, allPredictions);
+    await saveResults(currentLeague.id, updatedResults, allPredictions, questions);
 
     const statusDiv = document.getElementById('resultsAutoSaveStatus');
     if (statusDiv) {
-      statusDiv.textContent = '✓ Result cleared and scores updated';
+      statusDiv.textContent = '\u2713 Result cleared and scores updated';
       statusDiv.style.color = 'var(--color-primary)';
       setTimeout(() => {
         statusDiv.textContent = '';
@@ -184,7 +178,7 @@ export async function clearResult(questionId: string): Promise<void> {
  * Recalculate all scores.
  */
 export async function recalculateAllScores(): Promise<void> {
-  const { currentLeague, allPredictions } = getState();
+  const { currentLeague, allPredictions, questions } = getState();
   const statusDiv = document.getElementById('recalculateScoresStatus');
   const btn = document.getElementById('recalculateScoresBtn') as HTMLButtonElement;
 
@@ -207,10 +201,10 @@ export async function recalculateAllScores(): Promise<void> {
     }
 
     const { recalculateAllScores: recalculate } = await import('../db/queries');
-    const count = await recalculate(allPredictions, currentLeague.actualResults);
+    const count = await recalculate(allPredictions, currentLeague.actualResults, questions);
 
     if (statusDiv) {
-      statusDiv.innerHTML = `<div class="alert alert-success"><span>✓ Successfully recalculated scores for ${count} participant(s)</span></div>`;
+      statusDiv.innerHTML = `<div class="alert alert-success"><span>\u2713 Successfully recalculated scores for ${count} participant(s)</span></div>`;
     }
 
     const { renderLeaderboard } = await import('../ui/leaderboard');
@@ -227,7 +221,7 @@ export async function recalculateAllScores(): Promise<void> {
   } catch (error) {
     if (statusDiv) {
       statusDiv.innerHTML =
-        '<div class="alert alert-error"><span>✗ Error recalculating scores</span></div>';
+        '<div class="alert alert-error"><span>\u2717 Error recalculating scores</span></div>';
     }
     if (btn) {
       btn.disabled = false;

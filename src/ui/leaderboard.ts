@@ -1,8 +1,6 @@
 import { countAnsweredQuestions } from '../components/helpers';
-import { getQuestionsForGame } from '../questions';
 import { getState } from '../state/store';
 import type { Prediction } from '../types';
-import { getCurrentGameConfig } from '../utils/game';
 
 import { triggerWinnerCelebration, triggerNonWinnerCelebration } from './celebration';
 
@@ -28,13 +26,12 @@ export function renderAnswerDetails(
     return '<div class="answer-detail-empty">No predictions submitted</div>';
   }
 
-  const gameConfig = getCurrentGameConfig();
-  const questions = getQuestionsForGame(gameConfig);
+  const { questions } = getState();
 
   let html = '';
   questions.forEach((q) => {
-    const userAnswer = pred.predictions?.[q.id];
-    const correctAnswer = actualResults?.[q.id];
+    const userAnswer = pred.predictions?.[q.questionId];
+    const correctAnswer = actualResults?.[q.questionId];
 
     // Format the answer for display
     let displayAnswer: string | number | undefined = userAnswer;
@@ -56,10 +53,10 @@ export function renderAnswerDetails(
         (q.type === 'number' && parseInt(String(userAnswer)) === parseInt(String(correctAnswer)))
       ) {
         answerClass = 'answer-correct';
-        statusIcon = '✓';
+        statusIcon = '\u2713';
       } else {
         answerClass = 'answer-incorrect';
-        statusIcon = '✗';
+        statusIcon = '\u2717';
       }
     }
 
@@ -106,8 +103,7 @@ export function renderLeaderboard(): void {
   let html = '';
 
   // Count how many questions admin has answered
-  const gameConfig = getCurrentGameConfig();
-  const questions = getQuestionsForGame(gameConfig);
+  const questions = state.questions;
   const answeredCount = countAnsweredQuestions(currentLeague.actualResults, questions);
   const totalQuestions = questions.length;
 

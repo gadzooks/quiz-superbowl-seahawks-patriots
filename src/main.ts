@@ -6,6 +6,7 @@ import './styles/index.css';
 
 import { exposeAppToWindow } from './app';
 import { exposeComponentsToWindow } from './components';
+import { seedGameAndQuestions } from './config/games';
 import { subscribeToLeague } from './db/queries';
 import { exposeHandlersToWindow } from './handlers';
 import { SoundManager } from './sound/manager';
@@ -13,6 +14,8 @@ import {
   setCurrentUserId,
   setCurrentLeague,
   setAllPredictions,
+  setCurrentGame,
+  setQuestions,
   setHasUnviewedScoreUpdate,
   setExpectedLeagueSlug,
   getState,
@@ -20,7 +23,7 @@ import {
   exposeStoreToWindow,
 } from './state/store';
 import { initTheme } from './theme';
-import type { League, Prediction } from './types';
+import type { Game, League, Prediction, Question } from './types';
 import { exposeUIToWindow } from './ui';
 import { initRender } from './ui/render';
 import { updateScoresTabNotification } from './ui/tabs';
@@ -117,6 +120,10 @@ export async function initApp(): Promise<void> {
   setCurrentUserId(userId);
   console.log('Current user ID:', userId);
 
+  // Seed the game and questions into the DB (idempotent)
+  console.log('Seeding game data for:', gameId);
+  await seedGameAndQuestions(gameId);
+
   // Check for league parameter
   const leagueSlug = getLeagueSlug();
   const adminOverride = isAdminOverride();
@@ -124,7 +131,7 @@ export async function initApp(): Promise<void> {
   if (leagueSlug) {
     // Track expected slug for "not found" handling
     setExpectedLeagueSlug(leagueSlug);
-    // Subscribe to league data with gameId filter
+    // Subscribe to league data via link-based query
     subscribeToLeague(gameId, leagueSlug, handleLeagueUpdate(adminOverride, leagueSlug));
   } else {
     // No league parameter - the original code handles league creation
@@ -155,12 +162,32 @@ export async function initApp(): Promise<void> {
  * Create a handler for league subscription updates.
  */
 function handleLeagueUpdate(adminOverride: boolean, expectedSlug: string) {
-  return ({ league, predictions }: { league: League | null; predictions: Prediction[] }) => {
+  return ({
+    game,
+    league,
+    predictions,
+    questions,
+  }: {
+    game: Game | null;
+    league: League | null;
+    predictions: Prediction[];
+    questions: Question[];
+  }) => {
     console.log('=== LEAGUE UPDATE (Vite) ===');
+    console.log('Game:', game);
     console.log('League:', league);
     console.log('Predictions:', predictions.length);
+    console.log('Questions:', questions.length);
 
     const state = getState();
+
+    // Store game and questions in state
+    if (game) {
+      setCurrentGame(game);
+    }
+    if (questions.length > 0) {
+      setQuestions(questions);
+    }
 
     if (league) {
       // League found - save to localStorage
