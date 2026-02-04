@@ -1,7 +1,8 @@
 // League handlers
 // Handle league creation and management
 
-import { createLeague, leagueExists, seedGame } from '../db/queries';
+import { createLXQuestions } from '../data/lx-questions';
+import { createLeague, leagueExists, seedGame, seedQuestions } from '../db/queries';
 import { validateLeagueName, toLeagueSlug } from '../services/validation';
 import { getCurrentGameId, getCurrentGameConfig } from '../utils/game';
 import { getUserId } from '../utils/user';
@@ -36,6 +37,11 @@ export async function handleLeagueCreation(
     team1: gameConfig.teams[0],
     team2: gameConfig.teams[1],
   });
+
+  // Seed questions for the game (if not already seeded)
+  // TODO: Make this dynamic for different games
+  const questionData = createLXQuestions(gameConfig.teams);
+  await seedQuestions(gameInstantId, questionData);
 
   // Check if league already exists
   const exists = await leagueExists(gameId, slug);
