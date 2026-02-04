@@ -19,9 +19,69 @@ export function render(): void {
   isRendering = true;
 
   try {
+    // Save focus state before rendering
+    const focusState = saveFocusState();
+
     renderInternal();
+
+    // Restore focus after rendering
+    restoreFocusState(focusState);
   } finally {
     isRendering = false;
+  }
+}
+
+/**
+ * Save the currently focused element and cursor position.
+ */
+function saveFocusState(): {
+  elementName: string | null;
+  selectionStart: number | null;
+  selectionEnd: number | null;
+} {
+  const activeElement = document.activeElement as HTMLInputElement | null;
+
+  // Only save focus for form inputs
+  if (
+    activeElement &&
+    (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')
+  ) {
+    return {
+      elementName: activeElement.name || activeElement.id || null,
+      selectionStart: activeElement.selectionStart,
+      selectionEnd: activeElement.selectionEnd,
+    };
+  }
+
+  return { elementName: null, selectionStart: null, selectionEnd: null };
+}
+
+/**
+ * Restore focus to the previously focused element.
+ */
+function restoreFocusState(focusState: {
+  elementName: string | null;
+  selectionStart: number | null;
+  selectionEnd: number | null;
+}): void {
+  if (!focusState.elementName) return;
+
+  // Find the element by name or id
+  const element = document.querySelector(
+    `[name="${focusState.elementName}"], #${focusState.elementName}`
+  ) as HTMLInputElement | null;
+
+  if (element) {
+    element.focus();
+
+    // Restore cursor position for text/number inputs
+    if (
+      focusState.selectionStart !== null &&
+      focusState.selectionEnd !== null &&
+      typeof element.setSelectionRange === 'function'
+    ) {
+      element.setSelectionRange(focusState.selectionStart, focusState.selectionEnd);
+    }
   }
 }
 
