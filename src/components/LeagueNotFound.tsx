@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 import { buildGamePath } from '../utils/game';
 
 interface LeagueNotFoundProps {
@@ -6,6 +8,11 @@ interface LeagueNotFoundProps {
 }
 
 export function LeagueNotFound({ slug, gameId }: LeagueNotFoundProps) {
+  // Clear stale league slug from localStorage on mount
+  useEffect(() => {
+    localStorage.removeItem('currentLeagueSlug');
+  }, []);
+
   const handleCreateNewLeague = () => {
     localStorage.removeItem('currentLeagueSlug');
     window.location.href = buildGamePath(gameId);

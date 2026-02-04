@@ -26,7 +26,8 @@ test.describe('League Creation', () => {
     await expect(page.getByRole('heading', { name: /create.*league/i })).toBeVisible({
       timeout: 10000,
     });
-    await expect(page.getByPlaceholder(/league name/i)).toBeVisible();
+    // Use label text instead of placeholder since placeholder is "e.g., Good Vibes"
+    await expect(page.getByRole('textbox', { name: /league name/i })).toBeVisible();
   });
 
   test('should allow creating a new league', async ({ page }) => {
@@ -40,8 +41,8 @@ test.describe('League Creation', () => {
       timeout: 10000,
     });
 
-    // Fill in league name
-    await page.getByPlaceholder(/league name/i).fill(leagueName);
+    // Fill in league name using role selector
+    await page.getByRole('textbox', { name: /league name/i }).fill(leagueName);
 
     // Submit league creation
     await page.getByRole('button', { name: /create league/i }).click();

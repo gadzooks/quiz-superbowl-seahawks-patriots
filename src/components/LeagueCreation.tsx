@@ -49,10 +49,11 @@ export function LeagueCreation({ gameId }: LeagueCreationProps) {
 
         <form onSubmit={(e) => void handleSubmit(e)}>
           <div className="form-control">
-            <label className="label">
+            <label className="label" htmlFor="league-name">
               <span className="label-text text-base-content">League Name</span>
             </label>
             <input
+              id="league-name"
               type="text"
               className="input input-bordered input-primary w-full text-lg"
               placeholder="e.g., Good Vibes"
