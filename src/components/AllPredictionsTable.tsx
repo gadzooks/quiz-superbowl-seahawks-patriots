@@ -77,6 +77,23 @@ export function AllPredictionsTable({
               })}
             </tr>
           ))}
+
+          {/* Correct answers row */}
+          {actualResults && Object.keys(actualResults).length > 0 && (
+            <tr className="border-t-2 border-primary bg-base-300">
+              <td className="font-bold text-primary">✓ Correct Answers</td>
+              {questions.map((question) => {
+                const correctAnswer = actualResults[question.questionId];
+                return (
+                  <td key={question.id} className="font-bold text-primary">
+                    {correctAnswer !== undefined && correctAnswer !== null && correctAnswer !== ''
+                      ? formatAnswer(correctAnswer)
+                      : '\u2014'}
+                  </td>
+                );
+              })}
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
