@@ -143,13 +143,21 @@ function attachAutoSaveListeners(form: HTMLFormElement): void {
   // Radio buttons use 'change' event (fires on click)
   const radioInputs = form.querySelectorAll<HTMLInputElement>('input[type="radio"]');
   radioInputs.forEach((input) => {
-    input.addEventListener('change', () => void handleAutoSave());
+    input.addEventListener('change', () => {
+      // Extract questionId from input name (e.g., "prediction-mvp" -> "mvp")
+      const questionId = input.name.replace('prediction-', '');
+      void handleAutoSave(questionId);
+    });
   });
 
   // Number inputs use 'input' event (fires on every keystroke, debounced in handleAutoSave)
   const numberInputs = form.querySelectorAll<HTMLInputElement>('input[type="number"]');
   numberInputs.forEach((input) => {
-    input.addEventListener('input', () => void handleAutoSave());
+    input.addEventListener('input', () => {
+      // Extract questionId from input name
+      const questionId = input.name.replace('prediction-', '');
+      void handleAutoSave(questionId);
+    });
   });
 }
 
@@ -157,21 +165,20 @@ function attachAutoSaveListeners(form: HTMLFormElement): void {
  * Handle auto-save on input change.
  */
 let autoSaveTimeout: ReturnType<typeof setTimeout> | null = null;
+let lastChangedQuestionId: string | null = null;
 
-async function handleAutoSave(): Promise<void> {
+async function handleAutoSave(questionId?: string): Promise<void> {
   const { currentLeague, currentUserId, allPredictions, questions } = getState();
+
+  // Track which question was changed
+  if (questionId) {
+    lastChangedQuestionId = questionId;
+  }
 
   // Always update progress bar on change
   updateProgressBar();
 
   if (!currentLeague?.isOpen) return;
-
-  // Show saving status
-  const statusDiv = document.getElementById('autoSaveStatus');
-  if (statusDiv) {
-    statusDiv.textContent = 'Saving...';
-    statusDiv.style.color = 'var(--color-text-muted)';
-  }
 
   // Debounce to avoid too many saves
   if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
@@ -214,13 +221,9 @@ async function handleAutoSave(): Promise<void> {
             questions,
           });
 
-          // Show saved status
-          if (statusDiv) {
-            statusDiv.textContent = '\u2713 Saved';
-            statusDiv.style.color = 'var(--color-primary)';
-            setTimeout(() => {
-              statusDiv.textContent = '';
-            }, 2000);
+          // Show saved indicator next to the question that was changed
+          if (lastChangedQuestionId) {
+            showSavedIndicator(lastChangedQuestionId);
           }
 
           // Update participants list for immediate visual feedback
@@ -240,10 +243,6 @@ async function handleAutoSave(): Promise<void> {
             showCompletionCelebration();
           }
         } catch (error) {
-          if (statusDiv) {
-            statusDiv.textContent = '\u2717 Error saving';
-            statusDiv.style.color = '#dc2626';
-          }
           console.error('Auto-save error:', error);
         }
       }
@@ -267,5 +266,46 @@ export function updateProgressBar(): void {
   if (progressBar && progressContainer) {
     progressBar.style.width = `${percentage}%`;
     progressContainer.classList.toggle('hidden', percentage === 0);
+  }
+}
+
+/**
+ * Show a small saved indicator next to a specific question.
+ */
+function showSavedIndicator(questionId: string): void {
+  // Find the input element for this question
+  const input = document.querySelector(`[name="prediction-${questionId}"]`) as HTMLElement | null;
+  if (!input) return;
+
+  // Find the parent question card
+  const questionCard = input.closest('.question-card') as HTMLElement | null;
+  if (!questionCard) return;
+
+  // Remove any existing saved indicator
+  const existing = questionCard.querySelector('.saved-indicator');
+  if (existing) existing.remove();
+
+  // Create and add saved indicator
+  const indicator = document.createElement('span');
+  indicator.className = 'saved-indicator';
+  indicator.innerHTML = '✓ Saved';
+  indicator.style.cssText = `
+    color: var(--color-primary);
+    font-size: 0.875rem;
+    margin-left: 8px;
+    opacity: 1;
+    transition: opacity 0.3s ease-out;
+  `;
+
+  // Add to the label element
+  const label = questionCard.querySelector('label');
+  if (label) {
+    label.appendChild(indicator);
+
+    // Fade out and remove after 2 seconds
+    setTimeout(() => {
+      indicator.style.opacity = '0';
+      setTimeout(() => indicator.remove(), 300);
+    }, 2000);
   }
 }
