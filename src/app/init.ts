@@ -229,10 +229,10 @@ export function render(): void {
   console.log('=== RENDER CALLED ===');
   document.getElementById('loading')?.classList.add('hidden');
 
-  // Hide play sound button for non-Seahawks themes
-  if (getCurrentTeamId() !== 'seahawks') {
-    document.getElementById('playSound')?.classList.add('hidden');
-  }
+  // Show/hide Seahawks-only buttons
+  const isSeahawks = getCurrentTeamId() === 'seahawks';
+  document.getElementById('playSound')?.classList.toggle('hidden', !isSeahawks);
+  document.getElementById('introReplayBtn')?.classList.toggle('hidden', !isSeahawks);
 
   const state = getState();
   const { currentLeague, expectedLeagueSlug, currentUserId, allPredictions } = state;
@@ -285,11 +285,6 @@ export function render(): void {
   } else {
     setCurrentTeamName(userPrediction.teamName);
     setIsManager(userPrediction.isManager === true);
-
-    // Show the intro replay button for returning users (Seahawks only)
-    if (getCurrentTeamId() === 'seahawks') {
-      document.getElementById('introReplayBtn')?.classList.remove('hidden');
-    }
 
     // Tab labels are static "Questions" - no need to update dynamically
 

@@ -170,9 +170,20 @@ export function setTeamTheme(teamId: string): boolean {
     if (gameConfig) {
       applyHeaderTeamColors(gameConfig);
     }
+    // Show/hide Seahawks-only header buttons
+    updateSeahawksButtons(teamId);
     return true;
   }
   return false;
+}
+
+/**
+ * Show or hide the Seahawks-only header buttons (play sound, intro replay).
+ */
+function updateSeahawksButtons(teamId: string): void {
+  const isSeahawks = teamId === 'seahawks';
+  document.getElementById('playSound')?.classList.toggle('hidden', !isSeahawks);
+  document.getElementById('introReplayBtn')?.classList.toggle('hidden', !isSeahawks);
 }
 
 /**
