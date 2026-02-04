@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 interface RadioGroupProps {
   name: string;
   options: string[];
@@ -11,8 +13,9 @@ interface RadioGroupProps {
 /**
  * Radio button group component
  * Handles option rendering with optional correct/incorrect styling
+ * Memoized to prevent unnecessary re-renders
  */
-export function RadioGroup({
+export const RadioGroup = memo(function RadioGroup({
   name,
   options,
   value,
@@ -57,4 +60,4 @@ export function RadioGroup({
       })}
     </>
   );
-}
+});

@@ -1,4 +1,5 @@
 import { db } from '../db/client';
+import { parseGame, parseLeague, parsePredictions, parseQuestions } from '../db/typeHelpers';
 import type { Game, League, Prediction, Question } from '../types';
 
 interface LeagueData {
@@ -38,26 +39,24 @@ export function useLeagueData(gameId: string, slug: string | null): LeagueData {
   const isLoading = gameQuery.isLoading || leagueQuery.isLoading;
   const error = gameQuery.error || leagueQuery.error;
 
-  // Extract game
+  // Extract and parse game with runtime validation
   const gameData = gameQuery.data?.games?.[0] || null;
-  const game = gameData ? ({ ...gameData } as unknown as Game) : null;
+  const game = parseGame(gameData);
 
-  // Extract questions sorted by sortOrder
+  // Extract and parse questions with validation, sorted by sortOrder
   let questions: Question[] = [];
-  if (gameData) {
-    const qData = (gameData as unknown as { questions?: unknown[] }).questions;
-    questions = ((qData || []) as unknown as Question[]).sort((a, b) => a.sortOrder - b.sortOrder);
+  if (gameData && typeof gameData === 'object' && 'questions' in gameData) {
+    questions = parseQuestions(gameData.questions).sort((a, b) => a.sortOrder - b.sortOrder);
   }
 
-  // Extract league
+  // Extract and parse league with runtime validation
   const leagueData = leagueQuery.data?.leagues?.[0] || null;
-  const league = leagueData ? ({ ...leagueData } as unknown as League) : null;
+  const league = parseLeague(leagueData);
 
-  // Extract predictions
+  // Extract and parse predictions with validation
   let predictions: Prediction[] = [];
-  if (leagueData) {
-    const predData = (leagueData as unknown as { predictions?: unknown[] })?.predictions;
-    predictions = (predData || []) as unknown as Prediction[];
+  if (leagueData && typeof leagueData === 'object' && 'predictions' in leagueData) {
+    predictions = parsePredictions(leagueData.predictions);
   }
 
   return { game, league, predictions, questions, isLoading, error };

@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 declare const __GIT_COMMIT__: string;
 declare const __GIT_COMMIT_MESSAGE__: string;
 
@@ -8,8 +10,9 @@ interface BuildInfoProps {
 /**
  * Display build information including git commit and database ID
  * Shows deployment context for debugging
+ * Memoized as it rarely changes
  */
-export function BuildInfo({ appId }: BuildInfoProps) {
+export const BuildInfo = memo(function BuildInfo({ appId }: BuildInfoProps) {
   const gitCommit = typeof __GIT_COMMIT__ !== 'undefined' ? __GIT_COMMIT__ : 'dev';
   const commitMessage =
     typeof __GIT_COMMIT_MESSAGE__ !== 'undefined' ? __GIT_COMMIT_MESSAGE__ : 'dev';
@@ -27,4 +30,4 @@ export function BuildInfo({ appId }: BuildInfoProps) {
       </div>
     </div>
   );
-}
+});

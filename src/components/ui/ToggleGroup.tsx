@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 interface ToggleOption {
   value: string;
   label: string;
@@ -16,8 +18,15 @@ interface ToggleGroupProps {
 /**
  * Two-option toggle group component
  * Used for binary choices like open/closed, visible/hidden
+ * Memoized to prevent unnecessary re-renders
  */
-export function ToggleGroup({ name, value, options, onChange, label }: ToggleGroupProps) {
+export const ToggleGroup = memo(function ToggleGroup({
+  name,
+  value,
+  options,
+  onChange,
+  label,
+}: ToggleGroupProps) {
   return (
     <div className="admin-control-row">
       {label && <span className="admin-control-label">{label}</span>}
@@ -45,4 +54,4 @@ export function ToggleGroup({ name, value, options, onChange, label }: ToggleGro
       </div>
     </div>
   );
-}
+});
