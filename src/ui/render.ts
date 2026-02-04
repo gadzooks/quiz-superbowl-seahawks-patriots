@@ -72,7 +72,8 @@ function restoreFocusState(focusState: {
   ) as HTMLInputElement | null;
 
   if (element) {
-    element.focus();
+    // Restore focus without scrolling the page
+    element.focus({ preventScroll: true });
 
     // Move cursor to end of text (skip for input types that don't support selection)
     const supportsSelection =
