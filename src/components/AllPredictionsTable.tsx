@@ -1,0 +1,84 @@
+import type { Prediction, Question } from '../types';
+
+import { isAnswerCorrect } from './helpers';
+
+interface AllPredictionsTableProps {
+  predictions: Prediction[];
+  questions: Question[];
+  actualResults: Record<string, string | number> | null;
+}
+
+/**
+ * Format a slug answer for display.
+ * e.g., "seattle-seahawks" -> "Seattle Seahawks"
+ * Numeric ranges like "8-14" are left as-is.
+ */
+function formatAnswer(value: string | number): string {
+  const strValue = String(value);
+
+  // Check if it's a numeric range (e.g., "8-14")
+  if (/^\d+-\d+$/.test(strValue)) {
+    return strValue;
+  }
+
+  return strValue
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+export function AllPredictionsTable({
+  predictions,
+  questions,
+  actualResults,
+}: AllPredictionsTableProps) {
+  if (predictions.length === 0) {
+    return (
+      <div className="text-center text-base-content/60 py-4">No predictions submitted yet</div>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="table table-zebra w-full">
+        <thead>
+          <tr>
+            <th className="text-base-content">Team</th>
+            {questions.map((question) => (
+              <th key={question.id} className="text-base-content">
+                {question.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {predictions.map((prediction) => (
+            <tr key={prediction.id}>
+              <td className="font-semibold text-base-content">{prediction.teamName}</td>
+              {questions.map((question) => {
+                const answer = prediction.predictions?.[question.questionId];
+                const hasResults = actualResults !== null && actualResults !== undefined;
+                const correct =
+                  hasResults &&
+                  isAnswerCorrect(question, answer, actualResults[question.questionId]);
+
+                let cellClass = 'text-base-content';
+                if (hasResults && answer !== undefined) {
+                  cellClass = correct ? 'answer-correct' : 'answer-incorrect';
+                }
+
+                return (
+                  <td key={question.id} className={cellClass}>
+                    {answer !== undefined && answer !== null && answer !== ''
+                      ? formatAnswer(answer)
+                      : '\u2014'}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}

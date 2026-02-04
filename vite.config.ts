@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import { execSync } from 'child_process';
+import react from '@vitejs/plugin-react';
 
 // Get git commit hash at build time
 const getGitCommit = (): string => {
@@ -23,6 +24,7 @@ const getGitCommitMessage = (): string => {
 
 export default defineConfig({
   base: '/superbowl/',
+  plugins: [react()],
   define: {
     __GIT_COMMIT__: JSON.stringify(getGitCommit()),
     __GIT_COMMIT_MESSAGE__: JSON.stringify(getGitCommitMessage()),

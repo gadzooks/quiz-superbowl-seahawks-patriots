@@ -1,7 +1,7 @@
 import { id } from '@instantdb/core';
 
 import { calculateScore, calculateTiebreakDiff } from '../scoring/calculate';
-import type { Game, League, Prediction, Question } from '../types';
+import type { Game, Prediction, Question } from '../types';
 
 import { db } from './client';
 
@@ -18,67 +18,6 @@ type TransactionUpdate =
   | ReturnType<(typeof db.tx.predictions)[string]['update']>
   | ReturnType<(typeof db.tx.predictions)[string]['link']>
   | ReturnType<(typeof db.tx.predictions)[string]['delete']>;
-
-/**
- * Subscribe to a game, its league (by slug), league predictions, and game questions.
- * Uses link-based nested queries.
- * Returns an unsubscribe function.
- */
-export function subscribeToLeague(
-  gameId: string,
-  slug: string,
-  callback: (data: {
-    game: Game | null;
-    league: League | null;
-    predictions: Prediction[];
-    questions: Question[];
-  }) => void
-): () => void {
-  return db.subscribeQuery(
-    {
-      games: {
-        $: { where: { gameId } },
-        questions: {
-          $: { order: { serverCreatedAt: 'asc' } },
-        },
-      },
-      leagues: {
-        $: { where: { slug } },
-        predictions: {},
-      },
-    },
-    (result) => {
-      if (result.error) {
-        console.error('InstantDB error:', result.error);
-        return;
-      }
-
-      const gameData = result.data.games[0] || null;
-      const game = gameData ? ({ ...gameData } as unknown as Game) : null;
-
-      // League is queried as a top-level entity (not nested under game)
-      // so it works even if the league isn't linked to the game yet
-      const leagueData = result.data.leagues[0] || null;
-      const league = leagueData ? ({ ...leagueData } as unknown as League) : null;
-
-      let predictions: Prediction[] = [];
-      if (leagueData) {
-        const predData = (leagueData as unknown as { predictions?: unknown[] })?.predictions;
-        predictions = (predData || []) as unknown as Prediction[];
-      }
-
-      let questions: Question[] = [];
-      if (gameData) {
-        const qData = (gameData as unknown as { questions?: unknown[] }).questions;
-        questions = ((qData || []) as unknown as Question[]).sort(
-          (a, b) => a.sortOrder - b.sortOrder
-        );
-      }
-
-      callback({ game, league, predictions, questions });
-    }
-  );
-}
 
 /**
  * Check if a league with the given slug exists for a specific game.
