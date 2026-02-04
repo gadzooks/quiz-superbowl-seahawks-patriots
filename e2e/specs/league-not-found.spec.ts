@@ -30,12 +30,13 @@ test.describe('League Not Found', () => {
     await page.waitForLoadState('networkidle');
 
     // Verify league not found screen appears
-    await expect(page.locator('#leagueNotFound')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('#notFoundSlug')).toContainText(nonExistentSlug);
+    await expect(page.getByRole('heading', { name: /league not found/i })).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(page.getByText(nonExistentSlug)).toBeVisible();
 
-    // Verify other screens are hidden
-    await expect(page.locator('#loading')).toBeHidden();
-    await expect(page.locator('#teamNameEntry')).toBeHidden();
+    // Verify loading spinner is not visible
+    await expect(page.locator('.loading-spinner')).not.toBeVisible();
   });
 
   test('should navigate to game home when clicking "Create a New League"', async ({ page }) => {
@@ -46,13 +47,17 @@ test.describe('League Not Found', () => {
     await page.waitForLoadState('networkidle');
 
     // Wait for not found screen
-    await expect(page.locator('#leagueNotFound')).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /league not found/i })).toBeVisible({
+      timeout: 15000,
+    });
 
     // Click "Create a New League"
-    await page.locator('button:has-text("Create a New League")').click();
+    await page.getByRole('button', { name: /create.*new league/i }).click();
 
     // Should navigate to game home and show league creation form
-    await expect(page.locator('#leagueCreation')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /create.*league/i })).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('should clear localStorage when league is not found', async ({ page }) => {
@@ -69,7 +74,9 @@ test.describe('League Not Found', () => {
     await page.waitForLoadState('networkidle');
 
     // Verify not found screen appears
-    await expect(page.locator('#leagueNotFound')).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /league not found/i })).toBeVisible({
+      timeout: 15000,
+    });
 
     // Verify localStorage was cleared
     const storedSlug = await page.evaluate(() => localStorage.getItem('currentLeagueSlug'));
@@ -84,7 +91,9 @@ test.describe('League Not Found', () => {
     await page.waitForLoadState('networkidle');
 
     // Verify the error message contains the correct slug
-    await expect(page.locator('#leagueNotFound')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('#notFoundSlug')).toContainText(nonExistentSlug);
+    await expect(page.getByRole('heading', { name: /league not found/i })).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(page.getByText(nonExistentSlug)).toBeVisible();
   });
 });

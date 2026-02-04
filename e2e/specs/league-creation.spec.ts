@@ -23,8 +23,10 @@ test.describe('League Creation', () => {
     await page.waitForLoadState('networkidle');
 
     // Should show league creation screen
-    await expect(page.locator('#leagueCreation')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('#leagueName')).toBeVisible();
+    await expect(page.getByRole('heading', { name: /create.*league/i })).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(page.getByPlaceholder(/league name/i)).toBeVisible();
   });
 
   test('should allow creating a new league', async ({ page }) => {
@@ -34,18 +36,22 @@ test.describe('League Creation', () => {
     await page.waitForLoadState('networkidle');
 
     // Wait for league creation form to be visible
-    await expect(page.locator('#leagueCreation')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /create.*league/i })).toBeVisible({
+      timeout: 10000,
+    });
 
     // Fill in league name
-    await page.locator('#leagueName').fill(leagueName);
+    await page.getByPlaceholder(/league name/i).fill(leagueName);
 
-    // Submit league creation (use specific button text to avoid ambiguity)
-    await page.locator('#leagueForm button[type="submit"]').click();
+    // Submit league creation
+    await page.getByRole('button', { name: /create league/i }).click();
 
     // Should navigate to the new league
     await page.waitForURL(new RegExp(`/superbowl/${TEST_GAME_ID}/[^/]+`), { timeout: 10000 });
 
     // Should show team entry screen
-    await expect(page.locator('#teamNameEntry')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /enter.*team name/i })).toBeVisible({
+      timeout: 10000,
+    });
   });
 });
