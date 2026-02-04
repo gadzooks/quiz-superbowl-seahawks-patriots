@@ -102,7 +102,17 @@ export function PredictionsForm({
       const wasIncomplete = previousAnswerCountRef.current < questions.length;
       const isNowComplete = answeredCount === questions.length;
 
+      console.log('[PredictionsForm] Save completed:', {
+        answeredCount,
+        totalQuestions: questions.length,
+        previousCount: previousAnswerCountRef.current,
+        wasIncomplete,
+        isNowComplete,
+        willCelebrate: wasIncomplete && isNowComplete,
+      });
+
       if (wasIncomplete && isNowComplete) {
+        console.log('[PredictionsForm] Triggering completion celebration!');
         onCompletionCelebration();
       }
 

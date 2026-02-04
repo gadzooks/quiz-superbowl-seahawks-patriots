@@ -99,9 +99,17 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
   }, []);
 
   const handleCompletionCelebration = useCallback(() => {
+    console.log('[LeagueView] handleCompletionCelebration called', {
+      hasShownCompletionCelebration,
+      willShow: !hasShownCompletionCelebration,
+    });
+
     if (!hasShownCompletionCelebration) {
+      console.log('[LeagueView] Showing completion celebration!');
       setHasShownCompletionCelebration(true);
       showCompletionCelebration();
+    } else {
+      console.log('[LeagueView] Celebration already shown, skipping');
     }
   }, [hasShownCompletionCelebration, setHasShownCompletionCelebration, showCompletionCelebration]);
 

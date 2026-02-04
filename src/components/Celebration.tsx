@@ -62,10 +62,16 @@ export function useConfetti() {
   }, [getThemeColors]);
 
   const showCompletionCelebration = useCallback(() => {
+    console.log('[Celebration] showCompletionCelebration called', {
+      reducedMotion: shouldReduceMotion(),
+    });
+
     if (shouldReduceMotion()) {
+      console.log('[Celebration] Skipping confetti due to prefers-reduced-motion');
       return;
     }
 
+    console.log('[Celebration] Starting confetti animation!');
     const colors = getThemeColors();
     const duration = 3000;
     const animationEnd = Date.now() + duration;
