@@ -38,11 +38,6 @@ export interface DerivedTokens {
 }
 
 /**
- * Complete theme tokens including base and derived values.
- */
-export interface CompleteThemeTokens extends ThemeTokens, DerivedTokens {}
-
-/**
  * CSS custom property names for theme tokens.
  */
 export const CSS_VAR_NAMES = {

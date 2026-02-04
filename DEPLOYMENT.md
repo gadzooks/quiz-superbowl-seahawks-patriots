@@ -10,7 +10,7 @@ cp .env.example .env
 # Edit .env and add your InstantDB App ID
 
 # 2. Test locally
-npm run dev
+yarn run dev
 
 # 3. Deploy to Netlify (see detailed instructions below)
 # - Connect GitHub repo to Netlify
@@ -124,7 +124,7 @@ The app uses environment variables to configure the InstantDB App ID, allowing d
 
 ```bash
 # Install Netlify CLI
-npm install -g netlify-cli
+yarn install -g netlify-cli
 
 # Login to Netlify
 netlify login
@@ -252,14 +252,14 @@ Before deploying, test locally:
 
 ```bash
 # Recommended: Use the dev script (includes env var injection)
-npm run dev
+yarn run dev
 # Opens at http://localhost:8000
 
 # Or manually with custom env var
 INSTANTDB_APP_ID=your-app-id node dev.js
 
 # Or build and serve manually
-npm run build
+yarn run build
 cd dist && python3 -m http.server 8000
 ```
 
@@ -271,7 +271,7 @@ cp .env.example .env
 
 # Edit .env and add your InstantDB App ID
 # Then run
-npm run dev
+yarn run dev
 ```
 
 ## Security Notes

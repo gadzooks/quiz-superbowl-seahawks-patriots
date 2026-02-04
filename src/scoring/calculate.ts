@@ -1,4 +1,4 @@
-import { questions } from '../questions';
+import type { Question } from '../types';
 
 export interface ScoreResult {
   score: number;
@@ -11,7 +11,8 @@ export interface ScoreResult {
  */
 export function calculateScore(
   predictions: Record<string, string | number> | null | undefined,
-  actualResults: Record<string, string | number> | null | undefined
+  actualResults: Record<string, string | number> | null | undefined,
+  questions: Question[]
 ): number {
   if (!predictions || !actualResults) return 0;
 
@@ -19,10 +20,10 @@ export function calculateScore(
 
   for (const q of questions) {
     // Skip tiebreaker - it has 0 points
-    if (q.id === 'totalPoints') continue;
+    if (q.isTiebreaker) continue;
 
-    const predicted = predictions[q.id];
-    const actual = actualResults[q.id];
+    const predicted = predictions[q.questionId];
+    const actual = actualResults[q.questionId];
 
     // Only award points if BOTH prediction and actual result exist
     if (predicted === undefined || predicted === null || predicted === '') continue;
@@ -50,7 +51,8 @@ export function calculateScore(
  */
 export function calculateScoreWithDebug(
   predictions: Record<string, string | number> | null | undefined,
-  actualResults: Record<string, string | number> | null | undefined
+  actualResults: Record<string, string | number> | null | undefined,
+  questions: Question[]
 ): ScoreResult {
   if (!predictions || !actualResults) {
     return { score: 0, debug: ['No predictions or results'] };
@@ -60,17 +62,17 @@ export function calculateScoreWithDebug(
   const debug: string[] = [];
 
   for (const q of questions) {
-    if (q.id === 'totalPoints') continue;
+    if (q.isTiebreaker) continue;
 
-    const predicted = predictions[q.id];
-    const actual = actualResults[q.id];
+    const predicted = predictions[q.questionId];
+    const actual = actualResults[q.questionId];
 
     if (predicted === undefined || predicted === null || predicted === '') {
-      debug.push(`⊘ ${q.id}: no prediction set`);
+      debug.push(`\u{2298} ${q.questionId}: no prediction set`);
       continue;
     }
     if (actual === undefined || actual === null || actual === '') {
-      debug.push(`⊘ ${q.id}: no actual result set`);
+      debug.push(`\u{2298} ${q.questionId}: no actual result set`);
       continue;
     }
 
@@ -83,9 +85,9 @@ export function calculateScoreWithDebug(
 
     if (isCorrect) {
       score += q.points;
-      debug.push(`✓ ${q.id}: "${predicted}" === "${actual}" (+${q.points})`);
+      debug.push(`\u{2713} ${q.questionId}: "${predicted}" === "${actual}" (+${q.points})`);
     } else {
-      debug.push(`✗ ${q.id}: "${predicted}" !== "${actual}"`);
+      debug.push(`\u{2717} ${q.questionId}: "${predicted}" !== "${actual}"`);
     }
   }
 

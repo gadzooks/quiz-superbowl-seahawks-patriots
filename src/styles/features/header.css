@@ -1,3 +1,5 @@
+/* header.css */
+
 /* Header styles */
 
 .app-header {
@@ -81,6 +83,14 @@
   font-size: 13px;
   color: var(--color-primary);
   font-weight: 600;
+}
+
+/* Super Bowl logo in matchup row */
+.superbowl-logo {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 /* Matchup row with teams on sides of logo */
@@ -184,8 +194,8 @@
   letter-spacing: 0.05em;
 }
 
-/* Sound toggle button */
-.sound-toggle {
+/* Play sound button */
+.play-sound-btn {
   position: absolute;
   right: 16px;
   bottom: 68px;
@@ -202,12 +212,12 @@
   transition: all var(--duration-micro) var(--ease-micro);
 }
 
-.sound-toggle:hover {
+.play-sound-btn:hover {
   background: rgba(var(--color-primary-rgb), 0.2);
   border-color: var(--color-primary);
 }
 
-.sound-toggle:active {
+.play-sound-btn:active {
   transform: scale(0.95);
 }
 
@@ -275,6 +285,9 @@
   .header-logo {
     height: 50px;
     width: auto;
+  }
+  .superbowl-logo {
+    height: 58px;
   }
   .header-matchup-row {
     gap: 8px;

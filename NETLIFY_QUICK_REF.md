@@ -72,7 +72,7 @@ Do you prefer command line?
 
 ```bash
 # One-time setup
-npm install netlify-cli -g
+yarn install netlify-cli -g
 netlify login
 netlify link
 ```
@@ -102,7 +102,7 @@ node validate-netlify-env.js
 echo "INSTANTDB_APP_ID=a1b2c3d4-..." > .env
 
 # Run dev server
-npm run dev
+yarn run dev
 ```
 
 ---
@@ -126,7 +126,7 @@ npm run dev
 git checkout -b feature/new-questions
 
 # 2. Make changes and test locally
-npm run dev  # Uses QA DB from .env
+yarn run dev  # Uses QA DB from .env
 
 # 3. Push to GitHub
 git push origin feature/new-questions

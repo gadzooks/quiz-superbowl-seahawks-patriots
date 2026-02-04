@@ -1,16 +1,27 @@
 // Core type definitions for the Super Bowl Prediction Game
 
+export interface Game {
+  id: string;
+  gameId: string;
+  displayName: string;
+  year: number;
+  team1: string;
+  team2: string;
+}
+
 export interface Question {
   id: string;
+  questionId: string;
   label: string;
   type: 'radio' | 'number';
   options?: string[];
   points: number;
+  sortOrder: number;
+  isTiebreaker: boolean;
 }
 
 export interface League {
   id: string;
-  gameId: string; // e.g., "lx", "lxi" - partitions data by Super Bowl year
   name: string;
   slug: string;
   creatorId: string;
@@ -22,8 +33,6 @@ export interface League {
 
 export interface Prediction {
   id: string;
-  gameId: string; // Denormalized from league for query efficiency
-  leagueId: string;
   userId: string;
   teamName: string;
   submittedAt: number;
@@ -35,6 +44,8 @@ export interface Prediction {
 
 export interface AppState {
   currentLeague: League | null;
+  currentGame: Game | null;
+  questions: Question[];
   allPredictions: Prediction[];
   currentUserId: string;
   currentTeamName: string;
@@ -49,12 +60,3 @@ export interface AppState {
 }
 
 export type TabType = 'predictions' | 'scores' | 'results' | 'admin';
-
-// InstantDB query result types
-export interface InstantDBQueryResult {
-  data: {
-    leagues: League[];
-    predictions: Prediction[];
-  };
-  error?: Error;
-}

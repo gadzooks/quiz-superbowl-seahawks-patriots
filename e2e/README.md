@@ -41,26 +41,26 @@ Configuration is in the root `playwright.config.ts`.
 
 2. **Start dev server** (or let Playwright auto-start it):
    ```bash
-   npm run dev
+   yarn run dev
    ```
 
 ### Run Commands
 
 ```bash
 # Run all E2E tests (headless)
-npm run test:e2e
+yarn run test:e2e
 
 # Run tests in UI mode (interactive) - RECOMMENDED
-npm run test:e2e:ui
+yarn run test:e2e:ui
 
 # Run tests with browser visible
-npm run test:e2e:headed
+yarn run test:e2e:headed
 
 # Debug a specific test
-npm run test:e2e:debug
+yarn run test:e2e:debug
 
 # Run all tests (unit + e2e)
-npm run test:all
+yarn run test:all
 ```
 
 ## Test Coverage
@@ -158,7 +158,7 @@ test.describe('My Feature', () => {
   run: npx playwright install --with-deps
 
 - name: Run E2E tests
-  run: npm run test:e2e
+  run: yarn run test:e2e
   env:
     VITE_INSTANTDB_APP_ID: ${{ secrets.TEST_INSTANTDB_APP_ID }}
 ```
@@ -193,7 +193,7 @@ projects: [
 ### UI Mode (Recommended)
 
 ```bash
-npm run test:e2e:ui
+yarn run test:e2e:ui
 ```
 
 Benefits:
@@ -207,7 +207,7 @@ Benefits:
 ### Debug Mode
 
 ```bash
-npm run test:e2e:debug
+yarn run test:e2e:debug
 ```
 
 Opens Playwright Inspector for step-by-step debugging.
@@ -261,7 +261,7 @@ lsof -ti:8000 | xargs kill -9
 
 - Verify `VITE_INSTANTDB_APP_ID` is set
 - Check test database permissions (should allow public read/write)
-- Look at browser console in headed mode: `npm run test:e2e:headed`
+- Look at browser console in headed mode: `yarn run test:e2e:headed`
 
 ### Tests Passing Locally, Failing in CI
 

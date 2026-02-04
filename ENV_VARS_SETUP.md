@@ -15,7 +15,7 @@ This document summarizes the changes made to support environment variables for I
 - **`dev.js`** - Local development server with env var support
 - **`.env.example`** - Template for local environment variables
 - **`.gitignore`** - Prevents committing build artifacts and secrets
-- **`package.json`** - NPM scripts for easy development
+- **`package.json`** - yarn scripts for easy development
 - **`ENV_VARS_SETUP.md`** - This file
 
 ## How It Works
@@ -32,7 +32,7 @@ This document summarizes the changes made to support environment variables for I
 ### Local Development
 
 1. Create `.env` file with your InstantDB App ID
-2. Run `npm run dev`
+2. Run `yarn run dev`
 3. Dev script:
    - Loads env vars from `.env`
    - Builds the app with env vars injected
@@ -55,7 +55,7 @@ cp .env.example .env
 # Edit .env and add: INSTANTDB_APP_ID=your-app-id
 
 # Run dev server
-npm run dev
+yarn run dev
 # Opens at http://localhost:8000
 ```
 

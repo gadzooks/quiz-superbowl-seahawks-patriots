@@ -51,11 +51,11 @@ e2e/
 ### 4. Scripts Available
 
 ```bash
-npm run test:e2e          # Run all E2E tests (headless)
-npm run test:e2e:ui       # Interactive UI mode (recommended for development)
-npm run test:e2e:headed   # Run with browser visible
-npm run test:e2e:debug    # Debug mode with Playwright Inspector
-npm run test:all          # Run unit tests + E2E tests
+yarn run test:e2e          # Run all E2E tests (headless)
+yarn run test:e2e:ui       # Interactive UI mode (recommended for development)
+yarn run test:e2e:headed   # Run with browser visible
+yarn run test:e2e:debug    # Debug mode with Playwright Inspector
+yarn run test:all          # Run unit tests + E2E tests
 ```
 
 ## Key Decisions & Rationale
@@ -159,7 +159,7 @@ Add to GitHub Actions:
   run: npx playwright install --with-deps
 
 - name: Run E2E tests
-  run: npm run test:e2e
+  run: yarn run test:e2e
   env:
     VITE_INSTANTDB_APP_ID: ${{ secrets.TEST_INSTANTDB_APP_ID }}
 ```

@@ -1,60 +1,133 @@
 import { describe, it, expect } from 'vitest';
 
+import type { Question } from '../types';
+
 import { calculateScore, calculateScoreWithDebug, calculateTiebreakDiff } from './calculate';
+
+// Test questions matching the legacy scoring structure
+const testQuestions: Question[] = [
+  {
+    id: '1',
+    questionId: 'winner',
+    label: 'Who wins?',
+    type: 'radio',
+    options: ['Seahawks', 'Patriots'],
+    points: 5,
+    sortOrder: 0,
+    isTiebreaker: false,
+  },
+  {
+    id: '2',
+    questionId: 'totalTDs',
+    label: 'Total touchdowns?',
+    type: 'number',
+    points: 5,
+    sortOrder: 1,
+    isTiebreaker: false,
+  },
+  {
+    id: '3',
+    questionId: 'overtime',
+    label: 'Overtime?',
+    type: 'radio',
+    options: ['Yes', 'No'],
+    points: 5,
+    sortOrder: 2,
+    isTiebreaker: false,
+  },
+  {
+    id: '4',
+    questionId: 'winningMargin',
+    label: 'Winning margin?',
+    type: 'radio',
+    options: ['1-7', '8-14', '15+'],
+    points: 5,
+    sortOrder: 3,
+    isTiebreaker: false,
+  },
+  {
+    id: '5',
+    questionId: 'totalFieldGoals',
+    label: 'Total field goals?',
+    type: 'number',
+    points: 5,
+    sortOrder: 4,
+    isTiebreaker: false,
+  },
+  {
+    id: '6',
+    questionId: 'firstHalfLeader',
+    label: 'Halftime leader?',
+    type: 'radio',
+    options: ['Seahawks', 'Patriots', 'Tied'],
+    points: 5,
+    sortOrder: 5,
+    isTiebreaker: false,
+  },
+  {
+    id: '7',
+    questionId: 'totalPoints',
+    label: 'TIEBREAKER: Total combined points',
+    type: 'number',
+    points: 0,
+    sortOrder: 6,
+    isTiebreaker: true,
+  },
+];
 
 describe('calculateScore', () => {
   it('returns 0 for null predictions', () => {
-    expect(calculateScore(null, { winner: 'seahawks' })).toBe(0);
+    expect(calculateScore(null, { winner: 'seahawks' }, testQuestions)).toBe(0);
   });
 
   it('returns 0 for null results', () => {
-    expect(calculateScore({ winner: 'seahawks' }, null)).toBe(0);
+    expect(calculateScore({ winner: 'seahawks' }, null, testQuestions)).toBe(0);
   });
 
   it('returns 0 for undefined predictions', () => {
-    expect(calculateScore(undefined, { winner: 'seahawks' })).toBe(0);
+    expect(calculateScore(undefined, { winner: 'seahawks' }, testQuestions)).toBe(0);
   });
 
   it('awards points for correct radio answer', () => {
     const predictions = { winner: 'seahawks' };
     const results = { winner: 'seahawks' };
-    expect(calculateScore(predictions, results)).toBe(5);
+    expect(calculateScore(predictions, results, testQuestions)).toBe(5);
   });
 
   it('awards no points for incorrect radio answer', () => {
     const predictions = { winner: 'seahawks' };
     const results = { winner: 'patriots' };
-    expect(calculateScore(predictions, results)).toBe(0);
+    expect(calculateScore(predictions, results, testQuestions)).toBe(0);
   });
 
   it('awards points for correct number answer', () => {
     const predictions = { totalTDs: 5 };
     const results = { totalTDs: 5 };
-    expect(calculateScore(predictions, results)).toBe(5);
+    expect(calculateScore(predictions, results, testQuestions)).toBe(5);
   });
 
   it('awards no points for incorrect number answer', () => {
     const predictions = { totalTDs: 5 };
     const results = { totalTDs: 6 };
-    expect(calculateScore(predictions, results)).toBe(0);
+    expect(calculateScore(predictions, results, testQuestions)).toBe(0);
   });
 
   it('handles string numbers correctly', () => {
     const predictions = { totalTDs: '5' };
     const results = { totalTDs: 5 };
-    expect(calculateScore(predictions, results)).toBe(5);
+    expect(calculateScore(predictions, results, testQuestions)).toBe(5);
   });
 
   it('skips questions with empty predictions', () => {
     const predictions = { winner: '' };
     const results = { winner: 'seahawks' };
-    expect(calculateScore(predictions, results)).toBe(0);
+    expect(calculateScore(predictions, results, testQuestions)).toBe(0);
   });
 
   it('skips questions with empty results', () => {
     const predictions = { winner: 'seahawks' };
     const results = { winner: '' };
-    expect(calculateScore(predictions, results)).toBe(0);
+    expect(calculateScore(predictions, results, testQuestions)).toBe(0);
   });
 
   it('calculates correct total score for multiple questions', () => {
@@ -74,14 +147,14 @@ describe('calculateScore', () => {
       totalFieldGoals: 2, // wrong: 0
       firstHalfLeader: 'tied', // wrong: 0
     };
-    expect(calculateScore(predictions, results)).toBe(15);
+    expect(calculateScore(predictions, results, testQuestions)).toBe(15);
   });
 
   it('ignores tiebreaker question (totalPoints)', () => {
     const predictions = { totalPoints: 45 };
     const results = { totalPoints: 45 };
-    // tiebreaker has 0 points
-    expect(calculateScore(predictions, results)).toBe(0);
+    // tiebreaker has 0 points and isTiebreaker=true so it's skipped
+    expect(calculateScore(predictions, results, testQuestions)).toBe(0);
   });
 
   it('returns max score (30) when all answers correct', () => {
@@ -94,7 +167,7 @@ describe('calculateScore', () => {
       firstHalfLeader: 'seahawks',
     };
     const results = { ...predictions };
-    expect(calculateScore(predictions, results)).toBe(30);
+    expect(calculateScore(predictions, results, testQuestions)).toBe(30);
   });
 });
 
@@ -102,18 +175,18 @@ describe('calculateScoreWithDebug', () => {
   it('returns debug info for each question', () => {
     const predictions = { winner: 'seahawks', totalTDs: 5 };
     const results = { winner: 'seahawks', totalTDs: 4 };
-    const result = calculateScoreWithDebug(predictions, results);
+    const result = calculateScoreWithDebug(predictions, results, testQuestions);
 
     expect(result.score).toBe(5);
     expect(result.debug.length).toBeGreaterThan(0);
-    expect(result.debug.some((d) => d.includes('✓'))).toBe(true);
-    expect(result.debug.some((d) => d.includes('✗'))).toBe(true);
+    expect(result.debug.some((d) => d.includes('\u2713'))).toBe(true);
+    expect(result.debug.some((d) => d.includes('\u2717'))).toBe(true);
   });
 
   it('includes debug for missing predictions', () => {
     const predictions = {};
     const results = { winner: 'seahawks' };
-    const result = calculateScoreWithDebug(predictions, results);
+    const result = calculateScoreWithDebug(predictions, results, testQuestions);
 
     expect(result.debug.some((d) => d.includes('no prediction'))).toBe(true);
   });

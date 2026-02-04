@@ -16,9 +16,35 @@ import {
 describe('components/helpers', () => {
   describe('countAnsweredQuestions', () => {
     const questions: Question[] = [
-      { id: 'q1', label: 'Question 1', type: 'radio', points: 10, options: ['A', 'B'] },
-      { id: 'q2', label: 'Question 2', type: 'number', points: 5 },
-      { id: 'q3', label: 'Question 3', type: 'radio', points: 10, options: ['X', 'Y'] },
+      {
+        id: 'q1',
+        questionId: 'q1',
+        label: 'Question 1',
+        type: 'radio',
+        points: 10,
+        options: ['A', 'B'],
+        sortOrder: 0,
+        isTiebreaker: false,
+      },
+      {
+        id: 'q2',
+        questionId: 'q2',
+        label: 'Question 2',
+        type: 'number',
+        points: 5,
+        sortOrder: 1,
+        isTiebreaker: false,
+      },
+      {
+        id: 'q3',
+        questionId: 'q3',
+        label: 'Question 3',
+        type: 'radio',
+        points: 10,
+        options: ['X', 'Y'],
+        sortOrder: 2,
+        isTiebreaker: false,
+      },
     ];
 
     it('should count answered questions correctly', () => {
@@ -85,10 +111,13 @@ describe('components/helpers', () => {
     it('should return true for correct radio answer', () => {
       const question: Question = {
         id: 'q1',
+        questionId: 'q1',
         label: 'Q1',
         type: 'radio',
         points: 10,
         options: ['A', 'B'],
+        sortOrder: 0,
+        isTiebreaker: false,
       };
       expect(isAnswerCorrect(question, 'a', 'a')).toBe(true);
     });
@@ -96,44 +125,95 @@ describe('components/helpers', () => {
     it('should return false for incorrect radio answer', () => {
       const question: Question = {
         id: 'q1',
+        questionId: 'q1',
         label: 'Q1',
         type: 'radio',
         points: 10,
         options: ['A', 'B'],
+        sortOrder: 0,
+        isTiebreaker: false,
       };
       expect(isAnswerCorrect(question, 'a', 'b')).toBe(false);
     });
 
     it('should return true for correct number answer', () => {
-      const question: Question = { id: 'q1', label: 'Q1', type: 'number', points: 10 };
+      const question: Question = {
+        id: 'q1',
+        questionId: 'q1',
+        label: 'Q1',
+        type: 'number',
+        points: 10,
+        sortOrder: 0,
+        isTiebreaker: false,
+      };
       expect(isAnswerCorrect(question, 42, 42)).toBe(true);
       expect(isAnswerCorrect(question, '42', 42)).toBe(true);
       expect(isAnswerCorrect(question, 42, '42')).toBe(true);
     });
 
     it('should return false for incorrect number answer', () => {
-      const question: Question = { id: 'q1', label: 'Q1', type: 'number', points: 10 };
+      const question: Question = {
+        id: 'q1',
+        questionId: 'q1',
+        label: 'Q1',
+        type: 'number',
+        points: 10,
+        sortOrder: 0,
+        isTiebreaker: false,
+      };
       expect(isAnswerCorrect(question, 42, 24)).toBe(false);
     });
 
     it('should return false for undefined user answer', () => {
-      const question: Question = { id: 'q1', label: 'Q1', type: 'radio', points: 10 };
+      const question: Question = {
+        id: 'q1',
+        questionId: 'q1',
+        label: 'Q1',
+        type: 'radio',
+        points: 10,
+        sortOrder: 0,
+        isTiebreaker: false,
+      };
       expect(isAnswerCorrect(question, undefined, 'a')).toBe(false);
     });
 
     it('should return false for undefined correct answer', () => {
-      const question: Question = { id: 'q1', label: 'Q1', type: 'radio', points: 10 };
+      const question: Question = {
+        id: 'q1',
+        questionId: 'q1',
+        label: 'Q1',
+        type: 'radio',
+        points: 10,
+        sortOrder: 0,
+        isTiebreaker: false,
+      };
       expect(isAnswerCorrect(question, 'a', undefined)).toBe(false);
     });
 
     it('should return false for empty string answers', () => {
-      const question: Question = { id: 'q1', label: 'Q1', type: 'radio', points: 10 };
+      const question: Question = {
+        id: 'q1',
+        questionId: 'q1',
+        label: 'Q1',
+        type: 'radio',
+        points: 10,
+        sortOrder: 0,
+        isTiebreaker: false,
+      };
       expect(isAnswerCorrect(question, '', 'a')).toBe(false);
       expect(isAnswerCorrect(question, 'a', '')).toBe(false);
     });
 
     it('should return false for null answers', () => {
-      const question: Question = { id: 'q1', label: 'Q1', type: 'radio', points: 10 };
+      const question: Question = {
+        id: 'q1',
+        questionId: 'q1',
+        label: 'Q1',
+        type: 'radio',
+        points: 10,
+        sortOrder: 0,
+        isTiebreaker: false,
+      };
       expect(isAnswerCorrect(question, null as unknown as string, 'a')).toBe(false);
       expect(isAnswerCorrect(question, 'a', null as unknown as string)).toBe(false);
     });
@@ -141,10 +221,44 @@ describe('components/helpers', () => {
 
   describe('getCompletionPercentage', () => {
     const questions: Question[] = [
-      { id: 'q1', label: 'Q1', type: 'radio', points: 10, options: ['A', 'B'] },
-      { id: 'q2', label: 'Q2', type: 'number', points: 5 },
-      { id: 'q3', label: 'Q3', type: 'radio', points: 10, options: ['X', 'Y'] },
-      { id: 'q4', label: 'Q4', type: 'number', points: 5 },
+      {
+        id: 'q1',
+        questionId: 'q1',
+        label: 'Q1',
+        type: 'radio',
+        points: 10,
+        options: ['A', 'B'],
+        sortOrder: 0,
+        isTiebreaker: false,
+      },
+      {
+        id: 'q2',
+        questionId: 'q2',
+        label: 'Q2',
+        type: 'number',
+        points: 5,
+        sortOrder: 1,
+        isTiebreaker: false,
+      },
+      {
+        id: 'q3',
+        questionId: 'q3',
+        label: 'Q3',
+        type: 'radio',
+        points: 10,
+        options: ['X', 'Y'],
+        sortOrder: 2,
+        isTiebreaker: false,
+      },
+      {
+        id: 'q4',
+        questionId: 'q4',
+        label: 'Q4',
+        type: 'number',
+        points: 5,
+        sortOrder: 3,
+        isTiebreaker: false,
+      },
     ];
 
     it('should return 100% for all answered', () => {
@@ -180,8 +294,6 @@ describe('components/helpers', () => {
       {
         id: 'p1',
         userId: 'u1',
-        gameId: 'g1',
-        leagueId: 'l1',
         teamName: 'Team A',
         predictions: {},
         score: 50,
@@ -192,8 +304,6 @@ describe('components/helpers', () => {
       {
         id: 'p2',
         userId: 'u2',
-        gameId: 'g1',
-        leagueId: 'l1',
         teamName: 'Team B',
         predictions: {},
         score: 70,
@@ -204,8 +314,6 @@ describe('components/helpers', () => {
       {
         id: 'p3',
         userId: 'u3',
-        gameId: 'g1',
-        leagueId: 'l1',
         teamName: 'Team C',
         predictions: {},
         score: 70,
@@ -251,16 +359,31 @@ describe('components/helpers', () => {
 
   describe('sortPredictionsForParticipants', () => {
     const questions: Question[] = [
-      { id: 'q1', label: 'Q1', type: 'radio', points: 10, options: ['A', 'B'] },
-      { id: 'q2', label: 'Q2', type: 'number', points: 5 },
+      {
+        id: 'q1',
+        questionId: 'q1',
+        label: 'Q1',
+        type: 'radio',
+        points: 10,
+        options: ['A', 'B'],
+        sortOrder: 0,
+        isTiebreaker: false,
+      },
+      {
+        id: 'q2',
+        questionId: 'q2',
+        label: 'Q2',
+        type: 'number',
+        points: 5,
+        sortOrder: 1,
+        isTiebreaker: false,
+      },
     ];
 
     const predictions: Prediction[] = [
       {
         id: 'p1',
         userId: 'u1',
-        gameId: 'g1',
-        leagueId: 'l1',
         teamName: 'Team Z',
         predictions: { q1: 'a' },
         score: 0,
@@ -271,8 +394,6 @@ describe('components/helpers', () => {
       {
         id: 'p2',
         userId: 'u2',
-        gameId: 'g1',
-        leagueId: 'l1',
         teamName: 'Team A',
         predictions: { q1: 'a', q2: 42 },
         score: 0,
@@ -283,8 +404,6 @@ describe('components/helpers', () => {
       {
         id: 'p3',
         userId: 'u3',
-        gameId: 'g1',
-        leagueId: 'l1',
         teamName: 'Team B',
         predictions: { q1: 'a', q2: 42 },
         score: 0,

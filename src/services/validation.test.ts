@@ -173,24 +173,56 @@ describe('toLeagueSlug', () => {
 // ============ PREDICTIONS VALIDATION ============
 
 const sampleQuestions: Question[] = [
-  { id: 'winner', label: 'Who wins?', type: 'radio', options: ['Seahawks', 'Patriots'], points: 5 },
-  { id: 'totalTDs', label: 'Total TDs?', type: 'number', points: 5 },
-  { id: 'overtime', label: 'Overtime?', type: 'radio', options: ['Yes', 'No'], points: 5 },
-];
-
-describe('validateAnswer', () => {
-  const radioQuestion: Question = {
-    id: 'winner',
+  {
+    id: 'q-winner',
+    questionId: 'winner',
     label: 'Who wins?',
     type: 'radio',
     options: ['Seahawks', 'Patriots'],
     points: 5,
-  };
-  const numberQuestion: Question = {
-    id: 'totalTDs',
+    sortOrder: 0,
+    isTiebreaker: false,
+  },
+  {
+    id: 'q-totalTDs',
+    questionId: 'totalTDs',
     label: 'Total TDs?',
     type: 'number',
     points: 5,
+    sortOrder: 1,
+    isTiebreaker: false,
+  },
+  {
+    id: 'q-overtime',
+    questionId: 'overtime',
+    label: 'Overtime?',
+    type: 'radio',
+    options: ['Yes', 'No'],
+    points: 5,
+    sortOrder: 2,
+    isTiebreaker: false,
+  },
+];
+
+describe('validateAnswer', () => {
+  const radioQuestion: Question = {
+    id: 'q-winner',
+    questionId: 'winner',
+    label: 'Who wins?',
+    type: 'radio',
+    options: ['Seahawks', 'Patriots'],
+    points: 5,
+    sortOrder: 0,
+    isTiebreaker: false,
+  };
+  const numberQuestion: Question = {
+    id: 'q-totalTDs',
+    questionId: 'totalTDs',
+    label: 'Total TDs?',
+    type: 'number',
+    points: 5,
+    sortOrder: 1,
+    isTiebreaker: false,
   };
 
   it('rejects undefined value', () => {
@@ -219,11 +251,14 @@ describe('validateAnswer', () => {
 
   it('accepts radio answer with spaces converted to dashes', () => {
     const q: Question = {
-      id: 'margin',
+      id: 'q-margin',
+      questionId: 'margin',
       label: 'Margin?',
       type: 'radio',
       options: ['1-7', '8-14'],
       points: 5,
+      sortOrder: 0,
+      isTiebreaker: false,
     };
     expect(validateAnswer(q, '1-7')).toEqual({ valid: true });
   });

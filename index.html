@@ -1,5 +1,3 @@
-<!-- index.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,32 +19,22 @@
     <meta name="twitter:description" content="Make your Super Bowl predictions and compete with friends">
     <meta name="twitter:image" content="https://nfl.weekendwanderings.com/superbowl/lx/images/og-preview.png">
 
-    <!-- Favicon - Seahawks themed -->
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='80'>🏈</text></svg>">
     <link rel="apple-touch-icon" href="favicon.svg">
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Confetti loaded on demand -->
-    <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <script type="module">
-        import { init } from 'https://cdn.jsdelivr.net/npm/@instantdb/core/+esm';
-        window.InstantDBInit = init;
-    </script>
-    <!-- Vite module entry point - sets window.VITE_APP_ID -->
-    <script type="module" src="/src/main.ts"></script>
     <script>
         // Configure Tailwind to use CSS custom properties for dynamic theming
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        // Dynamic theme colors via CSS variables
                         'primary': 'var(--color-primary)',
                         'base-100': 'var(--color-background)',
                         'base-200': 'var(--color-background-alt)',
                         'base-300': '#001525',
-                        // Static colors (not themed)
                         'success': 'var(--color-primary)',
                         'error': '#ff6b6b',
                         'info': '#60a5fa',
@@ -58,298 +46,7 @@
     </script>
 </head>
 <body data-theme="neutral" class="bg-base-100 min-h-screen">
-    <!-- Header -->
-    <div class="app-header sticky top-0 z-50">
-        <!-- Team logo (top-left) -->
-        <img id="team-logo" class="team-logo-header" src="/images/logos/nfl.png" alt="NFL" />
-        <button id="soundToggle" class="sound-toggle" onclick="SoundManager.toggle()" title="Toggle sound">
-            🔇
-        </button>
-        <button id="introReplayBtn" class="intro-replay-btn hidden" onclick="replayIntro()" title="See intro again">
-            📷
-        </button>
-        <div class="header-content">
-            <div class="header-matchup-row">
-                <div class="header-team header-team-left">
-                    <span class="team-name-large">Seahawks</span>
-                </div>
-                <img src="images/superbowl-lx-logo.svg" alt="Super Bowl LX" class="header-logo" width="100" height="66" />
-                <div class="header-team header-team-right">
-                    <span class="team-name-large">Patriots</span>
-                </div>
-            </div>
-            <div id="leagueNameHeader" class="hidden mt-2">
-                <span id="teamNameDisplay" class="team-name-display"></span>
-                <span class="league-name-header"></span>
-            </div>
-        </div>
-        <!-- Progress bar below header -->
-        <div id="progressBarContainer" class="progress-bar-container hidden">
-            <div id="progressBar" class="progress-bar"></div>
-        </div>
-    </div>
-
-    <div class="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-2xl">
-        <!-- Loading State -->
-        <div id="loading" class="flex justify-center items-center min-h-screen">
-            <span class="loading loading-spinner loading-lg text-primary"></span>
-        </div>
-
-        <!-- League Creation -->
-        <div id="leagueCreation" class="hidden">
-            <div class="card bg-base-200 ">
-                <div class="card-body">
-                    <h2 class="card-title text-2xl text-primary">Create Your League</h2>
-                    <p class="text-base-content/80">Enter a name for your prediction league. You'll get a shareable link to invite others!</p>
-
-                    <form id="leagueForm" class="space-y-4 mt-4">
-                        <div class="form-control">
-                            <label class="label" for="leagueName">
-                                <span class="label-text text-base-content">League Name</span>
-                            </label>
-                            <input type="text" id="leagueName" required placeholder="e.g., Good Vibes"
-                                class="input input-bordered input-primary w-full text-lg" />
-                        </div>
-                        <button type="submit" class="btn btn-primary w-full btn-lg">Create League</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- League Not Found -->
-        <div id="leagueNotFound" class="hidden">
-            <div class="card bg-base-200 ">
-                <div class="card-body">
-                    <h2 class="card-title text-2xl text-primary">League Not Found</h2>
-                    <p class="text-base-content/80">The league you're looking for doesn't exist or has been deleted.</p>
-                    <p id="notFoundSlug" class="text-sm text-base-content/60 mt-2"></p>
-
-                    <div class="divider">What would you like to do?</div>
-
-                    <div class="space-y-3">
-                        <button onclick="showLeagueCreation()" class="btn btn-primary w-full btn-lg">
-                            Create a New League
-                        </button>
-                        <button onclick="clearLeagueAndReload()" class="btn btn-outline btn-secondary w-full">
-                            Enter a Different League
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- League URL stored for copy function -->
-        <div id="shareUrl" class="hidden"></div>
-
-        <!-- Team Name Entry -->
-        <div id="teamNameEntry" class="hidden">
-            <div class="card bg-base-200 ">
-                <div class="card-body">
-                    <h2 class="card-title text-2xl text-primary">Enter Your Team Name</h2>
-                    <p class="text-base-content/80">Choose a unique name for your team in this league.</p>
-                    <p class="text-sm mt-2 text-warning">⚠️ Choose carefully — only admins can change team names later.</p>
-
-                    <form id="teamNameForm" class="space-y-4 mt-4">
-                        <div class="form-control">
-                            <label class="label" for="teamNameInput">
-                                <span class="label-text text-base-content">Your Team Name</span>
-                            </label>
-                            <input type="text" id="teamNameInput" required placeholder="e.g., John's Picks"
-                                minlength="3" maxlength="15"
-                                class="input input-bordered input-primary w-full text-lg" />
-                        </div>
-                        <button type="submit" class="btn btn-primary w-full btn-lg">Continue</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Intro Overlay (shown after team registration) -->
-        <div id="introOverlay" class="intro-overlay hidden">
-            <img id="introImage" class="intro-image" src="" alt="Seahawks" />
-            <div class="intro-content">
-                <div class="intro-football-container">
-                    <div class="intro-football">🏈</div>
-                    <div class="intro-football-shadow"></div>
-                </div>
-                <div class="intro-title">Welcome to the Game!</div>
-                <div id="introTeamName" class="intro-team-name"></div>
-            </div>
-        </div>
-
-        <!-- Toast Notification -->
-        <div id="toastNotification" class="toast-notification"></div>
-
-        <!-- Team Name Edit Modal -->
-        <dialog id="teamNameModal" class="modal">
-            <div class="modal-box bg-base-200">
-                <h3 id="teamNameModalTitle" class="font-bold text-lg text-primary mb-4">Edit Team Name</h3>
-                <form id="teamNameEditForm" class="space-y-4">
-                    <div class="form-control">
-                        <label class="label" for="teamNameEditInput">
-                            <span class="label-text text-base-content">New Team Name</span>
-                        </label>
-                        <input type="text" id="teamNameEditInput" required
-                            minlength="3" maxlength="15"
-                            placeholder="Enter team name"
-                            class="input input-bordered input-primary w-full text-lg"
-                            oninput="updateTeamNameCharCount()" />
-                        <div id="teamNameCharCount" class="char-count char-count-valid">0/15 characters (min 3)</div>
-                    </div>
-                    <div class="modal-action">
-                        <button type="button" class="btn btn-ghost" onclick="closeTeamNameModal()">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save</button>
-                    </div>
-                </form>
-            </div>
-            <form method="dialog" class="modal-backdrop">
-                <button>close</button>
-            </form>
-        </dialog>
-
-        <!-- Delete Team Confirmation Modal -->
-        <dialog id="deleteTeamModal" class="modal delete-confirm-modal">
-            <div class="modal-box">
-                <h3 class="font-bold text-lg mb-4 text-error">Delete Team</h3>
-                <p class="mb-2">Are you sure you want to delete <strong id="deleteTeamName" class="text-error"></strong>?</p>
-                <p class="text-sm mb-4 text-base-content/60">This action cannot be undone. All predictions for this team will be permanently removed.</p>
-                <input type="hidden" id="deleteTeamId" value="" />
-                <div class="modal-action">
-                    <button type="button" class="btn btn-ghost" onclick="closeDeleteModal()">Cancel</button>
-                    <button type="button" class="btn btn-delete" onclick="confirmDeleteTeam()">Delete Team</button>
-                </div>
-            </div>
-            <form method="dialog" class="modal-backdrop">
-                <button>close</button>
-            </form>
-        </dialog>
-
-        <!-- Admin Panel (for league creator) -->
-        <div id="adminPanel" class="hidden">
-            <div role="tablist" class="tabs tabs-boxed tabs-sticky mb-6">
-                <a role="tab" id="adminPredictionsTab" class="tab tab-active" onclick="switchTab('predictions')">Questions</a>
-                <a role="tab" class="tab" onclick="switchTab('scores')">Scores</a>
-                <a role="tab" id="adminResultsTab" class="tab tab-results" onclick="switchTab('results')">Results</a>
-                <a role="tab" class="tab" onclick="switchTab('admin')">Admin</a>
-            </div>
-
-            <!-- Admin Controls Tab -->
-            <div id="adminTab" class="hidden space-y-6">
-                <div class="card bg-base-200 ">
-                    <div class="card-body p-0">
-                        <button onclick="toggleGameStatus()" class="collapsible-toggle w-full p-4 flex justify-between items-center cursor-pointer">
-                            <h3 class="card-title text-primary m-0">Game Status</h3>
-                            <span id="gameStatusToggleIcon" class="collapsible-icon">▼</span>
-                        </button>
-                        <div id="gameStatusContent" class="px-4 pb-4">
-                            <div id="gameStatus"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Participants Section (collapsible) -->
-                <div class="card bg-base-200 ">
-                    <div class="card-body p-0">
-                        <button onclick="toggleParticipants()" class="collapsible-toggle w-full p-4 flex justify-between items-center cursor-pointer">
-                            <h3 class="card-title text-primary m-0">👥 Participants</h3>
-                            <span id="participantsToggleIcon" class="collapsible-icon">▶</span>
-                        </button>
-                        <div id="participantsContent" class="px-4 pb-4 hidden">
-                            <div id="participantsList" class="space-y-3"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Recalculate Scores Section (collapsible) -->
-                <div class="card bg-base-200 ">
-                    <div class="card-body p-0">
-                        <button onclick="toggleRecalculateScores()" class="collapsible-toggle w-full p-4 flex justify-between items-center cursor-pointer">
-                            <h3 class="card-title text-primary m-0">🔄 Recalculate Scores</h3>
-                            <span id="recalculateScoresToggleIcon" class="collapsible-icon">▶</span>
-                        </button>
-                        <div id="recalculateScoresContent" class="px-4 pb-4 hidden">
-                            <p class="text-sm mb-4 text-base-content/60">
-                                Recalculate scores for all participants. Useful when someone submits predictions after results have been entered.
-                            </p>
-                            <button onclick="recalculateAllScores()" class="btn btn-primary w-full mb-4" id="recalculateScoresBtn">
-                                🔄 Recalculate All Scores
-                            </button>
-                            <div id="recalculateScoresStatus"></div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Regular User Panel (non-admin users) -->
-        <div id="userPanel" class="hidden">
-            <div id="userTabs" role="tablist" class="tabs tabs-boxed tabs-sticky mb-6">
-                <a role="tab" id="userPredictionsTab" class="tab tab-active" onclick="switchUserTab('predictions')">Questions</a>
-                <a role="tab" class="tab" onclick="switchUserTab('scores')">Scores</a>
-            </div>
-        </div>
-
-        <!-- Results Tab (for admins and managers) -->
-        <div id="resultsTab" class="hidden">
-            <div class="card results-question-card">
-                <div class="card-body">
-                    <div class="flex items-center gap-2 mb-2">
-                        <h3 class="card-title results-question-number" style="margin: 0; font-size: 20px;">Enter Actual Results</h3>
-                    </div>
-                    <p class="text-sm text-base-content/60">
-                        Scores update in real-time.
-                    </p>
-                    <p id="resultsAutoSaveStatus" class="text-sm text-success text-center font-semibold"></p>
-                    <form id="resultsForm" class="space-y-4 mt-4">
-                        <!-- Results form will be generated by JS -->
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Predictions Form -->
-        <div id="predictionsSection" class="hidden">
-            <div id="submissionsStatus" class="mb-4"></div>
-            <p id="autoSaveStatus" class="text-sm text-success text-center font-semibold"></p>
-
-            <div class="card bg-base-200 ">
-                <div class="card-body">
-                    <form id="predictionsForm" class="space-y-4 mt-4">
-                        <!-- Questions will be generated by JS -->
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Leaderboard -->
-        <div id="leaderboardSection" class="hidden">
-            <h2 class="text-3xl font-bold mb-6 text-primary">🏆 Leaderboard</h2>
-            <div id="leaderboard" class="space-y-3"></div>
-
-            <!-- All Predictions Table (only visible in Scores tab when enabled by admin) -->
-            <div id="allPredictionsSection" class="hidden mt-8">
-                <h2 class="text-3xl font-bold mb-6 text-primary">All Predictions</h2>
-                <div class="overflow-x-auto" id="allPredictionsTable"></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // All functionality is in TypeScript modules (src/).
-        // This script only initializes the app after DOM is ready.
-        window.addEventListener('DOMContentLoaded', async () => {
-            // Wait for Vite module initialization (team picker, theme, etc.)
-            if (window.waitForAppReady) {
-                await window.waitForAppReady();
-            }
-            // Call the module-provided initApp function
-            if (window.initApp) {
-                window.initApp();
-            } else {
-                console.error('initApp not found - modules may not have loaded');
-            }
-        });
-    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

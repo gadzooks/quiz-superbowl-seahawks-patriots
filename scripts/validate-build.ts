@@ -133,7 +133,7 @@ function validate(): ValidationResult {
   if (!existsSync(DIST_DIR)) {
     result.passed = false;
     result.errors.push(`Build directory not found: ${DIST_DIR}`);
-    result.errors.push('Run "npm run build" first.');
+    result.errors.push('Run "yarn run build" first.');
     return result;
   }
 
@@ -217,7 +217,7 @@ function main(): void {
     console.log('\nCommon fixes:');
     console.log('  1. Check vite.config.ts base path matches netlify.toml redirects');
     console.log('  2. Ensure netlify.toml rewrites map /superbowl/* to /*');
-    console.log('  3. Run "npm run build" to regenerate dist/\n');
+    console.log('  3. Run "yarn run build" to regenerate dist/\n');
     process.exit(1);
   }
 }

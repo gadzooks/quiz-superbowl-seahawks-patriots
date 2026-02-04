@@ -110,20 +110,3 @@ export function buildGameUrl(gameId: string, leagueSlug?: string): string {
   const path = buildGamePath(gameId, leagueSlug);
   return `${window.location.origin}${path}`;
 }
-
-/**
- * Navigate to a game/league path without full page reload.
- */
-export function navigateToGame(gameId: string, leagueSlug?: string): void {
-  const path = buildGamePath(gameId, leagueSlug);
-  window.history.pushState({}, '', path);
-}
-
-/**
- * Update the URL to include the league slug (after league is created/joined).
- */
-export function updateUrlWithLeague(leagueSlug: string): void {
-  const { gameId } = parseUrlPath();
-  const path = buildGamePath(gameId, leagueSlug);
-  window.history.replaceState({}, '', path);
-}

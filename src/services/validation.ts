@@ -196,13 +196,13 @@ export function validatePredictions(
   let answeredCount = 0;
 
   for (const question of questions) {
-    const value = predictions[question.id];
+    const value = predictions[question.questionId];
     const result = validateAnswer(question, value as string);
 
     if (result.valid) {
       answeredCount++;
     } else if (result.error) {
-      errors[question.id] = result.error;
+      errors[question.questionId] = result.error;
     }
   }
 
@@ -251,7 +251,7 @@ export function parsePredictionsFromForm(
   const predictions: Record<string, string | number> = {};
 
   for (const question of questions) {
-    const rawValue = formData.get(`prediction-${question.id}`);
+    const rawValue = formData.get(`prediction-${question.questionId}`);
 
     if (rawValue === null || rawValue === '') {
       continue;
@@ -262,45 +262,13 @@ export function parsePredictionsFromForm(
     if (question.type === 'number') {
       const num = parseInt(value, 10);
       if (!isNaN(num)) {
-        predictions[question.id] = num;
+        predictions[question.questionId] = num;
       }
     } else {
       // Radio values are stored as lowercase slugs
-      predictions[question.id] = value.toLowerCase().replace(/\s+/g, '-');
+      predictions[question.questionId] = value.toLowerCase().replace(/\s+/g, '-');
     }
   }
 
   return predictions;
-}
-
-/**
- * Parse results values from a FormData object.
- * Similar to predictions but uses result- prefix.
- */
-export function parseResultsFromForm(
-  formData: FormData,
-  questions: Question[]
-): Record<string, string | number> {
-  const results: Record<string, string | number> = {};
-
-  for (const question of questions) {
-    const rawValue = formData.get(`result-${question.id}`);
-
-    if (rawValue === null || rawValue === '') {
-      continue;
-    }
-
-    const value = String(rawValue).trim();
-
-    if (question.type === 'number') {
-      const num = parseInt(value, 10);
-      if (!isNaN(num)) {
-        results[question.id] = num;
-      }
-    } else {
-      results[question.id] = value.toLowerCase().replace(/\s+/g, '-');
-    }
-  }
-
-  return results;
 }

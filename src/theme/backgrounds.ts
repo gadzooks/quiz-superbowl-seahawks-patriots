@@ -6,7 +6,6 @@ import { getTeamIds, type GameConfig } from '../config/games';
 import { getTeamLogoUrl, NFL_SHIELD_LOGO } from './logos';
 import { getTeamTheme } from './teams';
 
-const LOGO_OPACITY = 0.04; // Very faint
 const LOGO_SIZE = 120; // Size of each logo in the pattern
 
 /**
@@ -122,5 +121,5 @@ function applyHeaderSplitBackground(leftBg: string, rightBg: string): void {
   console.log('Applied header split background:', gradient);
 }
 
-// Export for backwards compatibility
-export { LOGO_OPACITY, LOGO_SIZE };
+// Export for tests
+export { LOGO_SIZE };

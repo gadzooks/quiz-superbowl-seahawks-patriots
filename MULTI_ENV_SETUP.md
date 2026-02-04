@@ -130,7 +130,7 @@ If you prefer command-line tools:
 ### Installation
 
 ```bash
-npm install netlify-cli -g
+yarn install netlify-cli -g
 netlify login
 netlify link  # Link to your site
 ```
@@ -335,7 +335,7 @@ InstantDB App IDs are designed to be public. Access control is managed through I
 
 **Symptoms:**
 
-- Running `npm run dev` connects to production database
+- Running `yarn run dev` connects to production database
 
 **Solution:**
 Create a `.env` file (git-ignored) for local development:
@@ -348,7 +348,7 @@ INSTANTDB_APP_ID=a1b2c3d4-5678-90ab-cdef-1234567890ab
 Then run:
 
 ```bash
-npm run dev
+yarn run dev
 ```
 
 The `dev.js` script will use the App ID from `.env`.
