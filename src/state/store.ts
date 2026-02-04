@@ -198,34 +198,3 @@ declare global {
     };
   }
 }
-
-/**
- * Expose the store to window for legacy inline scripts.
- * This allows gradual migration from global variables to the store.
- */
-export function exposeStoreToWindow(): void {
-  window.AppState = {
-    getState,
-    subscribe,
-    updateState,
-    setCurrentLeague,
-    setCurrentGame,
-    setQuestions,
-    setAllPredictions,
-    setCurrentUserId,
-    setCurrentTeamName,
-    setIsLeagueCreator,
-    setIsManager,
-    setCurrentTab,
-    setHasShownCompletionCelebration,
-    setPreviousActualResults,
-    setHasUnviewedScoreUpdate,
-    setExpectedLeagueSlug,
-    getCurrentUserPrediction,
-    hasAdminAccess,
-    isSubmissionsOpen,
-    hasResults,
-    resetState,
-  };
-  console.log('AppState exposed to window');
-}

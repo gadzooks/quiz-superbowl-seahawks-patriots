@@ -26,17 +26,3 @@ export function getUserId(): string {
   }
   return userId;
 }
-
-/**
- * Get the current user ID from localStorage without creating a new one.
- */
-export function getCurrentUserId(): string | null {
-  return localStorage.getItem('userId');
-}
-
-/**
- * Clear the current user ID.
- */
-export function clearUserId(): void {
-  localStorage.removeItem('userId');
-}

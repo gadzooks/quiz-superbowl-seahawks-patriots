@@ -272,35 +272,3 @@ export function parsePredictionsFromForm(
 
   return predictions;
 }
-
-/**
- * Parse results values from a FormData object.
- * Similar to predictions but uses result- prefix.
- */
-export function parseResultsFromForm(
-  formData: FormData,
-  questions: Question[]
-): Record<string, string | number> {
-  const results: Record<string, string | number> = {};
-
-  for (const question of questions) {
-    const rawValue = formData.get(`result-${question.questionId}`);
-
-    if (rawValue === null || rawValue === '') {
-      continue;
-    }
-
-    const value = String(rawValue).trim();
-
-    if (question.type === 'number') {
-      const num = parseInt(value, 10);
-      if (!isNaN(num)) {
-        results[question.questionId] = num;
-      }
-    } else {
-      results[question.questionId] = value.toLowerCase().replace(/\s+/g, '-');
-    }
-  }
-
-  return results;
-}

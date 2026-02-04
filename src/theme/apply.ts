@@ -129,13 +129,6 @@ export function saveTeamPreference(teamId: string): void {
 }
 
 /**
- * Clear the user's team preference.
- */
-export function clearTeamPreference(): void {
-  localStorage.removeItem(STORAGE_KEY);
-}
-
-/**
  * Initialize theme on app load.
  * Uses saved preference, falls back to default.
  * Also applies header team colors from game config.

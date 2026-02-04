@@ -183,19 +183,6 @@ export async function saveResults(
 }
 
 /**
- * Clear results and reset all scores.
- */
-export async function clearResults(leagueId: string, predictions: Prediction[]): Promise<void> {
-  const updates: TransactionUpdate[] = [db.tx.leagues[leagueId].update({ actualResults: null })];
-
-  for (const pred of predictions) {
-    updates.push(db.tx.predictions[pred.id].update({ score: 0, tiebreakDiff: 0 }));
-  }
-
-  await db.transact(updates);
-}
-
-/**
  * Create or update a prediction linked to a league.
  */
 export async function savePrediction(data: {
