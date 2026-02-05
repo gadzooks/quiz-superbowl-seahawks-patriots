@@ -483,6 +483,35 @@
   opacity: 0.5;
 }
 
+/* League and team info below header */
+.league-team-info {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--color-background);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 16px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.league-team-text {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: linear-gradient(
+    90deg,
+    var(--header-left-accent, var(--color-primary)),
+    var(--color-text) 50%,
+    var(--header-right-accent, var(--color-primary))
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
 @media (max-width: 480px) {
   .header-content {
     flex-direction: column;
@@ -534,6 +563,12 @@
   }
   .app-header h2 {
     font-size: 16px;
+  }
+  .league-team-info {
+    padding: 8px 12px;
+  }
+  .league-team-text {
+    font-size: 12px;
   }
 }
 
