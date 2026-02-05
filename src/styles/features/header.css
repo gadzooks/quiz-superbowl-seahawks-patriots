@@ -710,6 +710,20 @@
   transform: scale(0.95);
 }
 
+.play-sound-btn-inline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.play-sound-btn-inline:disabled:hover {
+  transform: none;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.play-sound-btn-inline:disabled:hover::before {
+  opacity: 0.3;
+}
+
 @media (max-width: 480px) {
   .header-content {
     flex-direction: column;

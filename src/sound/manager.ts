@@ -47,23 +47,33 @@ class SoundManagerClass {
 
   /**
    * Play a random Seahawks chant. Called from the play sound button.
+   * Returns a Promise that resolves when the audio finishes playing.
    */
-  playRandom(): void {
-    this.playRandomSound();
+  playRandom(): Promise<void> {
+    return this.playRandomSound();
   }
 
   /**
    * Play an audio file from URL.
+   * Returns a Promise that resolves when the audio finishes playing.
    */
-  playAudio(url: string): void {
-    if (!this.enabled) return;
-    try {
-      const audio = new Audio(url);
-      audio.volume = AUDIO.VOLUME;
-      audio.play().catch((e) => console.log('Audio play failed:', e));
-    } catch {
-      console.log('Audio not available');
-    }
+  playAudio(url: string): Promise<void> {
+    if (!this.enabled) return Promise.resolve();
+    return new Promise((resolve) => {
+      try {
+        const audio = new Audio(url);
+        audio.volume = AUDIO.VOLUME;
+        audio.addEventListener('ended', () => resolve());
+        audio.addEventListener('error', () => resolve());
+        audio.play().catch((e) => {
+          console.log('Audio play failed:', e);
+          resolve();
+        });
+      } catch {
+        console.log('Audio not available');
+        resolve();
+      }
+    });
   }
 
   /**
@@ -81,11 +91,12 @@ class SoundManagerClass {
 
   /**
    * Play random Seahawks sound for toggle feedback.
+   * Returns a Promise that resolves when the audio finishes playing.
    */
-  playRandomSound(): void {
+  playRandomSound(): Promise<void> {
     const sounds = this.audioUrls.random;
     const randomIndex = Math.floor(Math.random() * sounds.length);
-    this.playAudio(sounds[randomIndex]);
+    return this.playAudio(sounds[randomIndex]);
   }
 
   /**

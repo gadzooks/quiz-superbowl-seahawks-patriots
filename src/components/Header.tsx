@@ -86,6 +86,7 @@ export function Header({
   const team1Name = game?.team1 ?? 'Seahawks';
   const team2Name = game?.team2 ?? 'Patriots';
   const [animationKey, setAnimationKey] = useState(0);
+  const [isSoundPlaying, setIsSoundPlaying] = useState(false);
 
   // Set CSS variables for team colors
   useEffect(() => {
@@ -115,8 +116,11 @@ export function Header({
     }
   }, [currentTab]);
 
-  const handlePlaySound = () => {
-    SoundManager.playRandom();
+  const handlePlaySound = async () => {
+    if (isSoundPlaying) return;
+    setIsSoundPlaying(true);
+    await SoundManager.playRandom();
+    setIsSoundPlaying(false);
   };
 
   const handleReplayIntro = () => {
@@ -135,7 +139,9 @@ export function Header({
                 alt={`${team1Name} helmet`}
                 className="team-helmet"
               />
-              <span className="team-name-small">{team1Name}</span>
+              <span key={`left-name-${animationKey}`} className="team-name-small">
+                {team1Name}
+              </span>
             </div>
             <div className="header-center">
               <img
@@ -151,7 +157,9 @@ export function Header({
                 alt={`${team2Name} helmet`}
                 className="team-helmet team-helmet-flipped"
               />
-              <span className="team-name-small">{team2Name}</span>
+              <span key={`right-name-${animationKey}`} className="team-name-small">
+                {team2Name}
+              </span>
             </div>
           </div>
         </div>
@@ -172,7 +180,8 @@ export function Header({
           {isSeahawks && (
             <button
               className="play-sound-btn-inline"
-              onClick={handlePlaySound}
+              onClick={() => void handlePlaySound()}
+              disabled={isSoundPlaying}
               aria-label="Play sound"
             >
               🔊
