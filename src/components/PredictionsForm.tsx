@@ -68,11 +68,6 @@ export function PredictionsForm({
     }
   }, [userPrediction, questions]);
 
-  // Keep ref in sync with state
-  useEffect(() => {
-    formDataRef.current = formData;
-  }, [formData]);
-
   // Keep refs in sync with props for use in performSave
   useEffect(() => {
     leagueRef.current = league;
@@ -170,10 +165,16 @@ export function PredictionsForm({
     (questionId: string, value: string | number, immediate = false) => {
       lastChangedQuestionIdRef.current = questionId;
 
-      setFormData((prev) => ({
-        ...prev,
-        [questionId]: value,
-      }));
+      // Update state AND ref synchronously to prevent race conditions
+      setFormData((prev) => {
+        const newData = {
+          ...prev,
+          [questionId]: value,
+        };
+        // Immediately update ref so performSave always has latest data
+        formDataRef.current = newData;
+        return newData;
+      });
 
       // Clear pending timeout
       if (autoSaveTimeoutRef.current) {
