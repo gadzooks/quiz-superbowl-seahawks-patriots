@@ -25,6 +25,16 @@
   opacity: 0;
 }
 
+/* Seahawks theme - transparent background to show images */
+.intro-overlay.seahawks-theme {
+  background: transparent;
+}
+
+/* Remove dark stadium overlay for Seahawks to show images clearly */
+.intro-overlay.seahawks-theme .intro-stadium-overlay {
+  background: none;
+}
+
 /* Background slideshow images */
 .intro-background-image {
   position: absolute;
@@ -40,6 +50,11 @@
 
 .intro-background-image.active {
   opacity: 0.3; /* Dim the images so content is readable */
+}
+
+/* Seahawks theme - brighter images */
+.intro-overlay.seahawks-theme .intro-background-image.active {
+  opacity: 0.8; /* Much brighter for Seahawks */
 }
 
 /* Stadium atmosphere overlay - sits above images */

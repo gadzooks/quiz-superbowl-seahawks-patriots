@@ -129,7 +129,10 @@ export function IntroOverlay({ teamName, onComplete }: IntroOverlayProps) {
     teamId === 'seahawks' ? [...images].sort(() => Math.random() - 0.5).slice(0, 5) : images;
 
   return (
-    <div className={`intro-overlay ${!isVisible ? 'fade-out' : ''}`} onClick={handleClick}>
+    <div
+      className={`intro-overlay ${teamId === 'seahawks' ? 'seahawks-theme' : ''} ${!isVisible ? 'fade-out' : ''}`}
+      onClick={handleClick}
+    >
       {/* Background slideshow images */}
       {displayImages.map((src, index) => (
         <img
