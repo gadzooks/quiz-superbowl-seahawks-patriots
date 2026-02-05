@@ -42,6 +42,14 @@ export function PredictionsForm({
   const hasCheckedCompletionThisSessionRef = useRef<boolean>(false);
   const lastLoadedPredictionIdRef = useRef<string | null>(null);
 
+  // Refs to stabilize performSave callback
+  const leagueRef = useRef(league);
+  const userPredictionRef = useRef(userPrediction);
+  const userIdRef = useRef(userId);
+  const questionsRef = useRef(questions);
+  const onCompletionCelebrationRef = useRef(onCompletionCelebration);
+  const showToastRef = useRef(showToast);
+
   // Initialize form data from userPrediction
   // Only reset formData when loading a DIFFERENT prediction (not on every re-render)
   useEffect(() => {
@@ -60,10 +68,15 @@ export function PredictionsForm({
     }
   }, [userPrediction, questions]);
 
-  // Keep ref in sync with state
+  // Keep refs in sync with props for use in performSave
   useEffect(() => {
-    formDataRef.current = formData;
-  }, [formData]);
+    leagueRef.current = league;
+    userPredictionRef.current = userPrediction;
+    userIdRef.current = userId;
+    questionsRef.current = questions;
+    onCompletionCelebrationRef.current = onCompletionCelebration;
+    showToastRef.current = showToast;
+  }, [league, userPrediction, userId, questions, onCompletionCelebration, showToast]);
 
   // Update progress bar whenever formData changes
   useEffect(() => {
@@ -82,44 +95,51 @@ export function PredictionsForm({
     }
   }, [savedQuestionId]);
 
+  // Clear pending save timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+        autoSaveTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
   // Auto-save handler
   const performSave = useCallback(async () => {
-    if (!league.isOpen || !userPrediction) return;
+    const currentLeague = leagueRef.current;
+    const currentPrediction = userPredictionRef.current;
 
-    // Use ref to get current form data (avoid stale closure)
+    if (!currentLeague.isOpen || !currentPrediction) return;
+
     const currentFormData = formDataRef.current;
 
     try {
       await savePrediction({
-        id: userPrediction.id,
-        leagueId: league.id,
-        userId: userId,
-        teamName: userPrediction.teamName,
+        id: currentPrediction.id,
+        leagueId: currentLeague.id,
+        userId: userIdRef.current,
+        teamName: currentPrediction.teamName,
         predictions: currentFormData,
-        isManager: userPrediction.isManager,
-        actualResults: league.actualResults,
-        questions,
+        isManager: currentPrediction.isManager,
+        actualResults: currentLeague.actualResults,
+        questions: questionsRef.current,
       });
 
-      // Show saved indicator for the last changed question
       if (lastChangedQuestionIdRef.current) {
         setSavedQuestionId(lastChangedQuestionIdRef.current);
       }
 
-      // Check for completion celebration after every successful save
-      const answeredCount = countAnsweredQuestions(currentFormData, questions);
-      const wasIncomplete = previousAnswerCountRef.current < questions.length;
-      const isNowComplete = answeredCount === questions.length;
+      const answeredCount = countAnsweredQuestions(currentFormData, questionsRef.current);
+      const wasIncomplete = previousAnswerCountRef.current < questionsRef.current.length;
+      const isNowComplete = answeredCount === questionsRef.current.length;
       const isFirstSaveInSession = !hasCheckedCompletionThisSessionRef.current;
 
-      // Celebrate if:
-      // 1. Transitioning from incomplete to complete, OR
-      // 2. First save in this session and already complete
       const shouldCelebrate = isNowComplete && (wasIncomplete || isFirstSaveInSession);
 
       logger.debug('[PredictionsForm] Save completed:', {
         answeredCount,
-        totalQuestions: questions.length,
+        totalQuestions: questionsRef.current.length,
         previousCount: previousAnswerCountRef.current,
         wasIncomplete,
         isNowComplete,
@@ -129,36 +149,32 @@ export function PredictionsForm({
 
       if (shouldCelebrate) {
         logger.debug('[PredictionsForm] Triggering completion celebration!');
-        onCompletionCelebration();
+        onCompletionCelebrationRef.current();
         hasCheckedCompletionThisSessionRef.current = true;
       }
 
-      // Always update the count after each save
       previousAnswerCountRef.current = answeredCount;
     } catch (error) {
       console.error('Auto-save error:', error);
-      showToast('Failed to save prediction', 'error');
+      showToastRef.current('Failed to save prediction', 'error');
     }
-  }, [
-    league.isOpen,
-    league.id,
-    league.actualResults,
-    userPrediction,
-    userId,
-    questions,
-    onCompletionCelebration,
-    showToast,
-  ]);
+  }, []);
 
   // Handle input change with debouncing for number inputs
   const handleChange = useCallback(
     (questionId: string, value: string | number, immediate = false) => {
       lastChangedQuestionIdRef.current = questionId;
 
-      setFormData((prev) => ({
-        ...prev,
-        [questionId]: value,
-      }));
+      // Update state AND ref synchronously to prevent race conditions
+      setFormData((prev) => {
+        const newData = {
+          ...prev,
+          [questionId]: value,
+        };
+        // Immediately update ref so performSave always has latest data
+        formDataRef.current = newData;
+        return newData;
+      });
 
       // Clear pending timeout
       if (autoSaveTimeoutRef.current) {
