@@ -159,15 +159,13 @@ export function Header({
 
       {league && teamName && (
         <div className="league-team-info">
-          {isSeahawks && (
-            <button
-              className="intro-replay-btn-inline"
-              onClick={handleReplayIntro}
-              aria-label="Replay intro"
-            >
-              📷
-            </button>
-          )}
+          <button
+            className="intro-replay-btn-inline"
+            onClick={handleReplayIntro}
+            aria-label="Replay intro"
+          >
+            📷
+          </button>
           <span className="league-team-text">
             {league.name} : {teamName}
           </span>
