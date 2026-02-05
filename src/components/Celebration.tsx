@@ -1,27 +1,14 @@
-import confetti from 'canvas-confetti';
-import { useCallback, useEffect, useState } from 'react';
+// Celebration.tsx
 
-import { CELEBRATION, INTRO } from '../constants/timing';
+import confetti from 'canvas-confetti';
+import { useCallback } from 'react';
+
+import { CELEBRATION } from '../constants/timing';
 import { useAppContext } from '../context/AppContext';
 import { SoundManager } from '../sound/manager';
 import { getCurrentTeamId } from '../theme/apply';
 import { getTeamTheme } from '../theme/teams';
 import { logger } from '../utils/logger';
-
-const BASE = import.meta.env.BASE_URL;
-
-const INTRO_IMAGES: Record<string, string[]> = {
-  seahawks: [
-    `${BASE}images/seahawks-1.png`,
-    `${BASE}images/seahawks-2.jpg`,
-    `${BASE}images/seahawks-3.png`,
-    `${BASE}images/seahawks-4.jpg`,
-    `${BASE}images/seahawks-5.jpg`,
-    `${BASE}images/seahawks-6.jpg`,
-    `${BASE}images/seahawks-7.png`,
-  ],
-  default: [`${BASE}images/intro/default/superbowl-logo.svg`],
-};
 
 /**
  * Hook providing confetti celebration effects with theme colors
@@ -203,93 +190,4 @@ export function useConfetti() {
     triggerWinnerCelebration,
     triggerNonWinnerCelebration,
   };
-}
-
-interface IntroOverlayProps {
-  teamName: string;
-  onComplete: () => void;
-}
-
-/**
- * Intro overlay component shown after team registration
- * Displays team images slideshow with football animation
- */
-export function IntroOverlay({ teamName, onComplete }: IntroOverlayProps) {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isVisible, setIsVisible] = useState(true);
-  const { triggerConfetti } = useConfetti();
-
-  const teamId = getCurrentTeamId();
-  const images = INTRO_IMAGES[teamId] ?? INTRO_IMAGES.default;
-
-  useEffect(() => {
-    // Trigger confetti on mount
-    triggerConfetti();
-
-    // Play intro sound for Seahawks
-    if (teamId === 'seahawks') {
-      SoundManager.playIntro();
-    }
-  }, [teamId, triggerConfetti]);
-
-  useEffect(() => {
-    // Slideshow timer
-    const totalDuration = images.length * INTRO.IMAGE_DURATION;
-    const imageInterval = setInterval(() => {
-      setCurrentImageIndex((prev) => {
-        const next = prev + 1;
-        if (next >= images.length) {
-          clearInterval(imageInterval);
-          return prev;
-        }
-        return next;
-      });
-    }, INTRO.IMAGE_DURATION);
-
-    // Auto-dismiss after slideshow completes
-    const dismissTimer = setTimeout(() => {
-      setIsVisible(false);
-
-      // Wait for fade-out animation then call onComplete
-      setTimeout(() => {
-        onComplete();
-      }, INTRO.FADE_OUT_DURATION);
-    }, totalDuration);
-
-    return () => {
-      clearInterval(imageInterval);
-      clearTimeout(dismissTimer);
-    };
-  }, [images.length, onComplete]);
-
-  // Select 5 random images for Seahawks, all images for others
-  const displayImages =
-    teamId === 'seahawks' ? [...images].sort(() => Math.random() - 0.5).slice(0, 5) : images;
-
-  return (
-    <div className={`intro-overlay ${!isVisible ? 'fade-out' : ''}`}>
-      {displayImages.map((src, index) => (
-        <img
-          key={src}
-          src={src}
-          alt={`${teamName} intro`}
-          className={`intro-image ${index === currentImageIndex ? 'active' : ''}`}
-          style={{ display: index === currentImageIndex ? 'block' : 'none' }}
-        />
-      ))}
-
-      <div className="intro-content">
-        <div className="intro-football-container">
-          <div className="intro-football">🏈</div>
-          <div className="intro-football-shadow"></div>
-        </div>
-
-        <div className="intro-title">
-          Welcome to the
-          <div className="intro-team-name">{teamName}</div>
-          Super Bowl Experience!
-        </div>
-      </div>
-    </div>
-  );
 }

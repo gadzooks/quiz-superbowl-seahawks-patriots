@@ -1,3 +1,5 @@
+// LeagueView.tsx
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useAppContext } from '../context/AppContext';
@@ -8,9 +10,10 @@ import { isAdminOverride } from '../utils/url';
 
 import { AdminPanel } from './AdminPanel';
 import { AllPredictionsTable } from './AllPredictionsTable';
-import { useConfetti, IntroOverlay } from './Celebration';
+import { useConfetti } from './Celebration';
 import { Header } from './Header';
 import { countAnsweredQuestions } from './helpers';
+import { IntroOverlay } from './IntroPage';
 import { Leaderboard } from './Leaderboard';
 import { LeagueNotFound } from './LeagueNotFound';
 import { PredictionsForm } from './PredictionsForm';
