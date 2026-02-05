@@ -128,7 +128,7 @@ export function ThemeMenu() {
         aria-label="Change theme"
         aria-expanded={isOpen}
       >
-        🎨
+        ☰
       </button>
 
       {/* Theme Menu */}

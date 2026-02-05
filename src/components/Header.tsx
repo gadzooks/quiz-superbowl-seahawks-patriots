@@ -1,5 +1,8 @@
+// Header.tsx
+
+import { useEffect, useState } from 'react';
+
 import { SoundManager } from '../sound/manager';
-import { getTeamLogoUrl, NFL_SHIELD_LOGO } from '../theme/logos';
 import type { Game, League } from '../types';
 
 const BASE = import.meta.env.BASE_URL;
@@ -10,8 +13,65 @@ interface HeaderProps {
   teamName: string;
   currentTeamId: string;
   progressPercentage: number;
+  currentTab?: string;
   onReplayIntro: () => void;
 }
+
+// Team color mappings
+const TEAM_COLORS: Record<
+  string,
+  { primary: string; primaryRgb: string; accent: string; accentRgb: string }
+> = {
+  seahawks: {
+    primary: '#002244',
+    primaryRgb: '0, 34, 68',
+    accent: '#69BE28',
+    accentRgb: '105, 190, 40',
+  },
+  patriots: {
+    primary: '#002244',
+    primaryRgb: '0, 34, 68',
+    accent: '#C60C30',
+    accentRgb: '198, 12, 48',
+  },
+  buccaneers: {
+    primary: '#0d3349',
+    primaryRgb: '13, 51, 73',
+    accent: '#D50A0A',
+    accentRgb: '213, 10, 10',
+  },
+  chiefs: {
+    primary: '#E31837',
+    primaryRgb: '227, 24, 55',
+    accent: '#FFB612',
+    accentRgb: '255, 182, 18',
+  },
+  eagles: {
+    primary: '#004C54',
+    primaryRgb: '0, 76, 84',
+    accent: '#A5ACAF',
+    accentRgb: '165, 172, 175',
+  },
+  '49ers': {
+    primary: '#AA0000',
+    primaryRgb: '170, 0, 0',
+    accent: '#B3995D',
+    accentRgb: '179, 153, 93',
+  },
+  rams: {
+    primary: '#003594',
+    primaryRgb: '0, 53, 148',
+    accent: '#FFA300',
+    accentRgb: '255, 163, 0',
+  },
+  bengals: {
+    primary: '#FB4F14',
+    primaryRgb: '251, 79, 20',
+    accent: '#000000',
+    accentRgb: '0, 0, 0',
+  },
+  // Add more teams as needed
+};
 
 export function Header({
   game,
@@ -19,14 +79,48 @@ export function Header({
   teamName,
   currentTeamId,
   progressPercentage,
+  currentTab,
   onReplayIntro,
 }: HeaderProps) {
   const isSeahawks = currentTeamId === 'seahawks';
   const team1Name = game?.team1 ?? 'Seahawks';
   const team2Name = game?.team2 ?? 'Patriots';
+  const [animationKey, setAnimationKey] = useState(0);
+  const [isSoundPlaying, setIsSoundPlaying] = useState(false);
 
-  const handlePlaySound = () => {
-    SoundManager.playRandom();
+  // Set CSS variables for team colors
+  useEffect(() => {
+    const team1Key = team1Name.toLowerCase();
+    const team2Key = team2Name.toLowerCase();
+
+    const team1Colors = TEAM_COLORS[team1Key];
+    const team2Colors = TEAM_COLORS[team2Key];
+
+    const root = document.documentElement;
+
+    // Set left team (team1) colors
+    root.style.setProperty('--header-left-primary', team1Colors.primary);
+    root.style.setProperty('--header-left-accent', team1Colors.accent);
+    root.style.setProperty('--header-left-accent-rgb', team1Colors.accentRgb);
+
+    // Set right team (team2) colors
+    root.style.setProperty('--header-right-primary', team2Colors.primary);
+    root.style.setProperty('--header-right-accent', team2Colors.accent);
+    root.style.setProperty('--header-right-accent-rgb', team2Colors.accentRgb);
+  }, [team1Name, team2Name]);
+
+  // Trigger animation when tab changes
+  useEffect(() => {
+    if (currentTab) {
+      setAnimationKey((prev) => prev + 1);
+    }
+  }, [currentTab]);
+
+  const handlePlaySound = async () => {
+    if (isSoundPlaying) return;
+    setIsSoundPlaying(true);
+    await SoundManager.playRandom();
+    setIsSoundPlaying(false);
   };
 
   const handleReplayIntro = () => {
@@ -34,58 +128,73 @@ export function Header({
   };
 
   return (
-    <header className="app-header sticky top-0 z-50">
-      <img
-        src={getTeamLogoUrl(currentTeamId) ?? NFL_SHIELD_LOGO}
-        alt="Team logo"
-        className="team-logo-header"
-        onError={(e) => {
-          if (e.target instanceof HTMLImageElement) {
-            e.target.src = NFL_SHIELD_LOGO;
-          }
-        }}
-      />
-
-      {isSeahawks && (
-        <button className="play-sound-btn" onClick={handlePlaySound} aria-label="Play sound">
-          🔊
-        </button>
-      )}
-
-      {isSeahawks && teamName && (
-        <button className="intro-replay-btn" onClick={handleReplayIntro} aria-label="Replay intro">
-          📷
-        </button>
-      )}
-
-      <div className="header-content">
-        <div className="header-matchup-row">
-          <div className="header-team header-team-left">
-            <span className="team-name-large">{team1Name}</span>
-          </div>
-          <img
-            src={`${BASE}images/superbowl-lx-logo.svg`}
-            alt="Super Bowl LX"
-            className="superbowl-logo"
-          />
-          <div className="header-team header-team-right">
-            <span className="team-name-large">{team2Name}</span>
+    <>
+      <header className="app-header sticky top-0 z-50">
+        <div className="header-content">
+          <div className="header-matchup-row">
+            <div className="header-team header-team-left">
+              <img
+                key={`left-helmet-${animationKey}`}
+                src={`${BASE}images/helmets/${team1Name.toLowerCase()}.png`}
+                alt={`${team1Name} helmet`}
+                className="team-helmet"
+              />
+              <span key={`left-name-${animationKey}`} className="team-name-small">
+                {team1Name}
+              </span>
+            </div>
+            <div className="header-center">
+              <img
+                src={`${BASE}images/superbowl-lx-logo.svg`}
+                alt="Super Bowl LX"
+                className="superbowl-logo"
+              />
+            </div>
+            <div className="header-team header-team-right">
+              <img
+                key={`right-helmet-${animationKey}`}
+                src={`${BASE}images/helmets/${team2Name.toLowerCase()}.png`}
+                alt={`${team2Name} helmet`}
+                className="team-helmet team-helmet-flipped"
+              />
+              <span key={`right-name-${animationKey}`} className="team-name-small">
+                {team2Name}
+              </span>
+            </div>
           </div>
         </div>
+      </header>
 
-        {league && (
-          <div className="team-name-display">
-            <span>{teamName}</span>
-            <span className="league-name-header">{league.name}</span>
-          </div>
-        )}
-      </div>
+      {league && teamName && (
+        <div className="league-team-info">
+          <button
+            className="intro-replay-btn-inline"
+            onClick={handleReplayIntro}
+            aria-label="Replay intro"
+          >
+            📷
+          </button>
+          <span className="league-team-text">
+            {league.name} : {teamName}
+          </span>
+          {isSeahawks && (
+            <button
+              className="play-sound-btn-inline"
+              onClick={() => void handlePlaySound()}
+              disabled={isSoundPlaying}
+              aria-label="Play sound"
+            >
+              🔊
+            </button>
+          )}
+        </div>
+      )}
 
       {progressPercentage > 0 && (
         <div className="progress-bar-container">
           <div className="progress-bar" style={{ width: `${progressPercentage}%` }} />
         </div>
       )}
-    </header>
+    </>
   );
 }

@@ -4,13 +4,56 @@
 
 .app-header {
   position: relative;
-  /* Background set via JavaScript applyGameTeamBackgrounds() */
-  background: var(--color-background);
+  /* Dynamic gradient background using team colors */
+  background: linear-gradient(
+    135deg,
+    var(--header-left-primary, var(--color-background)) 0%,
+    var(--color-background) 50%,
+    var(--header-right-primary, var(--color-background)) 100%
+  );
   color: var(--color-text);
   padding: 16px;
   padding-bottom: 20px;
   text-align: center;
   border-bottom: none;
+  overflow: hidden;
+}
+
+/* Animated gradient overlay for depth */
+.app-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 50%, var(--header-left-accent, transparent) 0%, transparent 40%),
+    radial-gradient(circle at 80% 50%, var(--header-right-accent, transparent) 0%, transparent 40%);
+  opacity: 0.2;
+  animation: pulseGradient 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes pulseGradient {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* All header content needs to be above the gradient overlay */
+.header-content,
+.team-logo-header,
+.play-sound-btn,
+.intro-replay-btn,
+.progress-bar-container {
+  position: relative;
+  z-index: 1;
 }
 
 /* Team logo in header (top-left) */
@@ -87,32 +130,197 @@
 
 /* Super Bowl logo in matchup row */
 .superbowl-logo {
-  height: 40px;
+  height: 64px;
   width: auto;
   object-fit: contain;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  animation:
+    bounceIn 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.3s backwards,
+    float 3s ease-in-out 1.5s infinite;
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(10deg);
+  }
+  70% {
+    transform: scale(0.9) rotate(-5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
 }
 
 /* Matchup row with teams on sides of logo */
 .header-matchup-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
+  justify-content: space-between;
   width: 100%;
 }
 
 .header-team {
   flex: 1;
-  max-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Center section takes up fixed width */
+.header-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .header-team-left {
-  text-align: right;
+  text-align: center;
 }
 
 .header-team-right {
-  text-align: left;
+  text-align: center;
+}
+
+/* Team helmet images with enhanced effects */
+.team-helmet {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+  transition: transform var(--duration-micro) var(--ease-micro);
+  position: relative;
+}
+
+/* Add glowing border effect to helmets */
+.header-team-left .team-helmet {
+  filter: drop-shadow(0 2px 8px var(--header-left-accent))
+    drop-shadow(0 0 12px rgba(var(--header-left-accent-rgb, 0, 0, 0), 0.3));
+  animation: spinInLeft 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+.header-team-right .team-helmet {
+  filter: drop-shadow(0 2px 8px var(--header-right-accent))
+    drop-shadow(0 0 12px rgba(var(--header-right-accent-rgb, 0, 0, 0), 0.3));
+  animation: spinInRight 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+/* Left helmet spins in from left with 3D rotation */
+@keyframes spinInLeft {
+  0% {
+    transform: translateX(-200px) rotate(-720deg) scale(0.3);
+    opacity: 0;
+  }
+  60% {
+    transform: translateX(10px) rotate(-20deg) scale(1.1);
+    opacity: 1;
+  }
+  80% {
+    transform: translateX(-5px) rotate(10deg) scale(0.95);
+  }
+  100% {
+    transform: translateX(0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Right helmet spins in from right with 3D rotation */
+@keyframes spinInRight {
+  0% {
+    transform: translateX(200px) scaleX(-1) rotate(720deg) scale(0.3);
+    opacity: 0;
+  }
+  60% {
+    transform: translateX(-10px) scaleX(-1) rotate(20deg) scale(1.1);
+    opacity: 1;
+  }
+  80% {
+    transform: translateX(5px) scaleX(-1) rotate(-10deg) scale(0.95);
+  }
+  100% {
+    transform: translateX(0) scaleX(-1) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+.team-helmet:hover {
+  transform: scale(1.05);
+}
+
+/* Flip right helmet to face inward - now handled in animation */
+.team-helmet-flipped {
+  /* Animation handles the flip */
+}
+
+.team-helmet-flipped:hover {
+  transform: scaleX(-1) scale(1.05);
+}
+
+/* Small team names below helmets with gradient effect */
+.team-name-small {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  animation: fadeInUp 0.8s ease-out 0.8s backwards;
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced gradient for left team */
+.header-team-left .team-name-small {
+  background: linear-gradient(
+    135deg,
+    var(--header-left-accent, var(--color-text)) 0%,
+    var(--color-text) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+/* Enhanced gradient for right team */
+.header-team-right .team-name-small {
+  background: linear-gradient(
+    135deg,
+    var(--color-text) 0%,
+    var(--header-right-accent, var(--color-text)) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
 }
 
 .team-name-large {
@@ -194,13 +402,15 @@
   letter-spacing: 0.05em;
 }
 
-/* Play sound button */
+/* Play sound button with gradient border */
 .play-sound-btn {
   position: absolute;
   right: 16px;
   bottom: 68px;
-  background: rgba(var(--color-primary-rgb), 0.1);
-  border: 1.5px solid rgba(var(--color-primary-rgb), 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border: 2px solid transparent;
+  background-clip: padding-box;
   border-radius: 50%;
   width: 36px;
   height: 36px;
@@ -210,24 +420,50 @@
   cursor: pointer;
   font-size: 16px;
   transition: all var(--duration-micro) var(--ease-micro);
+  position: relative;
+}
+
+.play-sound-btn::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(
+    135deg,
+    var(--header-left-accent, var(--color-primary)),
+    var(--header-right-accent, var(--color-primary))
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.3;
 }
 
 .play-sound-btn:hover {
-  background: rgba(var(--color-primary-rgb), 0.2);
-  border-color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.05);
+}
+
+.play-sound-btn:hover::before {
+  opacity: 0.6;
 }
 
 .play-sound-btn:active {
   transform: scale(0.95);
 }
 
-/* Intro replay button */
+/* Intro replay button with gradient border */
 .intro-replay-btn {
   position: absolute;
   right: 16px;
   bottom: 24px;
-  background: rgba(var(--color-primary-rgb), 0.1);
-  border: 1.5px solid rgba(var(--color-primary-rgb), 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border: 2px solid transparent;
+  background-clip: padding-box;
   border-radius: 50%;
   width: 36px;
   height: 36px;
@@ -237,44 +473,284 @@
   cursor: pointer;
   font-size: 16px;
   transition: all var(--duration-micro) var(--ease-micro);
+  position: relative;
+}
+
+.intro-replay-btn::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(
+    135deg,
+    var(--header-left-accent, var(--color-primary)),
+    var(--header-right-accent, var(--color-primary))
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.3;
 }
 
 .intro-replay-btn:hover {
-  background: rgba(var(--color-primary-rgb), 0.2);
-  border-color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.05);
+}
+
+.intro-replay-btn:hover::before {
+  opacity: 0.6;
 }
 
 .intro-replay-btn:active {
   transform: scale(0.95);
 }
 
-/* Team name display in header (next to league name) */
-.team-name-display {
-  font-size: 15px;
+/* Header center section with Super Bowl logo and league name */
+.header-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* League name display (below Super Bowl logo) */
+.league-name-display {
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--color-text);
-  margin-right: 8px;
+  text-align: center;
+  animation: fadeInScale 0.6s ease-out 1s backwards;
 }
 
-.team-name-display::after {
-  content: '•';
-  margin-left: 8px;
-  color: var(--color-text-muted);
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
-/* League name in header */
+/* League name in header with gradient border */
 .league-name-header {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--color-text);
   padding: 4px 12px;
-  border: 1px solid rgba(var(--color-primary-rgb), 0.3);
   border-radius: 12px;
   display: inline-block;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.league-name-header::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 12px;
+  padding: 1px;
+  background: linear-gradient(
+    90deg,
+    var(--header-left-accent, var(--color-primary)),
+    var(--header-right-accent, var(--color-primary))
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.5;
+}
+
+/* League and team info below header */
+.league-team-info {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--color-background);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 16px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.league-team-text {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: linear-gradient(
+    90deg,
+    var(--header-left-accent, var(--color-primary)),
+    var(--color-text) 50%,
+    var(--header-right-accent, var(--color-primary))
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Inline intro replay button (for Seahawks) */
+.intro-replay-btn-inline {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all var(--duration-micro) var(--ease-micro);
+  position: relative;
+  flex-shrink: 0;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(var(--color-primary-rgb), 0.3);
+}
+
+.intro-replay-btn-inline::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(
+    135deg,
+    var(--header-left-accent, var(--color-primary)),
+    var(--header-right-accent, var(--color-primary))
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.5;
+  animation: pulseRing 2s ease-in-out infinite;
+}
+
+@keyframes pulseRing {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.intro-replay-btn-inline:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.05);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 0 0 2px rgba(var(--color-primary-rgb), 0.5);
+}
+
+.intro-replay-btn-inline:hover::before {
+  opacity: 1;
+  animation: none;
+}
+
+.intro-replay-btn-inline:active {
+  transform: scale(0.95);
+}
+
+/* Inline play sound button (for Seahawks) */
+.play-sound-btn-inline {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all var(--duration-micro) var(--ease-micro);
+  position: relative;
+  flex-shrink: 0;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(var(--color-primary-rgb), 0.3);
+}
+
+.play-sound-btn-inline::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(
+    135deg,
+    var(--header-left-accent, var(--color-primary)),
+    var(--header-right-accent, var(--color-primary))
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.5;
+  animation: pulseRing 2s ease-in-out infinite;
+}
+
+.play-sound-btn-inline:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.05);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 0 0 2px rgba(var(--color-primary-rgb), 0.5);
+}
+
+.play-sound-btn-inline:hover::before {
+  opacity: 1;
+  animation: none;
+}
+
+.play-sound-btn-inline:active {
+  transform: scale(0.95);
+}
+
+.play-sound-btn-inline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.play-sound-btn-inline:disabled:hover {
+  transform: none;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.play-sound-btn-inline:disabled:hover::before {
+  opacity: 0.5;
 }
 
 @media (max-width: 480px) {
@@ -287,13 +763,31 @@
     width: auto;
   }
   .superbowl-logo {
-    height: 58px;
+    height: 72px;
   }
   .header-matchup-row {
     gap: 8px;
   }
   .header-team {
     max-width: 80px;
+    gap: 6px;
+  }
+  .header-center {
+    gap: 6px;
+  }
+  .team-helmet {
+    width: 48px;
+    height: 48px;
+  }
+  .team-name-small {
+    font-size: 11px;
+  }
+  .league-name-display {
+    font-size: 11px;
+  }
+  .league-name-header {
+    font-size: 11px;
+    padding: 3px 10px;
   }
   .team-name-large {
     font-size: 14px;
@@ -311,10 +805,53 @@
   .app-header h2 {
     font-size: 16px;
   }
+  .league-team-info {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+  .league-team-text {
+    font-size: 12px;
+  }
+  .intro-replay-btn-inline {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+  .play-sound-btn-inline {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .team-name-large {
+    animation: none !important;
+  }
+  .app-header::before {
+    animation: none !important;
+  }
+  .superbowl-logo {
+    animation: none !important;
+  }
+  .team-helmet {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+  .header-team-left .team-helmet {
+    transform: translateX(0) rotate(0deg) scale(1);
+  }
+  .header-team-right .team-helmet {
+    transform: translateX(0) scaleX(-1) rotate(0deg) scale(1);
+  }
+  .team-name-small,
+  .league-name-display {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .intro-replay-btn-inline::before,
+  .play-sound-btn-inline::before {
     animation: none !important;
   }
 }
