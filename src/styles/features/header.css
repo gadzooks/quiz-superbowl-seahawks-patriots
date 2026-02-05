@@ -134,7 +134,26 @@
   width: auto;
   object-fit: contain;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-  animation: float 3s ease-in-out infinite;
+  animation:
+    bounceIn 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.3s backwards,
+    float 3s ease-in-out 1.5s infinite;
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(10deg);
+  }
+  70% {
+    transform: scale(0.9) rotate(-5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
 }
 
 @keyframes float {
@@ -153,7 +172,6 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 0 8px;
 }
 
 .header-team {
@@ -161,7 +179,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+}
+
+/* Center section takes up fixed width */
+.header-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .header-team-left {
@@ -186,20 +214,60 @@
 .header-team-left .team-helmet {
   filter: drop-shadow(0 2px 8px var(--header-left-accent))
     drop-shadow(0 0 12px rgba(var(--header-left-accent-rgb, 0, 0, 0), 0.3));
+  animation: spinInLeft 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
 }
 
 .header-team-right .team-helmet {
   filter: drop-shadow(0 2px 8px var(--header-right-accent))
     drop-shadow(0 0 12px rgba(var(--header-right-accent-rgb, 0, 0, 0), 0.3));
+  animation: spinInRight 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+/* Left helmet spins in from left with 3D rotation */
+@keyframes spinInLeft {
+  0% {
+    transform: translateX(-200px) rotate(-720deg) scale(0.3);
+    opacity: 0;
+  }
+  60% {
+    transform: translateX(10px) rotate(-20deg) scale(1.1);
+    opacity: 1;
+  }
+  80% {
+    transform: translateX(-5px) rotate(10deg) scale(0.95);
+  }
+  100% {
+    transform: translateX(0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Right helmet spins in from right with 3D rotation */
+@keyframes spinInRight {
+  0% {
+    transform: translateX(200px) scaleX(-1) rotate(720deg) scale(0.3);
+    opacity: 0;
+  }
+  60% {
+    transform: translateX(-10px) scaleX(-1) rotate(20deg) scale(1.1);
+    opacity: 1;
+  }
+  80% {
+    transform: translateX(5px) scaleX(-1) rotate(-10deg) scale(0.95);
+  }
+  100% {
+    transform: translateX(0) scaleX(-1) rotate(0deg) scale(1);
+    opacity: 1;
+  }
 }
 
 .team-helmet:hover {
   transform: scale(1.05);
 }
 
-/* Flip right helmet to face inward */
+/* Flip right helmet to face inward - now handled in animation */
 .team-helmet-flipped {
-  transform: scaleX(-1);
+  /* Animation handles the flip */
 }
 
 .team-helmet-flipped:hover {
@@ -215,6 +283,18 @@
   color: var(--color-text);
   text-align: center;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  animation: fadeInUp 0.8s ease-out 0.8s backwards;
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Enhanced gradient for left team */
@@ -445,6 +525,18 @@
   text-transform: uppercase;
   color: var(--color-text);
   text-align: center;
+  animation: fadeInScale 0.6s ease-out 1s backwards;
+}
+
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* League name in header with gradient border */
@@ -525,9 +617,10 @@
     height: 58px;
   }
   .header-matchup-row {
-    padding: 0 4px;
+    gap: 8px;
   }
   .header-team {
+    max-width: 80px;
     gap: 6px;
   }
   .header-center {
@@ -580,5 +673,21 @@
   }
   .superbowl-logo {
     animation: none !important;
+  }
+  .team-helmet {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+  .header-team-left .team-helmet {
+    transform: translateX(0) rotate(0deg) scale(1);
+  }
+  .header-team-right .team-helmet {
+    transform: translateX(0) scaleX(-1) rotate(0deg) scale(1);
+  }
+  .team-name-small,
+  .league-name-display {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
