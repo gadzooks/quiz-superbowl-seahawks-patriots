@@ -31,8 +31,14 @@ export function ResultsForm({ questions, league, predictions, showToast }: Resul
   const leagueIdRef = useRef(league.id);
   const predictionsRef = useRef(predictions);
   const questionsRef = useRef(questions);
+  // Track current results to avoid stale closure issues
+  const resultsRef = useRef(results);
 
-  // Keep refs in sync with props for use in cleanup
+  // Keep refs in sync with state/props for use in callbacks and cleanup
+  useEffect(() => {
+    resultsRef.current = results;
+  }, [results]);
+
   useEffect(() => {
     leagueIdRef.current = league.id;
     predictionsRef.current = predictions;
@@ -101,40 +107,46 @@ export function ResultsForm({ questions, league, predictions, showToast }: Resul
   }, []);
 
   // Handle radio button change
+  // Uses ref to avoid stale closure when user quickly switches between inputs
   const handleRadioChange = useCallback(
     (questionId: string, value: string) => {
-      const updatedResults = { ...results, [questionId]: value };
+      const updatedResults = { ...resultsRef.current, [questionId]: value };
+      resultsRef.current = updatedResults;
       setResults(updatedResults);
       debouncedSave(updatedResults);
     },
-    [results, debouncedSave]
+    [debouncedSave]
   );
 
   // Handle number input change
+  // Uses ref to avoid stale closure when user quickly switches between inputs
   const handleNumberChange = useCallback(
     (questionId: string, value: string) => {
       const numValue = parseInt(value, 10);
       const finalValue = Number.isNaN(numValue) ? '' : numValue;
       const updatedResults = {
-        ...results,
+        ...resultsRef.current,
         [questionId]: finalValue,
       };
+      resultsRef.current = updatedResults;
       setResults(updatedResults);
       debouncedSave(updatedResults);
     },
-    [results, debouncedSave]
+    [debouncedSave]
   );
 
   // Handle clear button click
+  // Uses ref to avoid stale closure when user quickly switches between inputs
   const handleClear = useCallback(
     (questionId: string) => {
-      const updatedResults = { ...results };
+      const updatedResults = { ...resultsRef.current };
       delete updatedResults[questionId];
+      resultsRef.current = updatedResults;
       setResults(updatedResults);
       debouncedSave(updatedResults);
       showToast('Result cleared', 'info');
     },
-    [results, debouncedSave, showToast]
+    [debouncedSave, showToast]
   );
 
   // Save status message
