@@ -76,9 +76,13 @@ export function IntroOverlay({ teamName, onComplete }: IntroOverlayProps) {
   }, []);
 
   useEffect(() => {
+    // Adjust duration based on team - much slower for non-Seahawks
+    const imageDuration = teamId === 'seahawks' ? INTRO.IMAGE_DURATION : INTRO.IMAGE_DURATION * 4;
+    const staticDisplayDuration = teamId === 'seahawks' ? 5000 : 15000;
+
     // Slideshow timer (if images are available)
     if (images.length > 0) {
-      const totalDuration = images.length * INTRO.IMAGE_DURATION;
+      const totalDuration = images.length * imageDuration;
       const imageInterval = setInterval(() => {
         setCurrentImageIndex((prev) => {
           const next = prev + 1;
@@ -88,7 +92,7 @@ export function IntroOverlay({ teamName, onComplete }: IntroOverlayProps) {
           }
           return next;
         });
-      }, INTRO.IMAGE_DURATION);
+      }, imageDuration);
 
       // Auto-dismiss after slideshow completes
       const dismissTimer = setTimeout(() => {
@@ -104,17 +108,17 @@ export function IntroOverlay({ teamName, onComplete }: IntroOverlayProps) {
         clearTimeout(dismissTimer);
       };
     } else {
-      // If no images, just show for 5 seconds
+      // If no images, show for longer duration (8s for non-Seahawks, 5s for Seahawks)
       const dismissTimer = setTimeout(() => {
         setIsVisible(false);
         setTimeout(() => {
           onComplete();
         }, INTRO.FADE_OUT_DURATION);
-      }, 5000);
+      }, staticDisplayDuration);
 
       return () => clearTimeout(dismissTimer);
     }
-  }, [images.length, onComplete]);
+  }, [images.length, onComplete, teamId]);
 
   // Handle click to skip
   const handleClick = () => {
