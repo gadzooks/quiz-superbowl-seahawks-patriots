@@ -151,14 +151,13 @@
 .header-matchup-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
+  justify-content: space-between;
   width: 100%;
+  padding: 0 8px;
 }
 
 .header-team {
   flex: 1;
-  max-width: 120px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -431,6 +430,7 @@
 
 /* Header center section with Super Bowl logo and league name */
 .header-center {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -525,10 +525,9 @@
     height: 58px;
   }
   .header-matchup-row {
-    gap: 8px;
+    padding: 0 4px;
   }
   .header-team {
-    max-width: 80px;
     gap: 6px;
   }
   .header-center {

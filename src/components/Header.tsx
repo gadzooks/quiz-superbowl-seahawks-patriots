@@ -157,11 +157,6 @@ export function Header({
             </div>
           </div>
         </div>
-        {progressPercentage > 0 && (
-          <div className="progress-bar-container">
-            <div className="progress-bar" style={{ width: `${progressPercentage}%` }} />
-          </div>
-        )}
       </header>
 
       {league && teamName && (
@@ -169,6 +164,12 @@ export function Header({
           <span className="league-team-text">
             {league.name} : {teamName}
           </span>
+        </div>
+      )}
+
+      {progressPercentage > 0 && (
+        <div className="progress-bar-container">
+          <div className="progress-bar" style={{ width: `${progressPercentage}%` }} />
         </div>
       )}
     </>
