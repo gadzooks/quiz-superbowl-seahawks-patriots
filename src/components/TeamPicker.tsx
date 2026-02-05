@@ -2,7 +2,7 @@ import { type KeyboardEvent, useEffect, useRef, useState } from 'react';
 
 import { setTeamTheme } from '../theme/apply';
 import { getTeamLogoUrl } from '../theme/logos';
-import { DEFAULT_TEAM_ID, getTeamOptions, getTeamTheme } from '../theme/teams';
+import { getTeamOptions, getTeamTheme } from '../theme/teams';
 
 export interface TeamPickerProps {
   onSelect: (teamId: string) => void;
@@ -115,8 +115,29 @@ export function TeamPicker({ onSelect }: TeamPickerProps) {
   };
 
   const handleSkip = () => {
-    setTeamTheme(DEFAULT_TEAM_ID);
-    onSelect(DEFAULT_TEAM_ID);
+    // Randomly select from a curated list of teams
+    const randomTeams = [
+      'ravens',
+      'bengals',
+      'steelers',
+      'texans',
+      'colts',
+      'jaguars',
+      'broncos',
+      'chargers',
+      'bears',
+      'packers',
+      'vikings',
+      'falcons',
+      'panthers',
+      'saints',
+      'cardinals',
+      'rams',
+      'seahawks',
+    ];
+    const randomTeamId = randomTeams[Math.floor(Math.random() * randomTeams.length)];
+    setTeamTheme(randomTeamId);
+    onSelect(randomTeamId);
   };
 
   const handleClearSearch = () => {
