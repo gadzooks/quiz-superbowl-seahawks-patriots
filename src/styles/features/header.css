@@ -104,7 +104,7 @@
 
 .header-team {
   flex: 1;
-  max-width: 120px;
+  max-width: 140px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -121,8 +121,8 @@
 
 /* Team helmet images */
 .team-helmet {
-  width: 64px;
-  height: 64px;
+  width: 96px;
+  height: 96px;
   object-fit: contain;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
   transition: transform var(--duration-micro) var(--ease-micro);
@@ -338,8 +338,8 @@
     gap: 6px;
   }
   .team-helmet {
-    width: 48px;
-    height: 48px;
+    width: 72px;
+    height: 72px;
   }
   .team-name-small {
     font-size: 11px;
