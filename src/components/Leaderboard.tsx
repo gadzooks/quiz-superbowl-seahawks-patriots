@@ -39,7 +39,7 @@ export function Leaderboard({
   const previouslyCompleteRef = useRef(false);
 
   // Filter predictions that have data
-  const teamsWithPredictions = predictions.filter((p) => p.predictions);
+  const teamsWithPredictions = predictions.filter((p) => Object.keys(p.predictions).length > 0);
 
   // Sort predictions
   const sorted = sortPredictionsForLeaderboard(teamsWithPredictions);
@@ -215,14 +215,14 @@ interface AnswerDetailsProps {
 }
 
 function AnswerDetails({ prediction, questions, actualResults }: AnswerDetailsProps) {
-  if (!prediction.predictions) {
+  if (Object.keys(prediction.predictions).length === 0) {
     return <div className="answer-detail-empty">No predictions submitted</div>;
   }
 
   return (
     <>
       {questions.map((q) => {
-        const userAnswer = prediction.predictions?.[q.questionId];
+        const userAnswer = prediction.predictions[q.questionId];
         const correctAnswer = actualResults?.[q.questionId];
 
         // Format the answer for display
@@ -237,7 +237,7 @@ function AnswerDetails({ prediction, questions, actualResults }: AnswerDetailsPr
         let pointsEarned = 0;
         let pointsDisplay = '';
 
-        if (correctAnswer !== undefined && correctAnswer !== null && correctAnswer !== '') {
+        if (correctAnswer !== undefined && correctAnswer !== '') {
           const isCorrect = isAnswerCorrect(q, userAnswer, correctAnswer);
 
           if (q.isTiebreaker) {

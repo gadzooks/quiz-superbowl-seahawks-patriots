@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { AUTO_SAVE } from '../constants/timing';
 import { saveResults } from '../db/queries';
 import type { League, Prediction, Question } from '../types';
 
@@ -19,16 +20,51 @@ type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 export function ResultsForm({ questions, league, predictions, showToast }: ResultsFormProps) {
   // Initialize local state from league.actualResults
   const [results, setResults] = useState<Record<string, string | number>>(() => {
-    return league.actualResults || {};
+    return league.actualResults ?? {};
   });
 
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Update local state when league.actualResults changes externally
+  // Track pending results for flush on unmount
+  const pendingResultsRef = useRef<Record<string, string | number> | null>(null);
+  const leagueIdRef = useRef(league.id);
+  const predictionsRef = useRef(predictions);
+  const questionsRef = useRef(questions);
+  // Track current results to avoid stale closure issues
+  const resultsRef = useRef(results);
+
+  // Keep refs in sync with state/props for use in callbacks and cleanup
   useEffect(() => {
-    setResults(league.actualResults || {});
-  }, [league.actualResults]);
+    resultsRef.current = results;
+  }, [results]);
+
+  useEffect(() => {
+    leagueIdRef.current = league.id;
+    predictionsRef.current = predictions;
+    questionsRef.current = questions;
+  }, [league.id, predictions, questions]);
+
+  // Perform the actual save
+  const performSave = useCallback(
+    async (resultsToSave: Record<string, string | number>) => {
+      try {
+        await saveResults(league.id, resultsToSave, predictions, questions);
+        pendingResultsRef.current = null;
+        setSaveStatus('saved');
+
+        // Clear saved status after delay
+        setTimeout(() => {
+          setSaveStatus('idle');
+        }, AUTO_SAVE.SAVED_INDICATOR_DURATION);
+      } catch (error) {
+        console.error('Results auto-save error:', error);
+        setSaveStatus('error');
+        showToast('Error saving results', 'error');
+      }
+    },
+    [league.id, predictions, questions, showToast]
+  );
 
   // Debounced save function
   const debouncedSave = useCallback(
@@ -38,74 +74,79 @@ export function ResultsForm({ questions, league, predictions, showToast }: Resul
         clearTimeout(saveTimeoutRef.current);
       }
 
+      // Track pending results for flush on unmount
+      pendingResultsRef.current = updatedResults;
+
       // Set saving status immediately
       setSaveStatus('saving');
 
       // Debounce the actual save
       saveTimeoutRef.current = setTimeout(() => {
-        void (async () => {
-          try {
-            await saveResults(league.id, updatedResults, predictions, questions);
-            setSaveStatus('saved');
-
-            // Clear saved status after 2 seconds
-            setTimeout(() => {
-              setSaveStatus('idle');
-            }, 2000);
-          } catch (error) {
-            console.error('Results auto-save error:', error);
-            setSaveStatus('error');
-            showToast('Error saving results', 'error');
-          }
-        })();
-      }, 500);
+        void performSave(updatedResults);
+      }, AUTO_SAVE.RESULTS_INPUT_DELAY);
     },
-    [league.id, predictions, questions, showToast]
+    [performSave]
   );
 
-  // Cleanup timeout on unmount
+  // Flush pending save on unmount (don't lose user's work!)
   useEffect(() => {
     return () => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
+      // If there are pending results, save them immediately
+      if (pendingResultsRef.current) {
+        void saveResults(
+          leagueIdRef.current,
+          pendingResultsRef.current,
+          predictionsRef.current,
+          questionsRef.current
+        );
+      }
     };
   }, []);
 
   // Handle radio button change
+  // Uses ref to avoid stale closure when user quickly switches between inputs
   const handleRadioChange = useCallback(
     (questionId: string, value: string) => {
-      const updatedResults = { ...results, [questionId]: value };
+      const updatedResults = { ...resultsRef.current, [questionId]: value };
+      resultsRef.current = updatedResults;
       setResults(updatedResults);
       debouncedSave(updatedResults);
     },
-    [results, debouncedSave]
+    [debouncedSave]
   );
 
   // Handle number input change
+  // Uses ref to avoid stale closure when user quickly switches between inputs
   const handleNumberChange = useCallback(
     (questionId: string, value: string) => {
       const numValue = parseInt(value, 10);
+      const finalValue = Number.isNaN(numValue) ? '' : numValue;
       const updatedResults = {
-        ...results,
-        [questionId]: Number.isNaN(numValue) ? 0 : numValue,
+        ...resultsRef.current,
+        [questionId]: finalValue,
       };
+      resultsRef.current = updatedResults;
       setResults(updatedResults);
       debouncedSave(updatedResults);
     },
-    [results, debouncedSave]
+    [debouncedSave]
   );
 
   // Handle clear button click
+  // Uses ref to avoid stale closure when user quickly switches between inputs
   const handleClear = useCallback(
     (questionId: string) => {
-      const updatedResults = { ...results };
+      const updatedResults = { ...resultsRef.current };
       delete updatedResults[questionId];
+      resultsRef.current = updatedResults;
       setResults(updatedResults);
       debouncedSave(updatedResults);
       showToast('Result cleared', 'info');
     },
-    [results, debouncedSave, showToast]
+    [debouncedSave, showToast]
   );
 
   // Save status message
@@ -138,10 +179,8 @@ export function ResultsForm({ questions, league, predictions, showToast }: Resul
   return (
     <form id="resultsForm">
       {questions.map((q, index) => {
-        const hasValue =
-          results[q.questionId] !== undefined &&
-          results[q.questionId] !== null &&
-          results[q.questionId] !== '';
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- key may not exist at runtime
+        const hasValue = results[q.questionId] !== undefined && results[q.questionId] !== '';
 
         return (
           <div key={q.questionId} className="question-card results-question-card">

@@ -14,7 +14,8 @@ export function countAnsweredQuestions(
   let count = 0;
   for (const q of questions) {
     const value = predictions[q.questionId];
-    if (value !== undefined && value !== null && value !== '') {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- key may not exist at runtime
+    if (value !== undefined && value !== '') {
       count++;
     }
   }
@@ -44,8 +45,8 @@ export function isAnswerCorrect(
   userAnswer: string | number | undefined,
   correctAnswer: string | number | undefined
 ): boolean {
-  if (userAnswer === undefined || userAnswer === null || userAnswer === '') return false;
-  if (correctAnswer === undefined || correctAnswer === null || correctAnswer === '') return false;
+  if (userAnswer === undefined || userAnswer === '') return false;
+  if (correctAnswer === undefined || correctAnswer === '') return false;
 
   if (question.type === 'number') {
     return parseInt(String(userAnswer)) === parseInt(String(correctAnswer));

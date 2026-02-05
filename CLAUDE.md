@@ -37,40 +37,56 @@ yarn run validate:build   # Build + asset validation
 
 ### Module System
 
-Entry point is `src/main.ts` (loaded by Vite). The app is in **hybrid migration mode** — modern TypeScript modules coexist with legacy inline JavaScript in `index.html`. Modules expose functions to `window.*` globals so the HTML `onclick` handlers and inline `<script>` still work. The legacy script waits for `window.waitForAppReady()` before running.
+Entry point is `src/main.tsx` — a full React application using Vite. The app renders into `#root` in `index.html`.
 
 ### Initialization Flow
 
-1. Vite loads `src/main.ts`
-2. Team picker shown if first visit (sets theme)
-3. Theme system initialized, sound manager started
-4. User ID retrieved/created (localStorage)
-5. If `?league=slug` in URL, subscribes to InstantDB for real-time updates
-6. All modules exposed to `window` for legacy compatibility
-7. `appReadyResolve()` called — legacy `index.html` script proceeds
+1. Vite loads `src/main.tsx` which renders `<App />` wrapped in context providers
+2. `AppRouter` handles routing based on URL parameters (gameId, leagueSlug)
+3. Team picker shown if first visit (sets theme)
+4. Theme system initialized, sound manager started
+5. User ID retrieved/created (localStorage)
+6. `LeagueView` subscribes to InstantDB for real-time updates via `useLeagueData` hook
 
 ### Key Directories
 
-| Directory             | Purpose                                                                                  |
-| --------------------- | ---------------------------------------------------------------------------------------- |
-| `src/state/store.ts`  | Centralized state — getState(), setter functions, subscribe()                            |
-| `src/db/`             | InstantDB client (`client.ts`) and subscription queries (`queries.ts`)                   |
-| `src/handlers/`       | Form submission handlers (league, team, predictions, results)                            |
-| `src/components/`     | UI rendering functions (PredictionsForm, ResultsForm, Participants, AdminPanel)          |
-| `src/ui/`             | Screen management, modals, tabs, toast, celebration animations                           |
-| `src/theme/`          | Dynamic NFL team color theming (32 teams). Tokens in `tokens.ts`, applied via `apply.ts` |
-| `src/config/games.ts` | Multi-year Super Bowl config (gameId, teams, year). Add future games here                |
-| `src/questions.ts`    | Question definitions — dynamically generated from game config                            |
-| `src/scoring/`        | Score calculation against actual results                                                 |
-| `src/styles/`         | Modular CSS: `base.css` (tokens), `components/` (buttons, inputs, etc.), `features/`     |
+| Directory               | Purpose                                                                                  |
+| ----------------------- | ---------------------------------------------------------------------------------------- |
+| `src/components/`       | React components (PredictionsForm, ResultsForm, Leaderboard, AdminPanel, etc.)           |
+| `src/components/admin/` | AdminPanel sub-components (ParticipantsList, SubmissionControls, ShareSection, etc.)     |
+| `src/context/`          | React contexts — `AppContext` (app state), `ToastContext` (notifications)                |
+| `src/hooks/`            | Custom React hooks — `useLeagueData`, `useUrlParams`                                     |
+| `src/db/`               | InstantDB client (`client.ts`), queries (`queries.ts`), type helpers (`typeHelpers.ts`)  |
+| `src/services/`         | Business logic — `validation.ts` (team/league name validation)                           |
+| `src/constants/`        | Configuration — `timing.ts` (auto-save delays, animation durations)                      |
+| `src/handlers/`         | Form submission handlers (league creation)                                               |
+| `src/theme/`            | Dynamic NFL team color theming (32 teams). Tokens in `tokens.ts`, applied via `apply.ts` |
+| `src/config/games.ts`   | Multi-year Super Bowl config (gameId, teams, year). Add future games here                |
+| `src/scoring/`          | Score calculation against actual results                                                 |
+| `src/styles/`           | Modular CSS: `base.css` (tokens), `components/` (buttons, inputs, etc.), `features/`     |
+| `src/types/`            | TypeScript type definitions (`League`, `Prediction`, `Question`, etc.)                   |
+| `src/utils/`            | Utility functions — `logger.ts`, `url.ts`, `user.ts`, `game.ts`                          |
 
 ### State Management
 
-Custom store in `src/state/store.ts`. Pattern: private state object + individual setter functions + `updateState()` for batch updates + `subscribe()` for listeners. All setters notify subscribers. Key computed getters: `getCurrentUserPrediction()`, `hasAdminAccess()`, `isSubmissionsOpen()`.
+React Context in `src/context/AppContext.tsx`. Provides app-wide state including:
+
+- `currentUserId`, `currentTeamId`, `currentTab`
+- Celebration flags (`hasTriggeredWinnerCelebration`, `hasShownCompletionCelebration`)
+- Score update notifications (`hasUnviewedScoreUpdate`)
+
+Data fetching uses the `useLeagueData` hook which wraps InstantDB's `useQuery` for real-time league and prediction data.
+
+### Component Architecture
+
+Components are kept under 200 lines (per UX_GUIDELINES.md). Large components are split into focused sub-components:
+
+- `AdminPanel` → 7 sub-components in `src/components/admin/`
+- Presentational components use `React.memo` for performance
 
 ### Data Layer (InstantDB)
 
-App ID from env var `VITE_INSTANTDB_APP_ID` (set per deploy context). Public read/write, no auth. Two entities: `leagues` and `predictions`, both partitioned by `gameId`. Real-time updates via `db.subscribeQuery()`.
+App ID from env var `VITE_INSTANTDB_APP_ID` (set per deploy context). Public read/write, no auth. Three entities: `games`, `leagues`, and `predictions`, partitioned by `gameId`. Real-time updates via `db.useQuery()` hook in `useLeagueData`. Mutations via `db.transact()` in `src/db/queries.ts`.
 
 ### Multi-Game Support
 

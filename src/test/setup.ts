@@ -9,6 +9,7 @@ afterEach(() => {
 });
 
 // Mock window.crypto.randomUUID
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- crypto may not exist in all test environments
 if (!global.crypto) {
   global.crypto = {} as Crypto;
 }

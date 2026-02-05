@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { useLeagueData } from '../hooks/useLeagueData';
+import { logger } from '../utils/logger';
 import { isAdminOverride } from '../utils/url';
 
 import { AdminPanel } from './AdminPanel';
@@ -99,17 +100,17 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
   }, []);
 
   const handleCompletionCelebration = useCallback(() => {
-    console.log('[LeagueView] handleCompletionCelebration called', {
+    logger.debug('[LeagueView] handleCompletionCelebration called', {
       hasShownCompletionCelebration,
       willShow: !hasShownCompletionCelebration,
     });
 
     if (!hasShownCompletionCelebration) {
-      console.log('[LeagueView] Showing completion celebration!');
+      logger.debug('[LeagueView] Showing completion celebration!');
       setHasShownCompletionCelebration(true);
       showCompletionCelebration();
     } else {
-      console.log('[LeagueView] Celebration already shown, skipping');
+      logger.debug('[LeagueView] Celebration already shown, skipping');
     }
   }, [hasShownCompletionCelebration, setHasShownCompletionCelebration, showCompletionCelebration]);
 
@@ -173,9 +174,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
   }
 
   // Compute progress from user prediction
-  const userAnswered = currentUserPrediction
-    ? countAnsweredQuestions(currentUserPrediction.predictions, questions)
-    : 0;
+  const userAnswered = countAnsweredQuestions(currentUserPrediction.predictions, questions);
   const computedProgress =
     questions.length > 0 ? Math.round((userAnswered / questions.length) * 100) : 0;
 

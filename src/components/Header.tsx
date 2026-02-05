@@ -22,8 +22,8 @@ export function Header({
   onReplayIntro,
 }: HeaderProps) {
   const isSeahawks = currentTeamId === 'seahawks';
-  const team1Name = game?.team1 || 'Seahawks';
-  const team2Name = game?.team2 || 'Patriots';
+  const team1Name = game?.team1 ?? 'Seahawks';
+  const team2Name = game?.team2 ?? 'Patriots';
 
   const handlePlaySound = () => {
     SoundManager.playRandom();
@@ -40,7 +40,9 @@ export function Header({
         alt="Team logo"
         className="team-logo-header"
         onError={(e) => {
-          (e.target as HTMLImageElement).src = NFL_SHIELD_LOGO;
+          if (e.target instanceof HTMLImageElement) {
+            e.target.src = NFL_SHIELD_LOGO;
+          }
         }}
       />
 

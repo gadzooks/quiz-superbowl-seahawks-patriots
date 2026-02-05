@@ -1,4 +1,5 @@
 import { db } from '../db/client';
+import { parseGame, parseLeague, parsePredictions, parseQuestions } from '../db/typeHelpers';
 import type { Game, League, Prediction, Question } from '../types';
 
 interface LeagueData {
@@ -15,49 +16,52 @@ interface LeagueData {
  * Replaces the old subscribeToLeague callback pattern.
  */
 export function useLeagueData(gameId: string, slug: string | null): LeagueData {
-  const gameQuery = db.useQuery({
+  // Query games with nested questions and leagues
+  // This ensures we only get leagues for the specific game
+  const queryConfig = {
     games: {
       $: { where: { gameId } },
       questions: {
         $: { order: { serverCreatedAt: 'asc' } },
       },
+      ...(slug
+        ? {
+            leagues: {
+              $: { where: { slug } },
+              predictions: {},
+            },
+          }
+        : {}),
     },
-  });
+  };
 
-  const leagueQuery = db.useQuery(
-    slug
-      ? {
-          leagues: {
-            $: { where: { slug } },
-            predictions: {},
-          },
-        }
-      : null
-  );
+  // @ts-expect-error - InstantDB types don't properly support conditional nested queries
+  const gameQuery = db.useQuery(queryConfig);
 
-  const isLoading = gameQuery.isLoading || leagueQuery.isLoading;
-  const error = gameQuery.error || leagueQuery.error;
+  // Extract data from the nested query
+  const gameData = gameQuery.data?.games?.[0];
+  const leagueData = gameData && 'leagues' in gameData ? gameData.leagues?.[0] : null;
 
-  // Extract game
-  const gameData = gameQuery.data?.games?.[0] || null;
-  const game = gameData ? ({ ...gameData } as unknown as Game) : null;
+  const isLoading = gameQuery.isLoading;
+  const error = gameQuery.error;
 
-  // Extract questions sorted by sortOrder
+  // Extract and parse game with runtime validation (excluding nested leagues)
+  const { leagues: _, ...gameDataOnly } = gameData ?? {};
+  const game = parseGame(gameDataOnly);
+
+  // Extract and parse questions with validation, sorted by sortOrder
   let questions: Question[] = [];
-  if (gameData) {
-    const qData = (gameData as unknown as { questions?: unknown[] }).questions;
-    questions = ((qData || []) as unknown as Question[]).sort((a, b) => a.sortOrder - b.sortOrder);
+  if (gameData && typeof gameData === 'object' && 'questions' in gameData) {
+    questions = parseQuestions(gameData.questions).sort((a, b) => a.sortOrder - b.sortOrder);
   }
 
-  // Extract league
-  const leagueData = leagueQuery.data?.leagues?.[0] || null;
-  const league = leagueData ? ({ ...leagueData } as unknown as League) : null;
+  // Extract and parse league with runtime validation
+  const league = parseLeague(leagueData);
 
-  // Extract predictions
+  // Extract and parse predictions with validation
   let predictions: Prediction[] = [];
-  if (leagueData) {
-    const predData = (leagueData as unknown as { predictions?: unknown[] })?.predictions;
-    predictions = (predData || []) as unknown as Prediction[];
+  if (leagueData && typeof leagueData === 'object' && 'predictions' in leagueData) {
+    predictions = parsePredictions(leagueData.predictions);
   }
 
   return { game, league, predictions, questions, isLoading, error };

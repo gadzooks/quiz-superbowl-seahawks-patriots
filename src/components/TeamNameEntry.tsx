@@ -26,7 +26,7 @@ export function TeamNameEntry({ league, userId, showToast, onRegistered }: TeamN
 
     const validation = validateTeamName(trimmedName);
     if (!validation.valid) {
-      showToast(validation.error || 'Invalid team name', 'error');
+      showToast(validation.error ?? 'Invalid team name', 'error');
       return;
     }
 

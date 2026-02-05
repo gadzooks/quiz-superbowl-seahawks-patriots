@@ -2,6 +2,7 @@
 // Shows faint repeating team logos as background
 
 import { getTeamIds, type GameConfig } from '../config/games';
+import { logger } from '../utils/logger';
 
 import { getTeamLogoUrl, NFL_SHIELD_LOGO } from './logos';
 import { getTeamTheme } from './teams';
@@ -92,7 +93,7 @@ export function applyGameTeamBackgrounds(gameConfig: GameConfig): void {
   const leftBg = blendWithTint(leftTheme.background, leftTheme.primary, 0.15);
   const rightBg = blendWithTint(rightTheme.background, rightTheme.primary, 0.15);
 
-  console.log('Applying header split background:', { leftBg, rightBg, leftTeamId, rightTeamId });
+  logger.debug('Applying header split background:', { leftBg, rightBg, leftTeamId, rightTeamId });
 
   // Apply split gradient to header ONLY
   applyHeaderSplitBackground(leftBg, rightBg);
@@ -102,9 +103,9 @@ export function applyGameTeamBackgrounds(gameConfig: GameConfig): void {
  * Apply split background to header section
  */
 function applyHeaderSplitBackground(leftBg: string, rightBg: string): void {
-  const header = document.querySelector('.app-header') as HTMLElement | null;
-  if (!header) {
-    console.warn('Header element .app-header not found');
+  const header = document.querySelector('.app-header');
+  if (!header || !(header instanceof HTMLElement)) {
+    logger.warn('Header element .app-header not found');
     return;
   }
 
@@ -118,7 +119,7 @@ function applyHeaderSplitBackground(leftBg: string, rightBg: string): void {
   header.style.backgroundRepeat = '';
   header.style.backgroundColor = '';
 
-  console.log('Applied header split background:', gradient);
+  logger.debug('Applied header split background:', gradient);
 }
 
 // Export for tests

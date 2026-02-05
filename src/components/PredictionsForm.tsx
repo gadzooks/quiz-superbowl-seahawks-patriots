@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
+import { AUTO_SAVE } from '../constants/timing';
 import { savePrediction } from '../db/queries';
 import type { Question, Prediction, League } from '../types';
+import { logger } from '../utils/logger';
 
 import { isAnswerCorrect, formatSlugForDisplay, countAnsweredQuestions } from './helpers';
 
@@ -38,17 +40,23 @@ export function PredictionsForm({
   const formDataRef = useRef<Record<string, string | number>>({});
   const previousAnswerCountRef = useRef<number>(0);
   const hasCheckedCompletionThisSessionRef = useRef<boolean>(false);
+  const lastLoadedPredictionIdRef = useRef<string | null>(null);
 
   // Initialize form data from userPrediction
+  // Only reset formData when loading a DIFFERENT prediction (not on every re-render)
   useEffect(() => {
     if (userPrediction?.predictions) {
-      setFormData(userPrediction.predictions);
-      formDataRef.current = userPrediction.predictions;
-      // Initialize previous count to prevent false triggers on first render
-      previousAnswerCountRef.current = countAnsweredQuestions(
-        userPrediction.predictions,
-        questions
-      );
+      // Only reset if this is a different prediction or first load
+      if (lastLoadedPredictionIdRef.current !== userPrediction.id) {
+        setFormData(userPrediction.predictions);
+        formDataRef.current = userPrediction.predictions;
+        lastLoadedPredictionIdRef.current = userPrediction.id;
+        // Initialize previous count to prevent false triggers on first render
+        previousAnswerCountRef.current = countAnsweredQuestions(
+          userPrediction.predictions,
+          questions
+        );
+      }
     }
   }, [userPrediction, questions]);
 
@@ -64,12 +72,12 @@ export function PredictionsForm({
     onProgressUpdate(percentage);
   }, [formData, questions, onProgressUpdate]);
 
-  // Clear saved indicator after 2 seconds
+  // Clear saved indicator after delay
   useEffect(() => {
     if (savedQuestionId) {
       const timer = setTimeout(() => {
         setSavedQuestionId(null);
-      }, 2000);
+      }, AUTO_SAVE.SAVED_INDICATOR_DURATION);
       return () => clearTimeout(timer);
     }
   }, [savedQuestionId]);
@@ -109,7 +117,7 @@ export function PredictionsForm({
       // 2. First save in this session and already complete
       const shouldCelebrate = isNowComplete && (wasIncomplete || isFirstSaveInSession);
 
-      console.log('[PredictionsForm] Save completed:', {
+      logger.debug('[PredictionsForm] Save completed:', {
         answeredCount,
         totalQuestions: questions.length,
         previousCount: previousAnswerCountRef.current,
@@ -120,7 +128,7 @@ export function PredictionsForm({
       });
 
       if (shouldCelebrate) {
-        console.log('[PredictionsForm] Triggering completion celebration!');
+        logger.debug('[PredictionsForm] Triggering completion celebration!');
         onCompletionCelebration();
         hasCheckedCompletionThisSessionRef.current = true;
       }
@@ -157,8 +165,8 @@ export function PredictionsForm({
         clearTimeout(autoSaveTimeoutRef.current);
       }
 
-      // Save with delay (2.5s for typing, immediate for radio/blur)
-      const delay = immediate ? 0 : 2500;
+      // Save with delay (typing delay for number inputs, immediate for radio/blur)
+      const delay = immediate ? 0 : AUTO_SAVE.PREDICTIONS_TYPING_DELAY;
       autoSaveTimeoutRef.current = setTimeout(() => {
         void performSave();
       }, delay);
@@ -177,8 +185,17 @@ export function PredictionsForm({
   // Handle number input change (debounced save)
   const handleNumberChange = useCallback(
     (questionId: string, value: string) => {
-      const numValue = value === '' ? '' : parseInt(value) || 0;
-      handleChange(questionId, numValue, false);
+      // Handle empty input
+      if (value === '') {
+        handleChange(questionId, '', false);
+        return;
+      }
+
+      // Parse the number - only update if valid
+      const parsed = parseInt(value, 10);
+      if (!Number.isNaN(parsed)) {
+        handleChange(questionId, parsed, false);
+      }
     },
     [handleChange]
   );
@@ -231,8 +248,7 @@ export function PredictionsForm({
         {questions.map((q, index) => {
           const userAnswer = formData[q.questionId];
           const correctAnswer = league.actualResults?.[q.questionId];
-          const hasCorrectAnswer =
-            correctAnswer !== undefined && correctAnswer !== null && correctAnswer !== '';
+          const hasCorrectAnswer = correctAnswer !== undefined && correctAnswer !== '';
 
           const isCorrect = hasCorrectAnswer && isAnswerCorrect(q, userAnswer, correctAnswer);
 
@@ -299,7 +315,8 @@ export function PredictionsForm({
                 <input
                   type="number"
                   name={`prediction-${q.questionId}`}
-                  value={userAnswer === undefined ? '' : userAnswer}
+                  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- key may not exist at runtime
+                  value={userAnswer ?? ''}
                   min="0"
                   disabled={!league.isOpen}
                   placeholder="Enter number"

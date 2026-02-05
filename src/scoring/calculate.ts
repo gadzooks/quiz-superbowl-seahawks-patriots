@@ -26,8 +26,10 @@ export function calculateScore(
     const actual = actualResults[q.questionId];
 
     // Only award points if BOTH prediction and actual result exist
-    if (predicted === undefined || predicted === null || predicted === '') continue;
-    if (actual === undefined || actual === null || actual === '') continue;
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- key may not exist at runtime
+    if (predicted === undefined || predicted === '') continue;
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- key may not exist at runtime
+    if (actual === undefined || actual === '') continue;
 
     let isCorrect = false;
     if (q.type === 'number') {
@@ -67,11 +69,13 @@ export function calculateScoreWithDebug(
     const predicted = predictions[q.questionId];
     const actual = actualResults[q.questionId];
 
-    if (predicted === undefined || predicted === null || predicted === '') {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- key may not exist at runtime
+    if (predicted === undefined || predicted === '') {
       debug.push(`\u{2298} ${q.questionId}: no prediction set`);
       continue;
     }
-    if (actual === undefined || actual === null || actual === '') {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- key may not exist at runtime
+    if (actual === undefined || actual === '') {
       debug.push(`\u{2298} ${q.questionId}: no actual result set`);
       continue;
     }
@@ -107,8 +111,10 @@ export function calculateTiebreakDiff(
   const predicted = predictions['totalPoints'];
   const actual = actualResults['totalPoints'];
 
-  if (predicted === undefined || predicted === null || predicted === '') return Infinity;
-  if (actual === undefined || actual === null || actual === '') return Infinity;
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- key may not exist at runtime
+  if (predicted === undefined || predicted === '') return Infinity;
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- key may not exist at runtime
+  if (actual === undefined || actual === '') return Infinity;
 
   return Math.abs(parseInt(String(predicted)) - parseInt(String(actual)));
 }

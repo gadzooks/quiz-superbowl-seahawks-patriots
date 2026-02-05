@@ -98,8 +98,8 @@ export function applyHeaderTeamColors(gameConfig: GameConfig): void {
  * Update the team logo in the header.
  */
 function updateHeaderLogo(teamId: string): void {
-  const logoEl = document.getElementById(HEADER_LOGO_ID) as HTMLImageElement | null;
-  if (!logoEl) return;
+  const logoEl = document.getElementById(HEADER_LOGO_ID);
+  if (!logoEl || !(logoEl instanceof HTMLImageElement)) return;
 
   const logoUrl = getTeamLogoUrl(teamId);
   if (logoUrl) {
@@ -135,7 +135,7 @@ export function saveTeamPreference(teamId: string): void {
  */
 export function initTheme(): string {
   const savedTeamId = getSavedTeamId();
-  const teamId = savedTeamId || DEFAULT_TEAM_ID;
+  const teamId = savedTeamId ?? DEFAULT_TEAM_ID;
 
   if (!applyTeamTheme(teamId)) {
     // Fallback to default if saved team is invalid
@@ -144,9 +144,7 @@ export function initTheme(): string {
 
   // Apply header team colors (always show game teams, not user's theme)
   const gameConfig = getCurrentGameConfig();
-  if (gameConfig) {
-    applyHeaderTeamColors(gameConfig);
-  }
+  applyHeaderTeamColors(gameConfig);
 
   return teamId;
 }
@@ -160,9 +158,7 @@ export function setTeamTheme(teamId: string): boolean {
     saveTeamPreference(teamId);
     // Re-apply header team colors (they should always show game teams, not user's theme)
     const gameConfig = getCurrentGameConfig();
-    if (gameConfig) {
-      applyHeaderTeamColors(gameConfig);
-    }
+    applyHeaderTeamColors(gameConfig);
     // Show/hide Seahawks-only header buttons
     updateSeahawksButtons(teamId);
     return true;
@@ -183,5 +179,5 @@ function updateSeahawksButtons(teamId: string): void {
  * Get the current team ID (from localStorage or default).
  */
 export function getCurrentTeamId(): string {
-  return getSavedTeamId() || DEFAULT_TEAM_ID;
+  return getSavedTeamId() ?? DEFAULT_TEAM_ID;
 }

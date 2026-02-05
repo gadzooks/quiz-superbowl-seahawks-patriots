@@ -54,6 +54,19 @@ const DIVISION_MAP: Record<string, keyof DivisionTeams> = {
   seahawks: 'NFC West',
 };
 
+function isDivisionKey(key: string): key is keyof DivisionTeams {
+  return (
+    key === 'AFC East' ||
+    key === 'AFC North' ||
+    key === 'AFC South' ||
+    key === 'AFC West' ||
+    key === 'NFC East' ||
+    key === 'NFC North' ||
+    key === 'NFC South' ||
+    key === 'NFC West'
+  );
+}
+
 function getTeamsWithDivisions(): DivisionTeams {
   const teams = getTeamOptions();
 
@@ -70,7 +83,8 @@ function getTeamsWithDivisions(): DivisionTeams {
 
   for (const team of teams) {
     const division = DIVISION_MAP[team.id];
-    if (division && divisions[division]) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- team.id may not be in DIVISION_MAP
+    if (division) {
       divisions[division].push(team);
     }
   }
@@ -122,15 +136,16 @@ export function TeamPicker({ onSelect }: TeamPickerProps) {
   const logoUrl = selectedTeamId ? getTeamLogoUrl(selectedTeamId) : null;
 
   const lowerQuery = searchQuery.toLowerCase();
-  const filteredDivisions = Object.entries(divisions).reduce((acc, [divisionName, teams]) => {
-    const visibleTeams = (teams as Array<{ id: string; name: string }>).filter((team) =>
-      team.name.toLowerCase().includes(lowerQuery)
-    );
+  const filteredDivisions: Partial<DivisionTeams> = {};
+  for (const divisionKey of Object.keys(divisions)) {
+    // Type guard: divisionKey is guaranteed to be a valid DivisionTeams key
+    if (!isDivisionKey(divisionKey)) continue;
+    const teams = divisions[divisionKey];
+    const visibleTeams = teams.filter((team) => team.name.toLowerCase().includes(lowerQuery));
     if (visibleTeams.length > 0) {
-      acc[divisionName as keyof DivisionTeams] = visibleTeams;
+      filteredDivisions[divisionKey] = visibleTeams;
     }
-    return acc;
-  }, {} as Partial<DivisionTeams>);
+  }
 
   const hasVisibleTeams = Object.keys(filteredDivisions).length > 0;
 
@@ -179,7 +194,7 @@ export function TeamPicker({ onSelect }: TeamPickerProps) {
                       <div
                         className="team-color-swatch"
                         style={{
-                          background: theme?.secondary || '#6366f1',
+                          background: theme?.secondary ?? '#6366f1',
                         }}
                       />
                       <span className="team-name">{team.name}</span>

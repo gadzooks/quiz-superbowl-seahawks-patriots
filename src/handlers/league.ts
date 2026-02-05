@@ -24,10 +24,6 @@ export async function handleLeagueCreation(
   const currentUserId = getUserId();
   const gameConfig = getCurrentGameConfig();
 
-  if (!gameConfig) {
-    return { success: false, error: 'Game not configured' };
-  }
-
   // Ensure game exists in DB (seeds if needed)
   // Note: Questions must be manually seeded via scripts/seed-game.ts before creating leagues
   const gameInstantId = await seedGame({

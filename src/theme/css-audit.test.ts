@@ -1,6 +1,5 @@
 import { readFileSync, readdirSync, statSync } from 'fs';
-import { join, extname } from 'path';
-import { dirname } from 'path';
+import { join, extname, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 import { describe, it, expect } from 'vitest';
@@ -98,8 +97,8 @@ function findHardcodedColors(
       inRootBlock = true;
     }
     if (inRootBlock) {
-      braceDepth += (line.match(/{/g) || []).length;
-      braceDepth -= (line.match(/}/g) || []).length;
+      braceDepth += (line.match(/{/g) ?? []).length;
+      braceDepth -= (line.match(/}/g) ?? []).length;
       if (braceDepth <= 0) {
         inRootBlock = false;
         braceDepth = 0;

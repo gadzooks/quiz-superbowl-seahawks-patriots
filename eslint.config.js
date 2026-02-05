@@ -101,6 +101,10 @@ export default [
       'no-debugger': 'warn',
       // Import rules
       'import-x/no-cycle': 'error', // Prevent circular dependencies
+      'import-x/no-namespace': 'error', // Disallow "import * as" syntax
+      'import-x/no-duplicates': 'error', // Merge multiple imports from same module
+      'import-x/no-self-import': 'error', // Prevent importing from the same file
+      'import-x/no-useless-path-segments': 'error', // Clean up unnecessary path segments
       'import-x/order': [
         'warn',
         {
@@ -113,10 +117,33 @@ export default [
       '@typescript-eslint/no-floating-promises': 'error', // Catch unhandled promises
       '@typescript-eslint/await-thenable': 'error', // Prevent await on non-promises
       '@typescript-eslint/no-misused-promises': 'error', // Catch promises in wrong contexts
+      '@typescript-eslint/prefer-nullish-coalescing': 'warn', // Use ?? instead of ||
+      '@typescript-eslint/prefer-optional-chain': 'warn', // Use ?. for safer property access
+      '@typescript-eslint/no-unnecessary-condition': 'warn', // Catch always-true/false conditions
+      '@typescript-eslint/strict-boolean-expressions': 'off', // Too strict for this codebase
+      // React best practices
+      'no-restricted-syntax': [
+        'error',
+        {
+          // Disallow type assertions except "as const" (which creates literal types)
+          selector: 'TSAsExpression:not([typeAnnotation.typeName.name="const"])',
+          message: 'Avoid type assertions. Use type guards or validation instead.',
+        },
+      ],
     },
   },
   {
-    files: ['**/*.test.ts', '**/*.spec.ts', 'src/test/**/*.ts'],
+    // Scripts are build tools that often need type flexibility
+    files: ['scripts/**/*.ts'],
+    rules: {
+      'no-restricted-syntax': 'off', // Allow type assertions in build scripts
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/prefer-nullish-coalescing': 'off',
+      '@typescript-eslint/no-unnecessary-condition': 'off',
+    },
+  },
+  {
+    files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', 'src/test/**/*.ts'],
     languageOptions: {
       globals: {
         // Vitest globals
@@ -133,6 +160,7 @@ export default [
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
+      'no-restricted-syntax': 'off', // Allow type assertions in tests for mocking
     },
   },
 ];

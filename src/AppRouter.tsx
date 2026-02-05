@@ -24,9 +24,7 @@ export function AppRouter() {
       setCurrentTeamId(teamId);
 
       const gameConfig = getCurrentGameConfig();
-      if (gameConfig) {
-        applyHeaderTeamColors(gameConfig);
-      }
+      applyHeaderTeamColors(gameConfig);
     }
 
     SoundManager.init();
@@ -41,9 +39,7 @@ export function AppRouter() {
           setShowTeamPicker(false);
 
           const gameConfig = getCurrentGameConfig();
-          if (gameConfig) {
-            applyHeaderTeamColors(gameConfig);
-          }
+          applyHeaderTeamColors(gameConfig);
         }}
       />
     );

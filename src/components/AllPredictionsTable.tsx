@@ -62,22 +62,22 @@ export function AllPredictionsTable({
                 {prediction.teamName}
               </td>
               {questions.map((question) => {
-                const answer = prediction.predictions?.[question.questionId];
-                const hasResults = actualResults !== null && actualResults !== undefined;
+                const answer = prediction.predictions[question.questionId];
+                const hasResults = actualResults !== null;
                 const correct =
                   hasResults &&
                   isAnswerCorrect(question, answer, actualResults[question.questionId]);
 
                 let cellClass = 'text-base-content';
-                if (hasResults && answer !== undefined) {
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- key may not exist at runtime
+                if (hasResults && answer !== undefined && answer !== '') {
                   cellClass = correct ? 'answer-correct' : 'answer-incorrect';
                 }
 
                 return (
                   <td key={question.id} className={cellClass}>
-                    {answer !== undefined && answer !== null && answer !== ''
-                      ? formatAnswer(answer)
-                      : '\u2014'}
+                    {/* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- key may not exist */}
+                    {answer !== undefined && answer !== '' ? formatAnswer(answer) : '\u2014'}
                   </td>
                 );
               })}
@@ -92,7 +92,8 @@ export function AllPredictionsTable({
                 const correctAnswer = actualResults[question.questionId];
                 return (
                   <td key={question.id} className="font-bold text-primary">
-                    {correctAnswer !== undefined && correctAnswer !== null && correctAnswer !== ''
+                    {/* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- key may not exist */}
+                    {correctAnswer !== undefined && correctAnswer !== ''
                       ? formatAnswer(correctAnswer)
                       : '\u2014'}
                   </td>

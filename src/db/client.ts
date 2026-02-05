@@ -25,4 +25,4 @@ if (!APP_ID) {
 
 // Initialize InstantDB client with schema for typed queries
 // Using @instantdb/react provides useQuery() hook while keeping transact()
-export const db = init({ appId: APP_ID || '', schema });
+export const db = init({ appId: APP_ID ?? '', schema });
