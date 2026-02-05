@@ -130,7 +130,7 @@
 
 /* Super Bowl logo in matchup row */
 .superbowl-logo {
-  height: 40px;
+  height: 64px;
   width: auto;
   object-fit: contain;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
@@ -763,7 +763,7 @@
     width: auto;
   }
   .superbowl-logo {
-    height: 58px;
+    height: 72px;
   }
   .header-matchup-row {
     gap: 8px;
