@@ -126,20 +126,6 @@ export function Header({
   return (
     <>
       <header className="app-header sticky top-0 z-50">
-        {isSeahawks && (
-          <button className="play-sound-btn" onClick={handlePlaySound} aria-label="Play sound">
-            🔊
-          </button>
-        )}
-        {isSeahawks && teamName && (
-          <button
-            className="intro-replay-btn"
-            onClick={handleReplayIntro}
-            aria-label="Replay intro"
-          >
-            📷
-          </button>
-        )}
         <div className="header-content">
           <div className="header-matchup-row">
             <div className="header-team header-team-left">
@@ -173,9 +159,27 @@ export function Header({
 
       {league && teamName && (
         <div className="league-team-info">
+          {isSeahawks && (
+            <button
+              className="intro-replay-btn-inline"
+              onClick={handleReplayIntro}
+              aria-label="Replay intro"
+            >
+              📷
+            </button>
+          )}
           <span className="league-team-text">
             {league.name} : {teamName}
           </span>
+          {isSeahawks && (
+            <button
+              className="play-sound-btn-inline"
+              onClick={handlePlaySound}
+              aria-label="Play sound"
+            >
+              🔊
+            </button>
+          )}
         </div>
       )}
 
