@@ -1,6 +1,6 @@
 // Header.tsx
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { SoundManager } from '../sound/manager';
 import type { Game, League } from '../types';
@@ -13,6 +13,7 @@ interface HeaderProps {
   teamName: string;
   currentTeamId: string;
   progressPercentage: number;
+  currentTab?: string;
   onReplayIntro: () => void;
 }
 
@@ -78,11 +79,13 @@ export function Header({
   teamName,
   currentTeamId,
   progressPercentage,
+  currentTab,
   onReplayIntro,
 }: HeaderProps) {
   const isSeahawks = currentTeamId === 'seahawks';
   const team1Name = game?.team1 ?? 'Seahawks';
   const team2Name = game?.team2 ?? 'Patriots';
+  const [animationKey, setAnimationKey] = useState(0);
 
   // Set CSS variables for team colors
   useEffect(() => {
@@ -104,6 +107,13 @@ export function Header({
     root.style.setProperty('--header-right-accent', team2Colors.accent);
     root.style.setProperty('--header-right-accent-rgb', team2Colors.accentRgb);
   }, [team1Name, team2Name]);
+
+  // Trigger animation when tab changes
+  useEffect(() => {
+    if (currentTab) {
+      setAnimationKey((prev) => prev + 1);
+    }
+  }, [currentTab]);
 
   const handlePlaySound = () => {
     SoundManager.playRandom();
@@ -134,6 +144,7 @@ export function Header({
           <div className="header-matchup-row">
             <div className="header-team header-team-left">
               <img
+                key={`left-helmet-${animationKey}`}
                 src={`${BASE}images/helmets/${team1Name.toLowerCase()}.png`}
                 alt={`${team1Name} helmet`}
                 className="team-helmet"
@@ -149,6 +160,7 @@ export function Header({
             </div>
             <div className="header-team header-team-right">
               <img
+                key={`right-helmet-${animationKey}`}
                 src={`${BASE}images/helmets/${team2Name.toLowerCase()}.png`}
                 alt={`${team2Name} helmet`}
                 className="team-helmet team-helmet-flipped"

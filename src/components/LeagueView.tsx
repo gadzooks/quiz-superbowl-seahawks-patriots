@@ -186,6 +186,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
         teamName={teamName}
         currentTeamId={currentTeamId}
         progressPercentage={progressPercentage || computedProgress}
+        currentTab={currentTab}
         onReplayIntro={() => setShowIntro(true)}
       />
 
