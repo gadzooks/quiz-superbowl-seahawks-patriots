@@ -105,14 +105,50 @@
 .header-team {
   flex: 1;
   max-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 
 .header-team-left {
-  text-align: right;
+  text-align: center;
 }
 
 .header-team-right {
-  text-align: left;
+  text-align: center;
+}
+
+/* Team helmet images */
+.team-helmet {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+  transition: transform var(--duration-micro) var(--ease-micro);
+}
+
+.team-helmet:hover {
+  transform: scale(1.05);
+}
+
+/* Flip right helmet to face inward */
+.team-helmet-flipped {
+  transform: scaleX(-1);
+}
+
+.team-helmet-flipped:hover {
+  transform: scaleX(-1) scale(1.05);
+}
+
+/* Small team names below helmets */
+.team-name-small {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  text-align: center;
 }
 
 .team-name-large {
@@ -248,25 +284,27 @@
   transform: scale(0.95);
 }
 
-/* Team name display in header (next to league name) */
-.team-name-display {
-  font-size: 15px;
+/* Header center section with Super Bowl logo and league name */
+.header-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* League name display (below Super Bowl logo) */
+.league-name-display {
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--color-text);
-  margin-right: 8px;
-}
-
-.team-name-display::after {
-  content: '•';
-  margin-left: 8px;
-  color: var(--color-text-muted);
+  text-align: center;
 }
 
 /* League name in header */
 .league-name-header {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -294,6 +332,24 @@
   }
   .header-team {
     max-width: 80px;
+    gap: 6px;
+  }
+  .header-center {
+    gap: 6px;
+  }
+  .team-helmet {
+    width: 48px;
+    height: 48px;
+  }
+  .team-name-small {
+    font-size: 11px;
+  }
+  .league-name-display {
+    font-size: 11px;
+  }
+  .league-name-header {
+    font-size: 11px;
+    padding: 3px 10px;
   }
   .team-name-large {
     font-size: 14px;
