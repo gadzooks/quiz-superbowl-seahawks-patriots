@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, memo } from 'react';
 
 import { AUTO_SAVE } from '../constants/timing';
 import { savePrediction } from '../db/queries';
@@ -21,7 +21,7 @@ interface PredictionsFormProps {
   onCompletionCelebration: () => void;
 }
 
-export function PredictionsForm({
+export const PredictionsForm = memo(function PredictionsForm({
   questions,
   userPrediction,
   league,
@@ -196,8 +196,10 @@ export function PredictionsForm({
         clearTimeout(autoSaveTimeoutRef.current);
       }
 
-      // Save with delay (typing delay for number inputs, immediate for radio/blur)
-      const delay = immediate ? 0 : AUTO_SAVE.PREDICTIONS_TYPING_DELAY;
+      // Save with delay (typing delay for number inputs, short debounce for radio)
+      const delay = immediate
+        ? AUTO_SAVE.PREDICTIONS_IMMEDIATE_DELAY
+        : AUTO_SAVE.PREDICTIONS_TYPING_DELAY;
       autoSaveTimeoutRef.current = setTimeout(() => {
         void performSave();
       }, delay);
@@ -231,14 +233,15 @@ export function PredictionsForm({
     [handleChange]
   );
 
-  // Handle number input blur (immediate save)
+  // Handle number input blur (save with short debounce to avoid IDB contention)
   const handleNumberBlur = useCallback(
     (_questionId: string) => {
-      // Trigger immediate save on blur
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current);
       }
-      void performSave();
+      autoSaveTimeoutRef.current = setTimeout(() => {
+        void performSave();
+      }, AUTO_SAVE.PREDICTIONS_IMMEDIATE_DELAY);
     },
     [performSave]
   );
@@ -380,4 +383,4 @@ export function PredictionsForm({
       </form>
     </section>
   );
-}
+});

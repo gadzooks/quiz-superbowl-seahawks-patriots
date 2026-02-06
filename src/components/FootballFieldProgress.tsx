@@ -1,6 +1,6 @@
 // FootballFieldProgress.tsx
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './FootballFieldProgress.css';
 
 interface FootballFieldProgressProps {
@@ -9,15 +9,15 @@ interface FootballFieldProgressProps {
 
 export function FootballFieldProgress({ progressPercentage }: FootballFieldProgressProps) {
   const [showTouchdown, setShowTouchdown] = useState(false);
-  const [prevProgress, setPrevProgress] = useState(0);
+  const prevProgressRef = useRef(0);
 
   useEffect(() => {
-    if (progressPercentage === 100 && prevProgress < 100) {
+    if (progressPercentage === 100 && prevProgressRef.current < 100) {
       setShowTouchdown(true);
       setTimeout(() => setShowTouchdown(false), 3000);
     }
-    setPrevProgress(progressPercentage);
-  }, [progressPercentage, prevProgress]);
+    prevProgressRef.current = progressPercentage;
+  }, [progressPercentage]);
 
   // Calculate football position (0-100 yards)
   const ballPosition = progressPercentage;

@@ -2,6 +2,8 @@
  * Timing constants for auto-save, celebrations, and UI feedback
  */
 export const AUTO_SAVE = {
+  /** Debounce delay for radio/select saves — batches rapid clicks into one save */
+  PREDICTIONS_IMMEDIATE_DELAY: 500,
   /** Debounce delay for predictions form (typing in number inputs) */
   PREDICTIONS_TYPING_DELAY: 2500,
   /** Debounce delay for results form (admin entering results) */
