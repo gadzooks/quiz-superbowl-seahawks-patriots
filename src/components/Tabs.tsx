@@ -1,6 +1,5 @@
 import { SoundManager } from '../sound/manager';
-
-export type TabType = 'predictions' | 'scores' | 'results' | 'admin';
+import type { TabType } from '../types';
 
 interface TabsProps {
   currentTab: TabType;
@@ -9,6 +8,7 @@ interface TabsProps {
   isCreator: boolean;
   hasUnviewedScoreUpdate: boolean;
   teamName: string;
+  showSeedTab?: boolean;
 }
 
 export function Tabs({
@@ -17,6 +17,7 @@ export function Tabs({
   hasAdminAccess,
   isCreator,
   hasUnviewedScoreUpdate,
+  showSeedTab = false,
 }: TabsProps) {
   const handleTabClick = (tab: TabType) => {
     SoundManager.playClick();
@@ -25,6 +26,18 @@ export function Tabs({
 
   return (
     <div className="tabs tabs-boxed tabs-sticky mb-6" role="tablist">
+      {/* Seed tab - only shown when game/questions not seeded */}
+      {showSeedTab && (
+        <button
+          className={`tab ${currentTab === 'seed' ? 'tab-active' : ''}`}
+          onClick={() => handleTabClick('seed')}
+          role="tab"
+          aria-selected={currentTab === 'seed'}
+        >
+          🌱 Setup
+        </button>
+      )}
+
       <button
         className={`tab ${currentTab === 'predictions' ? 'tab-active' : ''}`}
         onClick={() => handleTabClick('predictions')}

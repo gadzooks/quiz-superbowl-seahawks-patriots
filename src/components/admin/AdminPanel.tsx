@@ -12,6 +12,7 @@ import { getLeagueUrl } from '../../utils/url';
 import { sortPredictionsForParticipants } from '../helpers';
 
 import { BuildInfo } from './BuildInfo';
+import { CelebrationControls } from './CelebrationControls';
 import { DeleteTeamModal } from './DeleteTeamModal';
 import { ParticipantsList } from './ParticipantsList';
 import { RecalculateSection } from './RecalculateSection';
@@ -183,6 +184,9 @@ export function AdminPanel({
 
       {/* Build Info */}
       <BuildInfo appId={appId} />
+
+      {/* Victory Celebrations */}
+      <CelebrationControls leagueId={league.id} showToast={showToast} />
 
       {/* Delete Confirmation Modal */}
       {pendingDelete && (
