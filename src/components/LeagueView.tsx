@@ -42,6 +42,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
     setHasShownCompletionCelebration,
     hasUnviewedScoreUpdate,
     setHasUnviewedScoreUpdate,
+    setActiveCelebration,
   } = useAppContext();
 
   const { game, league, predictions, questions, isLoading, error } = useLeagueData(
@@ -104,6 +105,9 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
   // Check if game needs seeding
   const needsSeeding = questions.length === 0;
 
+  // Track last celebration trigger time to detect new celebrations
+  const lastCelebrationTriggerRef = useRef<number>(0);
+
   // Auto-switch to seed tab if questions are empty
   // Auto-switch away from seed tab when questions become available
   useEffect(() => {
@@ -115,6 +119,18 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
       setCurrentTab('predictions');
     }
   }, [needsSeeding, currentTab, setCurrentTab]);
+
+  // Watch for celebration triggers from the league (admin broadcasts)
+  useEffect(() => {
+    if (!league) return;
+    if (!league.activeCelebration || !league.celebrationTriggeredAt) return;
+
+    // Only trigger if this is a new celebration (different timestamp)
+    if (league.celebrationTriggeredAt > lastCelebrationTriggerRef.current) {
+      lastCelebrationTriggerRef.current = league.celebrationTriggeredAt;
+      setActiveCelebration(league.activeCelebration);
+    }
+  }, [league, setActiveCelebration]);
 
   // Detect result changes for unviewed score badge
   useEffect(() => {
@@ -412,7 +428,9 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
       />
 
       {/* Victory Celebrations - Full screen overlay */}
-      <VictoryCelebration />
+      {/* Key based on trigger timestamp allows same celebration to play multiple times */}
+      {/* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition */}
+      <VictoryCelebration key={league ? league.celebrationTriggeredAt : 'default'} />
     </>
   );
 }

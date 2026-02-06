@@ -1,19 +1,24 @@
-import { useAppContext } from '../../context/AppContext';
+import { triggerCelebration } from '../../db/queries';
 
 interface CelebrationControlsProps {
+  leagueId: string;
   showToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
 /**
  * Admin controls for triggering victory celebrations across all league participants
  * Shows buttons for each of the 3 celebration styles
+ * Broadcasts celebrations to all users in real-time via InstantDB
  */
-export function CelebrationControls({ showToast }: CelebrationControlsProps) {
-  const { setActiveCelebration } = useAppContext();
-
-  const handleCelebration = (type: 'stadium' | 'boom' | 'matrix', name: string) => {
-    setActiveCelebration(type);
-    showToast(`🎉 ${name} celebration triggered!`, 'success');
+export function CelebrationControls({ leagueId, showToast }: CelebrationControlsProps) {
+  const handleCelebration = async (type: 'stadium' | 'boom' | 'matrix', name: string) => {
+    try {
+      await triggerCelebration(leagueId, type);
+      showToast(`🎉 ${name} celebration triggered for all users!`, 'success');
+    } catch (error) {
+      console.error('Error triggering celebration:', error);
+      showToast('Failed to trigger celebration', 'error');
+    }
   };
 
   return (
@@ -28,7 +33,7 @@ export function CelebrationControls({ showToast }: CelebrationControlsProps) {
           {/* Option 1: Stadium Roar */}
           <button
             type="button"
-            onClick={() => handleCelebration('stadium', '12th Man Stadium Roar')}
+            onClick={() => void handleCelebration('stadium', '12th Man Stadium Roar')}
             className="btn btn-primary btn-block justify-start text-left h-auto py-3"
           >
             <div className="flex flex-col items-start w-full">
@@ -45,7 +50,7 @@ export function CelebrationControls({ showToast }: CelebrationControlsProps) {
           {/* Option 2: Boom Tower */}
           <button
             type="button"
-            onClick={() => handleCelebration('boom', 'Boom Tower Shake')}
+            onClick={() => void handleCelebration('boom', 'Boom Tower Shake')}
             className="btn btn-secondary btn-block justify-start text-left h-auto py-3"
           >
             <div className="flex flex-col items-start w-full">
@@ -62,7 +67,7 @@ export function CelebrationControls({ showToast }: CelebrationControlsProps) {
           {/* Option 3: Matrix Rain */}
           <button
             type="button"
-            onClick={() => handleCelebration('matrix', 'Matrix Rain Championship')}
+            onClick={() => void handleCelebration('matrix', 'Matrix Rain Championship')}
             className="btn btn-accent btn-block justify-start text-left h-auto py-3"
           >
             <div className="flex flex-col items-start w-full">

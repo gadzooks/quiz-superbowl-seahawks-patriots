@@ -356,3 +356,22 @@ export async function recalculateAllScores(
 
   return updates.length;
 }
+
+/**
+ * Trigger a victory celebration for all users in the league.
+ * Updates the league's activeCelebration and timestamp so all connected clients see it.
+ * The timestamp allows the same celebration to be triggered multiple times.
+ */
+export async function triggerCelebration(
+  leagueId: string,
+  celebrationType: 'stadium' | 'boom' | 'matrix'
+): Promise<void> {
+  // Type assertion needed for dynamic InstantDB fields not in schema
+  await db.transact([
+    db.tx.leagues[leagueId].update({
+      activeCelebration: celebrationType,
+      celebrationTriggeredAt: Date.now(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- InstantDB dynamic fields
+    } as any),
+  ]);
+}

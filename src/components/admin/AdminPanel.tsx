@@ -151,7 +151,7 @@ export function AdminPanel({
   return (
     <div>
       {/* Victory Celebrations */}
-      <CelebrationControls showToast={showToast} />
+      <CelebrationControls leagueId={league.id} showToast={showToast} />
 
       {/* Submission Controls */}
       <SubmissionControls

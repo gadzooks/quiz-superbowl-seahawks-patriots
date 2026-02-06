@@ -20,6 +20,8 @@ export interface Question {
   isTiebreaker: boolean;
 }
 
+export type CelebrationType = 'stadium' | 'boom' | 'matrix' | null;
+
 export interface League {
   id: string;
   name: string;
@@ -29,6 +31,8 @@ export interface League {
   createdAt: number;
   actualResults: Record<string, string | number> | null;
   showAllPredictions: boolean;
+  activeCelebration?: CelebrationType;
+  celebrationTriggeredAt?: number;
 }
 
 export interface Prediction {
