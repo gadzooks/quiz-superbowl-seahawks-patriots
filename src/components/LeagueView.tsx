@@ -11,6 +11,7 @@ import { isAdminOverride } from '../utils/url';
 import { AdminPanel } from './AdminPanel';
 import { AllPredictionsTable } from './AllPredictionsTable';
 import { useConfetti } from './Celebration';
+import { VictoryCelebration } from './celebrations/VictoryCelebration';
 import { Header } from './Header';
 import { countAnsweredQuestions } from './helpers';
 import { IntroOverlay } from './IntroPage';
@@ -19,6 +20,7 @@ import { LeagueNotFound } from './LeagueNotFound';
 import { PredictionsForm } from './PredictionsForm';
 import { ResultsForm } from './ResultsForm';
 import { ScrollProgress } from './ScrollProgress';
+import { SeedTab } from './SeedTab';
 import { Tabs } from './Tabs';
 import { TeamNameEntry } from './TeamNameEntry';
 import { TeamNameModal } from './TeamNameModal';
@@ -66,6 +68,21 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
   const isManager = currentUserPrediction?.isManager ?? false;
   const hasAdminAccess = isCreator || isManager;
   const teamName = currentUserPrediction?.teamName ?? '';
+
+  // Check if game needs seeding
+  const needsSeeding = questions.length === 0;
+
+  // Auto-switch to seed tab if questions are empty
+  // Auto-switch away from seed tab when questions become available
+  useEffect(() => {
+    if (needsSeeding && currentTab !== 'seed') {
+      // Questions missing - switch to seed tab
+      setCurrentTab('seed');
+    } else if (!needsSeeding && currentTab === 'seed') {
+      // Questions now available - switch to predictions tab
+      setCurrentTab('predictions');
+    }
+  }, [needsSeeding, currentTab, setCurrentTab]);
 
   // Detect result changes for unviewed score badge
   useEffect(() => {
@@ -208,10 +225,22 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
           isCreator={isCreator}
           hasUnviewedScoreUpdate={hasUnviewedScoreUpdate}
           teamName={teamName}
+          showSeedTab={needsSeeding}
         />
 
+        {/* Seed tab - shown when game/questions not seeded */}
+        {currentTab === 'seed' && needsSeeding && (
+          <SeedTab
+            gameId={gameId}
+            onSeeded={() => {
+              // No-op - let InstantDB real-time updates and useEffect handle the transition
+              // The useEffect will automatically switch to predictions tab when questions arrive
+            }}
+          />
+        )}
+
         {/* Predictions tab */}
-        {currentTab === 'predictions' && (
+        {currentTab === 'predictions' && !needsSeeding && (
           <PredictionsForm
             questions={questions}
             userPrediction={currentUserPrediction}
@@ -283,6 +312,9 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
         currentUserId={currentUserId}
         showToast={showToast}
       />
+
+      {/* Victory Celebrations - Full screen overlay */}
+      <VictoryCelebration />
     </>
   );
 }

@@ -59,4 +59,4 @@ export interface AppState {
   expectedLeagueSlug: string | null;
 }
 
-export type TabType = 'predictions' | 'scores' | 'results' | 'admin';
+export type TabType = 'seed' | 'predictions' | 'scores' | 'results' | 'admin';

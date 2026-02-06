@@ -6,6 +6,8 @@ import { DEFAULT_TEAM_ID } from '../theme/teams';
 import type { TabType } from '../types';
 import { getUserId } from '../utils/user';
 
+export type VictoryCelebrationType = 'stadium' | 'boom' | 'matrix' | null;
+
 interface AppContextValue {
   currentUserId: string;
   currentTab: TabType;
@@ -20,6 +22,8 @@ interface AppContextValue {
   setHasTriggeredNonWinnerCelebration: (v: boolean) => void;
   hasUnviewedScoreUpdate: boolean;
   setHasUnviewedScoreUpdate: (v: boolean) => void;
+  activeCelebration: VictoryCelebrationType;
+  setActiveCelebration: (type: VictoryCelebrationType) => void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -40,6 +44,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [hasTriggeredWinnerCelebration, setHasTriggeredWinnerCelebration] = useState(false);
   const [hasTriggeredNonWinnerCelebration, setHasTriggeredNonWinnerCelebration] = useState(false);
   const [hasUnviewedScoreUpdate, setHasUnviewedScoreUpdate] = useState(false);
+  const [activeCelebration, setActiveCelebration] = useState<VictoryCelebrationType>(null);
 
   const setCurrentTab = useCallback((tab: TabType) => {
     setCurrentTabRaw(tab);
@@ -70,6 +75,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setHasTriggeredNonWinnerCelebration,
       hasUnviewedScoreUpdate,
       setHasUnviewedScoreUpdate,
+      activeCelebration,
+      setActiveCelebration,
     }),
     [
       currentUserId,
@@ -81,6 +88,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       hasTriggeredWinnerCelebration,
       hasTriggeredNonWinnerCelebration,
       hasUnviewedScoreUpdate,
+      activeCelebration,
     ]
   );
 
