@@ -163,24 +163,52 @@
   box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15) !important;
 }
 
-/* Save button */
-.save-button-container {
-  position: sticky;
+/* Unsaved changes floating bar — fixed at viewport bottom, visible on all tabs */
+.unsaved-changes-bar {
+  position: fixed;
   bottom: 0;
-  padding: var(--space-md, 16px) 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-md, 16px);
   padding-bottom: calc(var(--space-md, 16px) + env(safe-area-inset-bottom));
-  background: linear-gradient(to top, var(--color-background) 60%, transparent);
-  z-index: 10;
+  background: linear-gradient(to top, var(--color-background) 80%, transparent);
+  z-index: 50;
 }
 
-.save-predictions-btn {
-  width: 100%;
+.unsaved-changes-bar-inner {
+  max-width: 32rem;
+  margin: 0 auto;
+  display: flex;
+  gap: var(--space-sm, 8px);
+}
+
+.unsaved-save-btn {
+  flex: 1;
   user-select: none;
   -webkit-user-select: none;
 }
 
-.save-predictions-btn:disabled {
+.unsaved-save-btn:disabled {
   opacity: 0.7;
+  cursor: default;
+}
+
+.unsaved-cancel-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1.5px solid var(--color-text-muted);
+  color: var(--color-text-muted);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.unsaved-cancel-btn:hover {
+  border-color: var(--color-text);
+  color: var(--color-text);
+}
+
+.unsaved-cancel-btn:disabled {
+  opacity: 0.5;
   cursor: default;
 }
 

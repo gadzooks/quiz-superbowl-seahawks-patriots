@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useAppContext } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
+import { savePrediction } from '../db/queries';
 import { useLeagueData } from '../hooks/useLeagueData';
 import { isAdminOverride } from '../utils/url';
 
@@ -21,6 +22,7 @@ import { ScrollProgress } from './ScrollProgress';
 import { Tabs } from './Tabs';
 import { TeamNameEntry } from './TeamNameEntry';
 import { TeamNameModal } from './TeamNameModal';
+import { UnsavedChangesBar } from './UnsavedChangesBar';
 
 interface LeagueViewProps {
   gameId: string;
@@ -77,6 +79,20 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
 
   // Cache formData in the parent so it survives PredictionsForm unmount/remount
   const formDataCacheRef = useRef<Record<string, string | number> | null>(null);
+  const lastExplicitSaveRef = useRef<string | null>(null);
+  const skipUnmountSaveRef = useRef(false);
+
+  // Unsaved changes bar state (persists across tab switches)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [formResetKey, setFormResetKey] = useState(0);
+
+  // Initialize lastExplicitSaveRef to DB state on first load — stable baseline
+  // for unsaved detection. Only runs once (null check prevents overwrites from
+  // InstantDB real-time updates or background unmount saves).
+  if (lastExplicitSaveRef.current === null && currentUserPrediction) {
+    lastExplicitSaveRef.current = JSON.stringify(currentUserPrediction.predictions);
+  }
 
   const isCreator = league?.creatorId === currentUserId || isAdminOverride();
   const isManager = currentUserPrediction?.isManager ?? false;
@@ -115,6 +131,10 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
     [setCurrentTab]
   );
 
+  const handleUnsavedChangesUpdate = useCallback((hasUnsaved: boolean) => {
+    setHasUnsavedChanges(hasUnsaved);
+  }, []);
+
   const handleProgressUpdate = useCallback((percentage: number) => {
     setProgressPercentage(percentage);
   }, []);
@@ -125,6 +145,68 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
       showCompletionCelebration();
     }
   }, [hasShownCompletionCelebration, setHasShownCompletionCelebration, showCompletionCelebration]);
+
+  const handleSave = useCallback(() => {
+    if (!currentUserPrediction || !league?.isOpen || !formDataCacheRef.current) return;
+
+    setSaveStatus('saving');
+    const dataToSave = { ...formDataCacheRef.current };
+
+    savePrediction({
+      id: currentUserPrediction.id,
+      leagueId: league.id,
+      userId: currentUserId,
+      teamName: currentUserPrediction.teamName,
+      predictions: dataToSave,
+      isManager: currentUserPrediction.isManager,
+      actualResults: league.actualResults,
+      questions,
+    }).then(
+      () => {
+        const snapshot = JSON.stringify(dataToSave);
+        lastExplicitSaveRef.current = snapshot;
+        setSaveStatus('saved');
+        setHasUnsavedChanges(false);
+        setTimeout(() => setSaveStatus('idle'), 2000);
+
+        const answeredCount = countAnsweredQuestions(dataToSave, questions);
+        if (answeredCount === questions.length) {
+          handleCompletionCelebration();
+        }
+      },
+      () => {
+        setSaveStatus('idle');
+        showToast('Failed to save — please try again', 'error');
+      }
+    );
+  }, [
+    currentUserPrediction,
+    league,
+    currentUserId,
+    questions,
+    showToast,
+    handleCompletionCelebration,
+  ]);
+
+  const handleCancel = useCallback(() => {
+    let savedData: Record<string, string | number>;
+    if (lastExplicitSaveRef.current) {
+      // eslint-disable-next-line no-restricted-syntax -- roundtrip of our own JSON.stringify
+      savedData = JSON.parse(lastExplicitSaveRef.current) as Record<string, string | number>;
+    } else {
+      savedData = currentUserPrediction?.predictions ?? {};
+    }
+    formDataCacheRef.current = savedData;
+    lastExplicitSaveRef.current = JSON.stringify(savedData);
+    setHasUnsavedChanges(false);
+    // Force PredictionsForm remount to reset internal state; skip unmount save
+    skipUnmountSaveRef.current = true;
+    setFormResetKey((k) => k + 1);
+    setTimeout(() => {
+      skipUnmountSaveRef.current = false;
+    }, 0);
+    showToast('Changes discarded', 'info');
+  }, [currentUserPrediction, showToast]);
 
   const handleTeamRegistered = useCallback(
     (newTeamName: string) => {
@@ -221,14 +303,16 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
         {/* Predictions tab */}
         {currentTab === 'predictions' && (
           <PredictionsForm
+            key={formResetKey}
             questions={questions}
             userPrediction={currentUserPrediction}
             league={league}
             userId={currentUserId}
-            showToast={showToast}
             onProgressUpdate={handleProgressUpdate}
-            onCompletionCelebration={handleCompletionCelebration}
             formDataCacheRef={formDataCacheRef}
+            lastExplicitSaveRef={lastExplicitSaveRef}
+            onUnsavedChangesUpdate={handleUnsavedChangesUpdate}
+            skipUnmountSaveRef={skipUnmountSaveRef}
           />
         )}
 
@@ -279,6 +363,11 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
           />
         )}
       </div>
+
+      {/* Floating save/cancel bar — visible on any tab when there are unsaved changes */}
+      {league.isOpen && (hasUnsavedChanges || saveStatus !== 'idle') && (
+        <UnsavedChangesBar saveStatus={saveStatus} onSave={handleSave} onCancel={handleCancel} />
+      )}
 
       {/* Team Name Modal */}
       <TeamNameModal

@@ -10,15 +10,15 @@ interface PredictionsFormProps {
   userPrediction: Prediction | undefined;
   league: League;
   userId: string;
-  showToast: (
-    msg: string,
-    type?: 'success' | 'error' | 'info' | 'warning',
-    duration?: number
-  ) => void;
   onProgressUpdate: (percentage: number) => void;
-  onCompletionCelebration: () => void;
   /** Parent-owned ref that caches formData across unmount/remount cycles */
   formDataCacheRef: MutableRefObject<Record<string, string | number> | null>;
+  /** Parent-owned ref tracking last explicit save snapshot (survives remounts) */
+  lastExplicitSaveRef: MutableRefObject<string | null>;
+  /** Reports unsaved state to parent for the floating save bar */
+  onUnsavedChangesUpdate: (hasUnsaved: boolean) => void;
+  /** Parent sets true before cancel-triggered remount to skip unmount save */
+  skipUnmountSaveRef: MutableRefObject<boolean>;
 }
 
 export const PredictionsForm = memo(function PredictionsForm({
@@ -26,25 +26,29 @@ export const PredictionsForm = memo(function PredictionsForm({
   userPrediction,
   league,
   userId,
-  showToast,
   onProgressUpdate,
-  onCompletionCelebration,
   formDataCacheRef,
+  lastExplicitSaveRef,
+  onUnsavedChangesUpdate,
+  skipUnmountSaveRef,
 }: PredictionsFormProps) {
   // Form state — local only, not driven by InstantDB after initial load
   const [formData, setFormData] = useState<Record<string, string | number>>({});
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 
   // Refs for save logic
   const formDataRef = useRef<Record<string, string | number>>({});
-  const lastSavedDataRef = useRef<string>(JSON.stringify(userPrediction?.predictions ?? {}));
+  // Use parent's explicit save snapshot if available (survives tab switches),
+  // otherwise fall back to DB state on first mount
+  const lastSavedDataRef = useRef<string>(
+    lastExplicitSaveRef.current ?? JSON.stringify(userPrediction?.predictions ?? {})
+  );
 
   // Stable refs for callbacks (avoids re-render cascades from unstable props)
   const leagueRef = useRef(league);
   const userPredictionRef = useRef(userPrediction);
   const questionsRef = useRef(questions);
-  const onCompletionCelebrationRef = useRef(onCompletionCelebration);
   const onProgressUpdateRef = useRef(onProgressUpdate);
+  const onUnsavedChangesUpdateRef = useRef(onUnsavedChangesUpdate);
 
   // Initialize form data: prefer parent cache (survives remounts), then InstantDB data
   useEffect(() => {
@@ -65,59 +69,28 @@ export const PredictionsForm = memo(function PredictionsForm({
     leagueRef.current = league;
     userPredictionRef.current = userPrediction;
     questionsRef.current = questions;
-    onCompletionCelebrationRef.current = onCompletionCelebration;
     onProgressUpdateRef.current = onProgressUpdate;
-  }, [league, userPrediction, questions, onCompletionCelebration, onProgressUpdate]);
+    onUnsavedChangesUpdateRef.current = onUnsavedChangesUpdate;
+  }, [league, userPrediction, questions, onProgressUpdate, onUnsavedChangesUpdate]);
 
-  // Manual save handler
-  const handleSave = useCallback(() => {
-    const currentLeague = leagueRef.current;
-    const currentPrediction = userPredictionRef.current;
-
-    if (!currentLeague.isOpen || !currentPrediction) return;
-
-    setSaveStatus('saving');
-    const dataToSave = { ...formDataRef.current };
-
-    savePrediction({
-      id: currentPrediction.id,
-      leagueId: currentLeague.id,
-      userId,
-      teamName: currentPrediction.teamName,
-      predictions: dataToSave,
-      isManager: currentPrediction.isManager,
-      actualResults: currentLeague.actualResults,
-      questions: questionsRef.current,
-    }).then(
-      () => {
-        lastSavedDataRef.current = JSON.stringify(dataToSave);
-        setSaveStatus('saved');
-        setTimeout(() => setSaveStatus('idle'), 2000);
-
-        // Trigger completion celebration if all questions answered
-        // (parent guards against showing more than once via hasShownCompletionCelebration)
-        const answeredCount = countAnsweredQuestions(dataToSave, questionsRef.current);
-        if (answeredCount === questionsRef.current.length) {
-          onCompletionCelebrationRef.current();
-        }
-      },
-      () => {
-        setSaveStatus('idle');
-        showToast('Failed to save — please try again', 'error');
-      }
-    );
-  }, [userId, showToast]);
-
-  // Update progress bar whenever formData changes
+  // Update progress bar and report unsaved state whenever formData changes
   useEffect(() => {
     const answered = countAnsweredQuestions(formData, questionsRef.current);
     const total = questionsRef.current.length;
     onProgressUpdateRef.current(total > 0 ? Math.round((answered / total) * 100) : 0);
+
+    // Sync lastSavedDataRef from parent (captures external saves from LeagueView)
+    if (lastExplicitSaveRef.current) {
+      lastSavedDataRef.current = lastExplicitSaveRef.current;
+    }
+    const unsaved = JSON.stringify(formData) !== lastSavedDataRef.current;
+    onUnsavedChangesUpdateRef.current(unsaved);
   }, [formData]);
 
-  // Save pending changes on unmount (only if we have real data)
+  // Save pending changes on unmount (skip if cancel triggered the remount)
   useEffect(() => {
     return () => {
+      if (skipUnmountSaveRef.current) return;
       const data = formDataRef.current;
       const currentPrediction = userPredictionRef.current;
       const currentLeague = leagueRef.current;
@@ -145,7 +118,6 @@ export const PredictionsForm = memo(function PredictionsForm({
         formDataCacheRef.current = next; // persist across remounts
         return next;
       });
-      setSaveStatus('idle');
     },
     [formDataCacheRef]
   );
@@ -170,9 +142,6 @@ export const PredictionsForm = memo(function PredictionsForm({
     },
     [handleChange]
   );
-
-  // Detect unsaved changes by comparing current formData to last saved snapshot
-  const hasUnsavedChanges = JSON.stringify(formData) !== lastSavedDataRef.current;
 
   // Derived display state
   const hasResults = league.actualResults && Object.keys(league.actualResults).length > 0;
@@ -285,25 +254,6 @@ export const PredictionsForm = memo(function PredictionsForm({
           );
         })}
       </form>
-
-      {league.isOpen && (hasUnsavedChanges || saveStatus !== 'idle') && (
-        <div className="save-button-container">
-          <button
-            type="button"
-            className={`btn btn-lg save-predictions-btn ${
-              saveStatus === 'saved' ? 'save-btn-saved' : 'btn-primary save-btn-unsaved'
-            }`}
-            disabled={saveStatus === 'saving'}
-            onClick={handleSave}
-          >
-            {saveStatus === 'saving'
-              ? 'Saving...'
-              : saveStatus === 'saved'
-                ? '\u2705 Saved!'
-                : '\u26A0\uFE0F Save Predictions'}
-          </button>
-        </div>
-      )}
     </section>
   );
 });
