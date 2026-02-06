@@ -2,7 +2,6 @@ import { type MutableRefObject, useState, useEffect, useRef, useCallback, memo }
 
 import { savePrediction } from '../db/queries';
 import type { Question, Prediction, League } from '../types';
-import { logger } from '../utils/logger';
 
 import { isAnswerCorrect, formatSlugForDisplay, countAnsweredQuestions } from './helpers';
 
@@ -39,8 +38,6 @@ export const PredictionsForm = memo(function PredictionsForm({
   // Refs for save logic
   const formDataRef = useRef<Record<string, string | number>>({});
   const lastSavedDataRef = useRef<string>(JSON.stringify(userPrediction?.predictions ?? {}));
-  const previousAnswerCountRef = useRef<number>(0);
-  const hasCheckedCompletionRef = useRef<boolean>(false);
 
   // Stable refs for callbacks (avoids re-render cascades from unstable props)
   const leagueRef = useRef(league);
@@ -49,41 +46,17 @@ export const PredictionsForm = memo(function PredictionsForm({
   const onCompletionCelebrationRef = useRef(onCompletionCelebration);
   const onProgressUpdateRef = useRef(onProgressUpdate);
 
-  // Diagnostic: mount/unmount tracking
-  useEffect(() => {
-    console.log('[PredictionsForm] MOUNTED');
-    return () => console.log('[PredictionsForm] UNMOUNTED');
-  }, []);
-
-  // Diagnostic: log every formData state change
-  useEffect(() => {
-    console.log('[PredictionsForm] formData changed:', JSON.stringify(formData));
-  }, [formData]);
-
   // Initialize form data: prefer parent cache (survives remounts), then InstantDB data
   useEffect(() => {
-    console.log(
-      '[PredictionsForm] Init effect running, cache:',
-      JSON.stringify(formDataCacheRef.current)
-    );
     if (formDataCacheRef.current) {
-      // Restore from parent cache — survives unmount/remount
       setFormData(formDataCacheRef.current);
       formDataRef.current = formDataCacheRef.current;
-      previousAnswerCountRef.current = countAnsweredQuestions(
-        formDataCacheRef.current,
-        questionsRef.current
-      );
       return;
     }
     if (userPrediction?.predictions) {
       setFormData(userPrediction.predictions);
       formDataRef.current = userPrediction.predictions;
       formDataCacheRef.current = userPrediction.predictions;
-      previousAnswerCountRef.current = countAnsweredQuestions(
-        userPrediction.predictions,
-        questionsRef.current
-      );
     }
   }, []);
 
@@ -121,23 +94,14 @@ export const PredictionsForm = memo(function PredictionsForm({
         setSaveStatus('saved');
         setTimeout(() => setSaveStatus('idle'), 2000);
 
-        // Check for completion celebration
+        // Trigger completion celebration if all questions answered
+        // (parent guards against showing more than once via hasShownCompletionCelebration)
         const answeredCount = countAnsweredQuestions(dataToSave, questionsRef.current);
-        const totalQuestions = questionsRef.current.length;
-        const wasIncomplete = previousAnswerCountRef.current < totalQuestions;
-        const isNowComplete = answeredCount === totalQuestions;
-        const isFirstCheck = !hasCheckedCompletionRef.current;
-
-        if (isNowComplete && (wasIncomplete || isFirstCheck)) {
-          logger.debug('[PredictionsForm] Triggering completion celebration');
+        if (answeredCount === questionsRef.current.length) {
           onCompletionCelebrationRef.current();
-          hasCheckedCompletionRef.current = true;
         }
-
-        previousAnswerCountRef.current = answeredCount;
       },
-      (error) => {
-        logger.debug('[PredictionsForm] Save error:', error);
+      () => {
         setSaveStatus('idle');
         showToast('Failed to save — please try again', 'error');
       }
@@ -158,7 +122,6 @@ export const PredictionsForm = memo(function PredictionsForm({
       const currentPrediction = userPredictionRef.current;
       const currentLeague = leagueRef.current;
       if (currentPrediction && currentLeague.isOpen && Object.keys(data).length > 0) {
-        console.log('[PredictionsForm] Unmount save:', JSON.stringify(data));
         void savePrediction({
           id: currentPrediction.id,
           leagueId: currentLeague.id,
@@ -196,7 +159,6 @@ export const PredictionsForm = memo(function PredictionsForm({
 
   const handleNumberChange = useCallback(
     (questionId: string, value: string) => {
-      console.log('[handleNumberChange]', questionId, 'raw:', JSON.stringify(value));
       if (value === '') {
         handleChange(questionId, '');
         return;
@@ -324,16 +286,12 @@ export const PredictionsForm = memo(function PredictionsForm({
         })}
       </form>
 
-      {league.isOpen && (
+      {league.isOpen && (hasUnsavedChanges || saveStatus !== 'idle') && (
         <div className="save-button-container">
           <button
             type="button"
             className={`btn btn-lg save-predictions-btn ${
-              saveStatus === 'saved'
-                ? 'save-btn-saved'
-                : hasUnsavedChanges
-                  ? 'btn-primary save-btn-unsaved'
-                  : 'btn-primary'
+              saveStatus === 'saved' ? 'save-btn-saved' : 'btn-primary save-btn-unsaved'
             }`}
             disabled={saveStatus === 'saving'}
             onClick={handleSave}
@@ -342,10 +300,8 @@ export const PredictionsForm = memo(function PredictionsForm({
               'Saving...'
             ) : saveStatus === 'saved' ? (
               <>{'\u2705'} Saved!</>
-            ) : hasUnsavedChanges ? (
-              <>{'\u26A0\uFE0F'} Save Predictions</>
             ) : (
-              <>{'\u2705'} All Saved</>
+              <>{'\u26A0\uFE0F'} Save Predictions</>
             )}
           </button>
         </div>
