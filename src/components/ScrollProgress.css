@@ -1,0 +1,57 @@
+/* ScrollProgress.css */
+/* Sticky progress bar that appears on scroll */
+
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transform: translateY(-100%);
+  transition: transform 0.3s ease-in-out;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+  /* Support for iPhone notch */
+  padding-top: env(safe-area-inset-top);
+}
+
+.scroll-progress--visible {
+  transform: translateY(0);
+}
+
+/* Simple progress bar styles (fallback) */
+.scroll-progress .progress-bar-container {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.scroll-progress .progress-bar {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--header-left-accent, #69be28),
+    var(--header-right-accent, #c60c30)
+  );
+  transition: width 0.3s ease-out;
+}
+
+/* Ensure progress components are properly contained */
+.scroll-progress > * {
+  max-width: 100%;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-progress {
+    transition: none;
+  }
+
+  .scroll-progress .progress-bar {
+    transition: none;
+  }
+}

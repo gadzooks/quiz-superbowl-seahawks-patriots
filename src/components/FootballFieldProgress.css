@@ -1,0 +1,270 @@
+/* FootballFieldProgress.css */
+
+.football-field-container {
+  width: 100%;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.field-wrapper {
+  flex: 1;
+  position: relative;
+  height: 40px;
+  min-width: 0; /* Allow flex shrinking */
+}
+
+.football-field {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #2d5016 0%, #3a6b1e 50%, #2d5016 100%);
+  border-radius: 6px;
+  border: 2px solid #4a7c1f;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Grass texture effect */
+.football-field::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 10%,
+    rgba(0, 0, 0, 0.03) 10%,
+    rgba(0, 0, 0, 0.03) 20%
+  );
+}
+
+.yard-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.yard-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.yard-line {
+  width: 2px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.yard-marker.endzone .yard-line {
+  width: 3px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.yard-number {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 8px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* Progress fill showing team advancement */
+.field-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(var(--header-left-accent-rgb, 105, 190, 40), 0.3) 0%,
+    rgba(var(--header-right-accent-rgb, 198, 12, 48), 0.3) 100%
+  );
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border-right: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Football emoji */
+.football {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 18px;
+  transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
+  z-index: 10;
+  animation: footballBounce 0.5s ease-in-out infinite;
+}
+
+@keyframes footballBounce {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) rotate(-5deg);
+  }
+  50% {
+    transform: translate(-50%, -52%) rotate(5deg);
+  }
+}
+
+.football.touchdown {
+  animation: touchdownCelebration 1.5s ease-out forwards;
+}
+
+@keyframes touchdownCelebration {
+  0% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+  }
+  25% {
+    transform: translate(-50%, -80%) scale(1.5) rotate(180deg);
+  }
+  50% {
+    transform: translate(-50%, -100%) scale(2) rotate(360deg);
+  }
+  75% {
+    transform: translate(-50%, -80%) scale(1.5) rotate(540deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1) rotate(720deg);
+  }
+}
+
+/* Touchdown text */
+.touchdown-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  font-weight: 900;
+  color: #ffd700;
+  text-shadow:
+    0 0 10px rgba(255, 215, 0, 0.8),
+    0 2px 4px rgba(0, 0, 0, 0.8);
+  animation: touchdownTextPulse 1s ease-out forwards;
+  z-index: 20;
+  white-space: nowrap;
+}
+
+@keyframes touchdownTextPulse {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.3);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Confetti bursts */
+.confetti-burst {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  animation: confettiBurst 1s ease-out forwards;
+}
+
+.confetti-1 {
+  top: 20%;
+  left: 85%;
+  background: #ffd700;
+}
+
+.confetti-2 {
+  top: 30%;
+  left: 90%;
+  background: #ff6347;
+  animation-delay: 0.1s;
+}
+
+.confetti-3 {
+  top: 60%;
+  left: 88%;
+  background: #4169e1;
+  animation-delay: 0.2s;
+}
+
+.confetti-4 {
+  top: 70%;
+  left: 93%;
+  background: #32cd32;
+  animation-delay: 0.15s;
+}
+
+@keyframes confettiBurst {
+  0% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0) translateY(-30px);
+    opacity: 0;
+  }
+}
+
+/* Field stats */
+.field-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.yard-display {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .field-wrapper {
+    height: 35px;
+  }
+
+  .football {
+    font-size: 16px;
+  }
+
+  .yard-number {
+    font-size: 7px;
+  }
+
+  .touchdown-text {
+    font-size: 11px;
+  }
+
+  .yard-display {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .yard-number {
+    display: none; /* Hide numbers on very small screens */
+  }
+}

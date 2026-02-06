@@ -18,6 +18,7 @@ import { Leaderboard } from './Leaderboard';
 import { LeagueNotFound } from './LeagueNotFound';
 import { PredictionsForm } from './PredictionsForm';
 import { ResultsForm } from './ResultsForm';
+import { ScrollProgress } from './ScrollProgress';
 import { Tabs } from './Tabs';
 import { TeamNameEntry } from './TeamNameEntry';
 import { TeamNameModal } from './TeamNameModal';
@@ -191,6 +192,12 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
         progressPercentage={progressPercentage || computedProgress}
         currentTab={currentTab}
         onReplayIntro={() => setShowIntro(true)}
+      />
+
+      {/* Animated progress bar that appears on scroll */}
+      <ScrollProgress
+        progressPercentage={progressPercentage || computedProgress}
+        style="football"
       />
 
       <div className="container mx-auto p-4 max-w-lg">
