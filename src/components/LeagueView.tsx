@@ -106,7 +106,18 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
   const needsSeeding = questions.length === 0;
 
   // Track last celebration trigger time to detect new celebrations
-  const lastCelebrationTriggerRef = useRef<number>(0);
+  // Initialize from localStorage to persist across page refreshes
+  const getLastSeenCelebration = (leagueId: string): number => {
+    try {
+      const key = `celebration-last-seen-${leagueId}`;
+      const stored = localStorage.getItem(key);
+      return stored ? parseInt(stored, 10) : 0;
+    } catch {
+      return 0;
+    }
+  };
+
+  const lastCelebrationTriggerRef = useRef<number>(league ? getLastSeenCelebration(league.id) : 0);
 
   // Auto-switch to seed tab if questions are empty
   // Auto-switch away from seed tab when questions become available
@@ -119,6 +130,12 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
       setCurrentTab('predictions');
     }
   }, [needsSeeding, currentTab, setCurrentTab]);
+
+  // Update lastCelebrationTriggerRef when league changes
+  useEffect(() => {
+    if (!league) return;
+    lastCelebrationTriggerRef.current = getLastSeenCelebration(league.id);
+  }, [league?.id]);
 
   // Watch for celebration triggers from the league (admin broadcasts)
   useEffect(() => {
@@ -136,6 +153,15 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
     if (league.celebrationTriggeredAt > lastCelebrationTriggerRef.current) {
       console.log('🎉 Triggering celebration:', league.activeCelebration);
       lastCelebrationTriggerRef.current = league.celebrationTriggeredAt;
+
+      // Persist to localStorage so refreshing the page doesn't show it again
+      try {
+        const key = `celebration-last-seen-${league.id}`;
+        localStorage.setItem(key, league.celebrationTriggeredAt.toString());
+      } catch (error) {
+        console.warn('Failed to persist celebration timestamp:', error);
+      }
+
       setActiveCelebration(league.activeCelebration);
     }
   }, [league, setActiveCelebration]);
