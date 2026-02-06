@@ -42,13 +42,14 @@ export function PredictionsForm({
   const hasCheckedCompletionThisSessionRef = useRef<boolean>(false);
   const lastLoadedPredictionIdRef = useRef<string | null>(null);
 
-  // Refs to stabilize performSave callback
+  // Refs to stabilize callbacks and prevent re-render cascades
   const leagueRef = useRef(league);
   const userPredictionRef = useRef(userPrediction);
   const userIdRef = useRef(userId);
   const questionsRef = useRef(questions);
   const onCompletionCelebrationRef = useRef(onCompletionCelebration);
   const showToastRef = useRef(showToast);
+  const onProgressUpdateRef = useRef(onProgressUpdate);
 
   // Initialize form data from userPrediction
   // Only reset formData when loading a DIFFERENT prediction (not on every re-render)
@@ -62,13 +63,13 @@ export function PredictionsForm({
         // Initialize previous count to prevent false triggers on first render
         previousAnswerCountRef.current = countAnsweredQuestions(
           userPrediction.predictions,
-          questions
+          questionsRef.current
         );
       }
     }
-  }, [userPrediction, questions]);
+  }, [userPrediction]);
 
-  // Keep refs in sync with props for use in performSave
+  // Keep refs in sync with props for use in stabilized callbacks
   useEffect(() => {
     leagueRef.current = league;
     userPredictionRef.current = userPrediction;
@@ -76,14 +77,28 @@ export function PredictionsForm({
     questionsRef.current = questions;
     onCompletionCelebrationRef.current = onCompletionCelebration;
     showToastRef.current = showToast;
-  }, [league, userPrediction, userId, questions, onCompletionCelebration, showToast]);
+    onProgressUpdateRef.current = onProgressUpdate;
+  }, [
+    league,
+    userPrediction,
+    userId,
+    questions,
+    onCompletionCelebration,
+    showToast,
+    onProgressUpdate,
+  ]);
 
   // Update progress bar whenever formData changes
+  // Uses refs for questions and onProgressUpdate to prevent re-render cascades:
+  // without refs, unstable questions reference from useLeagueData triggers this effect
+  // on every parent re-render, causing 4-6 re-renders per radio selection
   useEffect(() => {
-    const answered = countAnsweredQuestions(formData, questions);
-    const percentage = questions.length > 0 ? Math.round((answered / questions.length) * 100) : 0;
-    onProgressUpdate(percentage);
-  }, [formData, questions, onProgressUpdate]);
+    const currentQuestions = questionsRef.current;
+    const answered = countAnsweredQuestions(formData, currentQuestions);
+    const percentage =
+      currentQuestions.length > 0 ? Math.round((answered / currentQuestions.length) * 100) : 0;
+    onProgressUpdateRef.current(percentage);
+  }, [formData]);
 
   // Clear saved indicator after delay
   useEffect(() => {
