@@ -28,6 +28,8 @@ const _schema = i.schema({
       createdAt: i.date().indexed(),
       actualResults: i.json().optional(),
       showAllPredictions: i.boolean(),
+      activeCelebration: i.string().optional(),
+      celebrationTriggeredAt: i.number().optional(),
     }),
 
     predictions: i.entity({

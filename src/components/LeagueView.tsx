@@ -123,10 +123,18 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
   // Watch for celebration triggers from the league (admin broadcasts)
   useEffect(() => {
     if (!league) return;
+
+    console.log('🎉 Celebration check:', {
+      activeCelebration: league.activeCelebration,
+      celebrationTriggeredAt: league.celebrationTriggeredAt,
+      lastTrigger: lastCelebrationTriggerRef.current,
+    });
+
     if (!league.activeCelebration || !league.celebrationTriggeredAt) return;
 
     // Only trigger if this is a new celebration (different timestamp)
     if (league.celebrationTriggeredAt > lastCelebrationTriggerRef.current) {
+      console.log('🎉 Triggering celebration:', league.activeCelebration);
       lastCelebrationTriggerRef.current = league.celebrationTriggeredAt;
       setActiveCelebration(league.activeCelebration);
     }

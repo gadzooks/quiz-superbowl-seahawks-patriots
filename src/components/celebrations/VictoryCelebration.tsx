@@ -11,13 +11,18 @@ import { SeahawksVictory3 } from './SeahawksVictory3';
 export function VictoryCelebration() {
   const { activeCelebration, setActiveCelebration } = useAppContext();
 
+  console.log('🎊 VictoryCelebration render:', { activeCelebration });
+
   const handleComplete = () => {
+    console.log('🎊 VictoryCelebration complete');
     setActiveCelebration(null);
   };
 
   if (!activeCelebration) {
     return null;
   }
+
+  console.log('🎊 Rendering celebration component:', activeCelebration);
 
   return (
     <>
