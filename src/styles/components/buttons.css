@@ -50,6 +50,12 @@
   min-height: 56px;
 }
 
+.btn-md {
+  padding: 10px 20px;
+  font-size: 16px;
+  min-height: 44px !important;
+}
+
 .btn-sm {
   padding: 8px 16px;
   font-size: 15px;

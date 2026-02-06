@@ -17,7 +17,7 @@ export const UnsavedChangesBar = memo(function UnsavedChangesBar({
         {saveStatus !== 'saved' && (
           <button
             type="button"
-            className="btn btn-lg unsaved-cancel-btn"
+            className="btn btn-md unsaved-cancel-btn"
             disabled={saveStatus === 'saving'}
             onClick={onCancel}
           >
@@ -26,7 +26,7 @@ export const UnsavedChangesBar = memo(function UnsavedChangesBar({
         )}
         <button
           type="button"
-          className={`btn btn-lg unsaved-save-btn ${
+          className={`btn btn-md unsaved-save-btn ${
             saveStatus === 'saved' ? 'save-btn-saved' : 'btn-primary save-btn-unsaved'
           }`}
           disabled={saveStatus === 'saving'}
@@ -36,7 +36,7 @@ export const UnsavedChangesBar = memo(function UnsavedChangesBar({
             ? 'Saving...'
             : saveStatus === 'saved'
               ? '\u2705 Saved!'
-              : '\u26A0\uFE0F Save Predictions'}
+              : 'Submit'}
         </button>
       </div>
     </div>
