@@ -5,7 +5,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { useLeagueData } from '../hooks/useLeagueData';
-import { logger } from '../utils/logger';
 import { isAdminOverride } from '../utils/url';
 
 import { AdminPanel } from './AdminPanel';
@@ -60,8 +59,25 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
   const { showCompletionCelebration, triggerWinnerCelebration, triggerNonWinnerCelebration } =
     useConfetti();
 
-  // Derived state
-  const currentUserPrediction = predictions.find((p) => p.userId === currentUserId);
+  // Once we've loaded successfully, never let transient isLoading/error states
+  // unmount the form (which resets all local state and causes data loss)
+  const hasLoadedRef = useRef(false);
+  if (!isLoading && !error && league) {
+    hasLoadedRef.current = true;
+  }
+
+  // Derived state — cache the prediction so it doesn't flicker to undefined
+  // during InstantDB real-time updates (which would unmount PredictionsForm)
+  const livePrediction = predictions.find((p) => p.userId === currentUserId);
+  const cachedPredictionRef = useRef(livePrediction);
+  if (livePrediction) {
+    cachedPredictionRef.current = livePrediction;
+  }
+  const currentUserPrediction = livePrediction ?? cachedPredictionRef.current;
+
+  // Cache formData in the parent so it survives PredictionsForm unmount/remount
+  const formDataCacheRef = useRef<Record<string, string | number> | null>(null);
+
   const isCreator = league?.creatorId === currentUserId || isAdminOverride();
   const isManager = currentUserPrediction?.isManager ?? false;
   const hasAdminAccess = isCreator || isManager;
@@ -104,17 +120,9 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
   }, []);
 
   const handleCompletionCelebration = useCallback(() => {
-    logger.debug('[LeagueView] handleCompletionCelebration called', {
-      hasShownCompletionCelebration,
-      willShow: !hasShownCompletionCelebration,
-    });
-
     if (!hasShownCompletionCelebration) {
-      logger.debug('[LeagueView] Showing completion celebration!');
       setHasShownCompletionCelebration(true);
       showCompletionCelebration();
-    } else {
-      logger.debug('[LeagueView] Celebration already shown, skipping');
     }
   }, [hasShownCompletionCelebration, setHasShownCompletionCelebration, showCompletionCelebration]);
 
@@ -132,8 +140,8 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
     setTeamNameModalOpen(true);
   }, []);
 
-  // Loading state
-  if (isLoading) {
+  // Loading state — only on first load, not during transient InstantDB re-queries
+  if (isLoading && !hasLoadedRef.current) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <span className="loading loading-spinner loading-lg text-primary"></span>
@@ -141,8 +149,8 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
     );
   }
 
-  // Error state
-  if (error) {
+  // Error state — only on first load, not during transient connection blips
+  if (error && !hasLoadedRef.current) {
     return (
       <div className="card bg-base-200">
         <div className="card-body">
@@ -220,6 +228,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
             showToast={showToast}
             onProgressUpdate={handleProgressUpdate}
             onCompletionCelebration={handleCompletionCelebration}
+            formDataCacheRef={formDataCacheRef}
           />
         )}
 

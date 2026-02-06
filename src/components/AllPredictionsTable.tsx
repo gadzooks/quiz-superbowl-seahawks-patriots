@@ -1,4 +1,5 @@
 import type { Prediction, Question } from '../types';
+import { getUserColor } from '../utils/teamColor';
 
 import { isAnswerCorrect } from './helpers';
 
@@ -41,9 +42,9 @@ export function AllPredictionsTable({
   return (
     <div className="overflow-x-auto">
       <table className="table table-zebra w-full">
-        <thead>
+        <thead className="all-predictions-thead-sticky">
           <tr>
-            <th className="text-base-content sticky left-0 z-10 bg-base-200">Team</th>
+            <th className="text-base-content sticky left-0 z-20 bg-base-200">Team</th>
             {questions.map((question) => (
               <th key={question.id} className="text-base-content">
                 {question.label}
@@ -52,37 +53,41 @@ export function AllPredictionsTable({
           </tr>
         </thead>
         <tbody>
-          {predictions.map((prediction, idx) => (
-            <tr key={prediction.id}>
-              <td
-                className={`font-semibold text-base-content sticky left-0 z-10 ${
-                  idx % 2 === 0 ? 'bg-base-200' : 'bg-base-100'
-                }`}
-              >
-                {prediction.teamName}
-              </td>
-              {questions.map((question) => {
-                const answer = prediction.predictions[question.questionId];
-                const hasResults = actualResults !== null;
-                const correct =
-                  hasResults &&
-                  isAnswerCorrect(question, answer, actualResults[question.questionId]);
+          {predictions.map((prediction, idx) => {
+            const teamColor = getUserColor(prediction.userId);
+            return (
+              <tr key={prediction.id}>
+                <td
+                  className={`font-semibold sticky left-0 z-10 ${
+                    idx % 2 === 0 ? 'bg-base-200' : 'bg-base-100'
+                  }`}
+                  style={{ color: teamColor }}
+                >
+                  {prediction.teamName}
+                </td>
+                {questions.map((question) => {
+                  const answer = prediction.predictions[question.questionId];
+                  const hasResults = actualResults !== null;
+                  const correct =
+                    hasResults &&
+                    isAnswerCorrect(question, answer, actualResults[question.questionId]);
 
-                let cellClass = 'text-base-content';
-                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- key may not exist at runtime
-                if (hasResults && answer !== undefined && answer !== '') {
-                  cellClass = correct ? 'answer-correct' : 'answer-incorrect';
-                }
+                  let cellClass = 'text-base-content';
+                  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- key may not exist at runtime
+                  if (hasResults && answer !== undefined && answer !== '') {
+                    cellClass = correct ? 'answer-correct' : 'answer-incorrect';
+                  }
 
-                return (
-                  <td key={question.id} className={cellClass}>
-                    {/* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- key may not exist */}
-                    {answer !== undefined && answer !== '' ? formatAnswer(answer) : '\u2014'}
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
+                  return (
+                    <td key={question.id} className={cellClass}>
+                      {/* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- key may not exist */}
+                      {answer !== undefined && answer !== '' ? formatAnswer(answer) : '\u2014'}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
 
           {/* Correct answers row */}
           {actualResults && Object.keys(actualResults).length > 0 && (

@@ -33,3 +33,16 @@ table tbody tr,
 .table tbody tr {
   background-color: var(--color-input-bg) !important;
 }
+
+/* All Predictions Table - Sticky Header */
+.all-predictions-thead-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+}
+
+.all-predictions-thead-sticky th {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+}
