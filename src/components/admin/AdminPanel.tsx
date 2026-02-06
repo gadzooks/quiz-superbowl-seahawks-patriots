@@ -150,9 +150,6 @@ export function AdminPanel({
 
   return (
     <div>
-      {/* Victory Celebrations */}
-      <CelebrationControls leagueId={league.id} showToast={showToast} />
-
       {/* Submission Controls */}
       <SubmissionControls
         isOpen={league.isOpen}
@@ -187,6 +184,9 @@ export function AdminPanel({
 
       {/* Build Info */}
       <BuildInfo appId={appId} />
+
+      {/* Victory Celebrations */}
+      <CelebrationControls leagueId={league.id} showToast={showToast} />
 
       {/* Delete Confirmation Modal */}
       {pendingDelete && (
