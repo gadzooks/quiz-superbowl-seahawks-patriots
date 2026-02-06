@@ -184,11 +184,6 @@
   padding-bottom: calc(var(--space-md, 16px) + env(safe-area-inset-bottom));
   background: linear-gradient(to top, var(--color-background) 80%, transparent);
   z-index: 150;
-  pointer-events: none;
-}
-
-.unsaved-changes-bar-inner {
-  pointer-events: auto;
 }
 
 .unsaved-changes-bar-inner {
@@ -196,12 +191,14 @@
   margin: 0 auto;
   display: flex;
   gap: var(--space-sm, 8px);
+  pointer-events: auto;
 }
 
 .unsaved-save-btn {
   flex: 1;
   user-select: none;
   -webkit-user-select: none;
+  pointer-events: auto;
 }
 
 .unsaved-save-btn:disabled {
@@ -216,6 +213,7 @@
   color: var(--color-text-muted);
   user-select: none;
   -webkit-user-select: none;
+  pointer-events: auto;
 }
 
 .unsaved-cancel-btn:hover {
