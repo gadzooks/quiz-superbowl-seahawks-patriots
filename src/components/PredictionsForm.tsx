@@ -1,9 +1,7 @@
-import { useState, useEffect, useRef, useCallback, memo } from 'react';
+import { type MutableRefObject, useState, useEffect, useRef, useCallback, memo } from 'react';
 
-import { AUTO_SAVE } from '../constants/timing';
 import { savePrediction } from '../db/queries';
 import type { Question, Prediction, League } from '../types';
-import { logger } from '../utils/logger';
 
 import { isAnswerCorrect, formatSlugForDisplay, countAnsweredQuestions } from './helpers';
 
@@ -12,13 +10,15 @@ interface PredictionsFormProps {
   userPrediction: Prediction | undefined;
   league: League;
   userId: string;
-  showToast: (
-    msg: string,
-    type?: 'success' | 'error' | 'info' | 'warning',
-    duration?: number
-  ) => void;
   onProgressUpdate: (percentage: number) => void;
-  onCompletionCelebration: () => void;
+  /** Parent-owned ref that caches formData across unmount/remount cycles */
+  formDataCacheRef: MutableRefObject<Record<string, string | number> | null>;
+  /** Parent-owned ref tracking last explicit save snapshot (survives remounts) */
+  lastExplicitSaveRef: MutableRefObject<string | null>;
+  /** Reports unsaved state to parent for the floating save bar */
+  onUnsavedChangesUpdate: (hasUnsaved: boolean) => void;
+  /** Parent sets true before cancel-triggered remount to skip unmount save */
+  skipUnmountSaveRef: MutableRefObject<boolean>;
 }
 
 export const PredictionsForm = memo(function PredictionsForm({
@@ -26,238 +26,133 @@ export const PredictionsForm = memo(function PredictionsForm({
   userPrediction,
   league,
   userId,
-  showToast,
   onProgressUpdate,
-  onCompletionCelebration,
+  formDataCacheRef,
+  lastExplicitSaveRef,
+  onUnsavedChangesUpdate,
+  skipUnmountSaveRef,
 }: PredictionsFormProps) {
-  // Form state - controlled inputs
+  // Form state — local only, not driven by InstantDB after initial load
   const [formData, setFormData] = useState<Record<string, string | number>>({});
-  const [savedQuestionId, setSavedQuestionId] = useState<string | null>(null);
 
-  // Refs for auto-save
-  const autoSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastChangedQuestionIdRef = useRef<string | null>(null);
+  // Refs for save logic
   const formDataRef = useRef<Record<string, string | number>>({});
-  const previousAnswerCountRef = useRef<number>(0);
-  const hasCheckedCompletionThisSessionRef = useRef<boolean>(false);
-  const lastLoadedPredictionIdRef = useRef<string | null>(null);
+  // Use parent's explicit save snapshot if available (survives tab switches),
+  // otherwise fall back to DB state on first mount
+  const lastSavedDataRef = useRef<string>(
+    lastExplicitSaveRef.current ?? JSON.stringify(userPrediction?.predictions ?? {})
+  );
 
-  // Refs to stabilize callbacks and prevent re-render cascades
+  // Stable refs for callbacks (avoids re-render cascades from unstable props)
   const leagueRef = useRef(league);
   const userPredictionRef = useRef(userPrediction);
-  const userIdRef = useRef(userId);
   const questionsRef = useRef(questions);
-  const onCompletionCelebrationRef = useRef(onCompletionCelebration);
-  const showToastRef = useRef(showToast);
   const onProgressUpdateRef = useRef(onProgressUpdate);
+  const onUnsavedChangesUpdateRef = useRef(onUnsavedChangesUpdate);
 
-  // Initialize form data from userPrediction
-  // Only reset formData when loading a DIFFERENT prediction (not on every re-render)
+  // Initialize form data: prefer parent cache (survives remounts), then InstantDB data
   useEffect(() => {
-    if (userPrediction?.predictions) {
-      // Only reset if this is a different prediction or first load
-      if (lastLoadedPredictionIdRef.current !== userPrediction.id) {
-        setFormData(userPrediction.predictions);
-        formDataRef.current = userPrediction.predictions;
-        lastLoadedPredictionIdRef.current = userPrediction.id;
-        // Initialize previous count to prevent false triggers on first render
-        previousAnswerCountRef.current = countAnsweredQuestions(
-          userPrediction.predictions,
-          questionsRef.current
-        );
-      }
+    if (formDataCacheRef.current) {
+      setFormData(formDataCacheRef.current);
+      formDataRef.current = formDataCacheRef.current;
+      return;
     }
-  }, [userPrediction]);
+    if (userPrediction?.predictions) {
+      setFormData(userPrediction.predictions);
+      formDataRef.current = userPrediction.predictions;
+      formDataCacheRef.current = userPrediction.predictions;
+    }
+  }, []);
 
-  // Keep refs in sync with props for use in stabilized callbacks
+  // Keep refs in sync with latest props
   useEffect(() => {
     leagueRef.current = league;
     userPredictionRef.current = userPrediction;
-    userIdRef.current = userId;
     questionsRef.current = questions;
-    onCompletionCelebrationRef.current = onCompletionCelebration;
-    showToastRef.current = showToast;
     onProgressUpdateRef.current = onProgressUpdate;
-  }, [
-    league,
-    userPrediction,
-    userId,
-    questions,
-    onCompletionCelebration,
-    showToast,
-    onProgressUpdate,
-  ]);
+    onUnsavedChangesUpdateRef.current = onUnsavedChangesUpdate;
+  }, [league, userPrediction, questions, onProgressUpdate, onUnsavedChangesUpdate]);
 
-  // Update progress bar whenever formData changes
-  // Uses refs for questions and onProgressUpdate to prevent re-render cascades:
-  // without refs, unstable questions reference from useLeagueData triggers this effect
-  // on every parent re-render, causing 4-6 re-renders per radio selection
+  // Update progress bar and report unsaved state whenever formData changes
   useEffect(() => {
-    const currentQuestions = questionsRef.current;
-    const answered = countAnsweredQuestions(formData, currentQuestions);
-    const percentage =
-      currentQuestions.length > 0 ? Math.round((answered / currentQuestions.length) * 100) : 0;
-    onProgressUpdateRef.current(percentage);
+    const answered = countAnsweredQuestions(formData, questionsRef.current);
+    const total = questionsRef.current.length;
+    onProgressUpdateRef.current(total > 0 ? Math.round((answered / total) * 100) : 0);
+
+    // Sync lastSavedDataRef from parent (captures external saves from LeagueView)
+    if (lastExplicitSaveRef.current) {
+      lastSavedDataRef.current = lastExplicitSaveRef.current;
+    }
+    const unsaved = JSON.stringify(formData) !== lastSavedDataRef.current;
+    onUnsavedChangesUpdateRef.current(unsaved);
   }, [formData]);
 
-  // Clear saved indicator after delay
-  useEffect(() => {
-    if (savedQuestionId) {
-      const timer = setTimeout(() => {
-        setSavedQuestionId(null);
-      }, AUTO_SAVE.SAVED_INDICATOR_DURATION);
-      return () => clearTimeout(timer);
-    }
-  }, [savedQuestionId]);
-
-  // Clear pending save timeout on unmount
+  // Save pending changes on unmount (skip if cancel triggered the remount)
   useEffect(() => {
     return () => {
-      if (autoSaveTimeoutRef.current) {
-        clearTimeout(autoSaveTimeoutRef.current);
-        autoSaveTimeoutRef.current = null;
+      if (skipUnmountSaveRef.current) return;
+      const data = formDataRef.current;
+      const currentPrediction = userPredictionRef.current;
+      const currentLeague = leagueRef.current;
+      if (currentPrediction && currentLeague.isOpen && Object.keys(data).length > 0) {
+        void savePrediction({
+          id: currentPrediction.id,
+          leagueId: currentLeague.id,
+          userId,
+          teamName: currentPrediction.teamName,
+          predictions: data,
+          isManager: currentPrediction.isManager,
+          actualResults: currentLeague.actualResults,
+          questions: questionsRef.current,
+        });
       }
     };
-  }, []);
+  }, [userId]);
 
-  // Auto-save handler
-  const performSave = useCallback(async () => {
-    const currentLeague = leagueRef.current;
-    const currentPrediction = userPredictionRef.current;
-
-    if (!currentLeague.isOpen || !currentPrediction) return;
-
-    const currentFormData = formDataRef.current;
-
-    try {
-      await savePrediction({
-        id: currentPrediction.id,
-        leagueId: currentLeague.id,
-        userId: userIdRef.current,
-        teamName: currentPrediction.teamName,
-        predictions: currentFormData,
-        isManager: currentPrediction.isManager,
-        actualResults: currentLeague.actualResults,
-        questions: questionsRef.current,
-      });
-
-      if (lastChangedQuestionIdRef.current) {
-        setSavedQuestionId(lastChangedQuestionIdRef.current);
-      }
-
-      const answeredCount = countAnsweredQuestions(currentFormData, questionsRef.current);
-      const wasIncomplete = previousAnswerCountRef.current < questionsRef.current.length;
-      const isNowComplete = answeredCount === questionsRef.current.length;
-      const isFirstSaveInSession = !hasCheckedCompletionThisSessionRef.current;
-
-      const shouldCelebrate = isNowComplete && (wasIncomplete || isFirstSaveInSession);
-
-      logger.debug('[PredictionsForm] Save completed:', {
-        answeredCount,
-        totalQuestions: questionsRef.current.length,
-        previousCount: previousAnswerCountRef.current,
-        wasIncomplete,
-        isNowComplete,
-        isFirstSaveInSession,
-        willCelebrate: shouldCelebrate,
-      });
-
-      if (shouldCelebrate) {
-        logger.debug('[PredictionsForm] Triggering completion celebration!');
-        onCompletionCelebrationRef.current();
-        hasCheckedCompletionThisSessionRef.current = true;
-      }
-
-      previousAnswerCountRef.current = answeredCount;
-    } catch (error) {
-      console.error('Auto-save error:', error);
-      showToastRef.current('Failed to save prediction', 'error');
-    }
-  }, []);
-
-  // Handle input change with debouncing for number inputs
+  // Local-only change handler — no auto-save, just update state
   const handleChange = useCallback(
-    (questionId: string, value: string | number, immediate = false) => {
-      lastChangedQuestionIdRef.current = questionId;
-
-      // Update state AND ref synchronously to prevent race conditions
+    (questionId: string, value: string | number) => {
       setFormData((prev) => {
-        const newData = {
-          ...prev,
-          [questionId]: value,
-        };
-        // Immediately update ref so performSave always has latest data
-        formDataRef.current = newData;
-        return newData;
+        const next = { ...prev, [questionId]: value };
+        formDataRef.current = next;
+        formDataCacheRef.current = next; // persist across remounts
+        return next;
       });
-
-      // Clear pending timeout
-      if (autoSaveTimeoutRef.current) {
-        clearTimeout(autoSaveTimeoutRef.current);
-      }
-
-      // Save with delay (typing delay for number inputs, short debounce for radio)
-      const delay = immediate
-        ? AUTO_SAVE.PREDICTIONS_IMMEDIATE_DELAY
-        : AUTO_SAVE.PREDICTIONS_TYPING_DELAY;
-      autoSaveTimeoutRef.current = setTimeout(() => {
-        void performSave();
-      }, delay);
     },
-    [performSave]
+    [formDataCacheRef]
   );
 
-  // Handle radio button change (immediate save)
   const handleRadioChange = useCallback(
     (questionId: string, value: string) => {
-      handleChange(questionId, value, true);
+      handleChange(questionId, value);
     },
     [handleChange]
   );
 
-  // Handle number input change (debounced save)
   const handleNumberChange = useCallback(
     (questionId: string, value: string) => {
-      // Handle empty input
       if (value === '') {
-        handleChange(questionId, '', false);
+        handleChange(questionId, '');
         return;
       }
-
-      // Parse the number - only update if valid
       const parsed = parseInt(value, 10);
       if (!Number.isNaN(parsed)) {
-        handleChange(questionId, parsed, false);
+        handleChange(questionId, parsed);
       }
     },
     [handleChange]
   );
 
-  // Handle number input blur (save with short debounce to avoid IDB contention)
-  const handleNumberBlur = useCallback(
-    (_questionId: string) => {
-      if (autoSaveTimeoutRef.current) {
-        clearTimeout(autoSaveTimeoutRef.current);
-      }
-      autoSaveTimeoutRef.current = setTimeout(() => {
-        void performSave();
-      }, AUTO_SAVE.PREDICTIONS_IMMEDIATE_DELAY);
-    },
-    [performSave]
-  );
-
-  // Check if results exist for showing correct answers
+  // Derived display state
   const hasResults = league.actualResults && Object.keys(league.actualResults).length > 0;
   const showCorrectAnswers = !league.isOpen && hasResults;
 
   return (
     <section id="predictionsSection" className={!league.isOpen ? 'submissions-closed' : ''}>
-      {/* Closed banner */}
       {!league.isOpen && (
-        <div className="closed-banner">🔒 Submissions Closed - Your predictions are locked in!</div>
+        <div className="closed-banner">Submissions Closed - Your predictions are locked in!</div>
       )}
 
-      {/* Info alert when open */}
       {league.isOpen && (
         <div className="alert alert-info" style={{ marginTop: '24px' }}>
           <svg
@@ -273,17 +168,15 @@ export const PredictionsForm = memo(function PredictionsForm({
               d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <span>Your answers are saved automatically as you select them.</span>
+          <span>Make your picks, then tap Save at the bottom.</span>
         </div>
       )}
 
-      {/* Questions */}
-      <form id="predictionsForm">
+      <form id="predictionsForm" onSubmit={(e) => e.preventDefault()}>
         {questions.map((q, index) => {
           const userAnswer = formData[q.questionId];
           const correctAnswer = league.actualResults?.[q.questionId];
           const hasCorrectAnswer = correctAnswer !== undefined && correctAnswer !== '';
-
           const isCorrect = hasCorrectAnswer && isAnswerCorrect(q, userAnswer, correctAnswer);
 
           return (
@@ -297,31 +190,14 @@ export const PredictionsForm = memo(function PredictionsForm({
                 ) : (
                   <span className="question-tiebreaker-badge">Tiebreaker</span>
                 )}
-                {/* Saved indicator */}
-                {savedQuestionId === q.questionId && (
-                  <span
-                    className="saved-indicator"
-                    style={{
-                      color: 'var(--color-primary)',
-                      fontSize: '0.875rem',
-                      marginLeft: '8px',
-                      opacity: 1,
-                      transition: 'opacity 0.3s ease-out',
-                    }}
-                  >
-                    ✓ Saved
-                  </span>
-                )}
               </label>
 
-              {/* Radio options */}
               {q.type === 'radio' && q.options && (
                 <>
                   {q.options.map((option) => {
                     const value = option.toLowerCase().replace(/\s+/g, '-');
                     const checked = userAnswer === value;
 
-                    // Apply correct/incorrect styling when showing results
                     let answerClass = '';
                     if (showCorrectAnswers && hasCorrectAnswer && checked) {
                       answerClass = isCorrect ? 'user-answer-correct' : 'user-answer-incorrect';
@@ -344,7 +220,6 @@ export const PredictionsForm = memo(function PredictionsForm({
                 </>
               )}
 
-              {/* Number input */}
               {q.type === 'number' && (
                 <input
                   type="number"
@@ -362,11 +237,9 @@ export const PredictionsForm = memo(function PredictionsForm({
                       : ''
                   }
                   onChange={(e) => handleNumberChange(q.questionId, e.target.value)}
-                  onBlur={() => handleNumberBlur(q.questionId)}
                 />
               )}
 
-              {/* Correct answer indicator */}
               {showCorrectAnswers && hasCorrectAnswer && (
                 <div className={`correct-answer-indicator ${isCorrect ? 'correct' : 'incorrect'}`}>
                   <span className="indicator-icon">{isCorrect ? '\u2713' : '\u2717'}</span>

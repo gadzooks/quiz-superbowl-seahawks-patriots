@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { type MutableRefObject, createRef } from 'react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 import type { Question, Prediction, League } from '../types';
@@ -56,60 +57,57 @@ describe('PredictionsForm', () => {
     predictions: {},
   };
 
-  const mockShowToast = vi.fn();
   const mockOnProgressUpdate = vi.fn();
-  const mockOnCompletionCelebration = vi.fn();
+  const mockOnUnsavedChangesUpdate = vi.fn();
+  const mockFormDataCacheRef = createRef<Record<
+    string,
+    string | number
+  > | null>() as MutableRefObject<Record<string, string | number> | null>;
+  const mockLastExplicitSaveRef = { current: null as string | null };
+  const mockSkipUnmountSaveRef = { current: false };
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockFormDataCacheRef.current = null;
+    mockLastExplicitSaveRef.current = null;
+    mockSkipUnmountSaveRef.current = false;
   });
 
-  it('renders all questions', () => {
+  const renderForm = (overrides?: {
+    questions?: Question[];
+    league?: League;
+    prediction?: Prediction;
+  }) =>
     render(
       <PredictionsForm
-        questions={mockQuestions}
-        userPrediction={mockUserPrediction}
-        league={mockLeague}
+        questions={overrides?.questions ?? mockQuestions}
+        userPrediction={overrides?.prediction ?? mockUserPrediction}
+        league={overrides?.league ?? mockLeague}
         userId="user-1"
-        showToast={mockShowToast}
         onProgressUpdate={mockOnProgressUpdate}
-        onCompletionCelebration={mockOnCompletionCelebration}
+        formDataCacheRef={mockFormDataCacheRef}
+        lastExplicitSaveRef={mockLastExplicitSaveRef}
+        onUnsavedChangesUpdate={mockOnUnsavedChangesUpdate}
+        skipUnmountSaveRef={mockSkipUnmountSaveRef}
       />
     );
+
+  it('renders all questions', () => {
+    renderForm();
 
     expect(screen.getByText('Who will win?')).toBeInTheDocument();
     expect(screen.getByText('Total points scored?')).toBeInTheDocument();
   });
 
   it('renders radio options for radio questions', () => {
-    render(
-      <PredictionsForm
-        questions={mockQuestions}
-        userPrediction={mockUserPrediction}
-        league={mockLeague}
-        userId="user-1"
-        showToast={mockShowToast}
-        onProgressUpdate={mockOnProgressUpdate}
-        onCompletionCelebration={mockOnCompletionCelebration}
-      />
-    );
+    renderForm();
 
     expect(screen.getByText('Seahawks')).toBeInTheDocument();
     expect(screen.getByText('Patriots')).toBeInTheDocument();
   });
 
   it('renders number input for number questions', () => {
-    render(
-      <PredictionsForm
-        questions={mockQuestions}
-        userPrediction={mockUserPrediction}
-        league={mockLeague}
-        userId="user-1"
-        showToast={mockShowToast}
-        onProgressUpdate={mockOnProgressUpdate}
-        onCompletionCelebration={mockOnCompletionCelebration}
-      />
-    );
+    renderForm();
 
     const numberInput = screen.getByPlaceholderText('Enter number');
     expect(numberInput).toBeInTheDocument();
@@ -117,19 +115,7 @@ describe('PredictionsForm', () => {
   });
 
   it('shows closed banner when league is closed', () => {
-    const closedLeague = { ...mockLeague, isOpen: false };
-
-    render(
-      <PredictionsForm
-        questions={mockQuestions}
-        userPrediction={mockUserPrediction}
-        league={closedLeague}
-        userId="user-1"
-        showToast={mockShowToast}
-        onProgressUpdate={mockOnProgressUpdate}
-        onCompletionCelebration={mockOnCompletionCelebration}
-      />
-    );
+    renderForm({ league: { ...mockLeague, isOpen: false } });
 
     expect(
       screen.getByText(/Submissions Closed - Your predictions are locked in!/i)
@@ -137,37 +123,13 @@ describe('PredictionsForm', () => {
   });
 
   it('shows info alert when league is open', () => {
-    render(
-      <PredictionsForm
-        questions={mockQuestions}
-        userPrediction={mockUserPrediction}
-        league={mockLeague}
-        userId="user-1"
-        showToast={mockShowToast}
-        onProgressUpdate={mockOnProgressUpdate}
-        onCompletionCelebration={mockOnCompletionCelebration}
-      />
-    );
+    renderForm();
 
-    expect(
-      screen.getByText(/Your answers are saved automatically as you select them./i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Make your picks, then tap Save at the bottom./i)).toBeInTheDocument();
   });
 
   it('disables inputs when league is closed', () => {
-    const closedLeague = { ...mockLeague, isOpen: false };
-
-    render(
-      <PredictionsForm
-        questions={mockQuestions}
-        userPrediction={mockUserPrediction}
-        league={closedLeague}
-        userId="user-1"
-        showToast={mockShowToast}
-        onProgressUpdate={mockOnProgressUpdate}
-        onCompletionCelebration={mockOnCompletionCelebration}
-      />
-    );
+    renderForm({ league: { ...mockLeague, isOpen: false } });
 
     const radioInputs = screen.getAllByRole('radio');
     radioInputs.forEach((input) => {
@@ -181,17 +143,7 @@ describe('PredictionsForm', () => {
   it('updates progress when answers change', async () => {
     const user = userEvent.setup();
 
-    render(
-      <PredictionsForm
-        questions={mockQuestions}
-        userPrediction={mockUserPrediction}
-        league={mockLeague}
-        userId="user-1"
-        showToast={mockShowToast}
-        onProgressUpdate={mockOnProgressUpdate}
-        onCompletionCelebration={mockOnCompletionCelebration}
-      />
-    );
+    renderForm();
 
     // Initial progress (0 answered)
     expect(mockOnProgressUpdate).toHaveBeenCalledWith(0);
@@ -222,34 +174,14 @@ describe('PredictionsForm', () => {
       },
     };
 
-    render(
-      <PredictionsForm
-        questions={mockQuestions}
-        userPrediction={predictionWithAnswers}
-        league={closedLeague}
-        userId="user-1"
-        showToast={mockShowToast}
-        onProgressUpdate={mockOnProgressUpdate}
-        onCompletionCelebration={mockOnCompletionCelebration}
-      />
-    );
+    renderForm({ league: closedLeague, prediction: predictionWithAnswers });
 
     const correctIndicators = screen.getAllByText('Correct!');
     expect(correctIndicators).toHaveLength(2);
   });
 
   it('shows points badge for questions with points', () => {
-    render(
-      <PredictionsForm
-        questions={mockQuestions}
-        userPrediction={mockUserPrediction}
-        league={mockLeague}
-        userId="user-1"
-        showToast={mockShowToast}
-        onProgressUpdate={mockOnProgressUpdate}
-        onCompletionCelebration={mockOnCompletionCelebration}
-      />
-    );
+    renderForm();
 
     expect(screen.getByText('10 pts')).toBeInTheDocument();
     expect(screen.getByText('5 pts')).toBeInTheDocument();
@@ -266,17 +198,7 @@ describe('PredictionsForm', () => {
       isTiebreaker: true,
     };
 
-    render(
-      <PredictionsForm
-        questions={[tiebreakerQuestion]}
-        userPrediction={mockUserPrediction}
-        league={mockLeague}
-        userId="user-1"
-        showToast={mockShowToast}
-        onProgressUpdate={mockOnProgressUpdate}
-        onCompletionCelebration={mockOnCompletionCelebration}
-      />
-    );
+    renderForm({ questions: [tiebreakerQuestion] });
 
     expect(screen.getByText('Tiebreaker')).toBeInTheDocument();
   });

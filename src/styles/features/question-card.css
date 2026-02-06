@@ -163,6 +163,77 @@
   box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15) !important;
 }
 
+/* Unsaved changes floating bar — fixed at viewport bottom, visible on all tabs */
+.unsaved-changes-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-md, 16px);
+  padding-bottom: calc(var(--space-md, 16px) + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, var(--color-background) 80%, transparent);
+  z-index: 50;
+}
+
+.unsaved-changes-bar-inner {
+  max-width: 32rem;
+  margin: 0 auto;
+  display: flex;
+  gap: var(--space-sm, 8px);
+}
+
+.unsaved-save-btn {
+  flex: 1;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.unsaved-save-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.unsaved-cancel-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1.5px solid var(--color-text-muted);
+  color: var(--color-text-muted);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.unsaved-cancel-btn:hover {
+  border-color: var(--color-text);
+  color: var(--color-text);
+}
+
+.unsaved-cancel-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Unsaved changes: pulse animation to draw attention */
+.save-btn-unsaved {
+  animation: save-pulse 2s ease-in-out infinite;
+}
+
+@keyframes save-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--color-primary-rgb), 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(var(--color-primary-rgb), 0);
+  }
+}
+
+/* Saved confirmation state */
+.save-btn-saved {
+  background-color: var(--color-success) !important;
+  color: var(--color-background) !important;
+  border: none !important;
+}
+
 /* Collapsible answers */
 .collapsible-answers {
   max-height: 0;
