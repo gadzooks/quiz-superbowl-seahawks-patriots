@@ -39,6 +39,7 @@ export function Header({
   const team2Name = game?.team2 ?? 'Patriots';
   const [animationKey, setAnimationKey] = useState(0);
   const [isSoundPlaying, setIsSoundPlaying] = useState(false);
+  const [isHeaderHidden, setIsHeaderHidden] = useState(false);
 
   // Set CSS variables for team colors
   useEffect(() => {
@@ -69,6 +70,41 @@ export function Header({
     }
   }, [currentTab]);
 
+  // Hide header when scrolling down
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          const scrollThreshold = 100;
+
+          // Hide header when scrolling down past threshold
+          if (currentScrollY > scrollThreshold && currentScrollY > lastScrollY) {
+            setIsHeaderHidden(true);
+          }
+          // Show header when scrolling up
+          else if (currentScrollY < lastScrollY || currentScrollY <= scrollThreshold) {
+            setIsHeaderHidden(false);
+          }
+
+          lastScrollY = currentScrollY;
+          ticking = false;
+        });
+
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   const handlePlaySound = async () => {
     if (isSoundPlaying) return;
     setIsSoundPlaying(true);
@@ -82,7 +118,7 @@ export function Header({
 
   return (
     <>
-      <header className="app-header sticky top-0 z-50">
+      <header className={`app-header sticky top-0 z-50 ${isHeaderHidden ? 'header-hidden' : ''}`}>
         <div className="header-content">
           <div className="header-matchup-row">
             <div className="header-team header-team-left">
@@ -119,7 +155,7 @@ export function Header({
       </header>
 
       {league && teamName && (
-        <div className="league-team-info">
+        <div className={`league-team-info ${isHeaderHidden ? 'header-hidden' : ''}`}>
           <button
             className="intro-replay-btn-inline"
             onClick={handleReplayIntro}

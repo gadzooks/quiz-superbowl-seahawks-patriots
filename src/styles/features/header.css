@@ -17,6 +17,11 @@
   text-align: center;
   border-bottom: none;
   overflow: hidden;
+  transition: transform 0.3s ease-in-out;
+}
+
+.app-header.header-hidden {
+  transform: translateY(-100%);
 }
 
 /* Animated gradient overlay for depth */
@@ -589,6 +594,11 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.league-team-info.header-hidden {
+  transform: translateY(-100%);
 }
 
 .league-team-text {
@@ -830,6 +840,10 @@
   }
   .app-header::before {
     animation: none !important;
+  }
+  .app-header,
+  .league-team-info {
+    transition: none !important;
   }
   .superbowl-logo {
     animation: none !important;

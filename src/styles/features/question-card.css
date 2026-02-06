@@ -17,6 +17,17 @@
   display: none;
 }
 
+/* Add buffer space after the last question for easier tapping on mobile */
+#predictionsForm {
+  padding-bottom: 140px;
+}
+
+@media (max-width: 640px) {
+  #predictionsForm {
+    padding-bottom: 140px;
+  }
+}
+
 .question-card {
   background: var(--color-input-bg);
   border-radius: 16px;
@@ -172,7 +183,12 @@
   padding: var(--space-md, 16px);
   padding-bottom: calc(var(--space-md, 16px) + env(safe-area-inset-bottom));
   background: linear-gradient(to top, var(--color-background) 80%, transparent);
-  z-index: 50;
+  z-index: 150;
+  pointer-events: none;
+}
+
+.unsaved-changes-bar-inner {
+  pointer-events: auto;
 }
 
 .unsaved-changes-bar-inner {
