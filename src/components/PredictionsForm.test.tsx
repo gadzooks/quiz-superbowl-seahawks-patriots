@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { type MutableRefObject, createRef } from 'react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 import type { Question, Prediction, League } from '../types';
@@ -59,9 +60,14 @@ describe('PredictionsForm', () => {
   const mockShowToast = vi.fn();
   const mockOnProgressUpdate = vi.fn();
   const mockOnCompletionCelebration = vi.fn();
+  const mockFormDataCacheRef = createRef<Record<
+    string,
+    string | number
+  > | null>() as MutableRefObject<Record<string, string | number> | null>;
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockFormDataCacheRef.current = null;
   });
 
   it('renders all questions', () => {
@@ -74,6 +80,7 @@ describe('PredictionsForm', () => {
         showToast={mockShowToast}
         onProgressUpdate={mockOnProgressUpdate}
         onCompletionCelebration={mockOnCompletionCelebration}
+        formDataCacheRef={mockFormDataCacheRef}
       />
     );
 
@@ -91,6 +98,7 @@ describe('PredictionsForm', () => {
         showToast={mockShowToast}
         onProgressUpdate={mockOnProgressUpdate}
         onCompletionCelebration={mockOnCompletionCelebration}
+        formDataCacheRef={mockFormDataCacheRef}
       />
     );
 
@@ -108,6 +116,7 @@ describe('PredictionsForm', () => {
         showToast={mockShowToast}
         onProgressUpdate={mockOnProgressUpdate}
         onCompletionCelebration={mockOnCompletionCelebration}
+        formDataCacheRef={mockFormDataCacheRef}
       />
     );
 
@@ -128,6 +137,7 @@ describe('PredictionsForm', () => {
         showToast={mockShowToast}
         onProgressUpdate={mockOnProgressUpdate}
         onCompletionCelebration={mockOnCompletionCelebration}
+        formDataCacheRef={mockFormDataCacheRef}
       />
     );
 
@@ -146,12 +156,11 @@ describe('PredictionsForm', () => {
         showToast={mockShowToast}
         onProgressUpdate={mockOnProgressUpdate}
         onCompletionCelebration={mockOnCompletionCelebration}
+        formDataCacheRef={mockFormDataCacheRef}
       />
     );
 
-    expect(
-      screen.getByText(/Your answers are saved automatically as you select them./i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Make your picks, then tap Save at the bottom./i)).toBeInTheDocument();
   });
 
   it('disables inputs when league is closed', () => {
@@ -166,6 +175,7 @@ describe('PredictionsForm', () => {
         showToast={mockShowToast}
         onProgressUpdate={mockOnProgressUpdate}
         onCompletionCelebration={mockOnCompletionCelebration}
+        formDataCacheRef={mockFormDataCacheRef}
       />
     );
 
@@ -190,6 +200,7 @@ describe('PredictionsForm', () => {
         showToast={mockShowToast}
         onProgressUpdate={mockOnProgressUpdate}
         onCompletionCelebration={mockOnCompletionCelebration}
+        formDataCacheRef={mockFormDataCacheRef}
       />
     );
 
@@ -231,6 +242,7 @@ describe('PredictionsForm', () => {
         showToast={mockShowToast}
         onProgressUpdate={mockOnProgressUpdate}
         onCompletionCelebration={mockOnCompletionCelebration}
+        formDataCacheRef={mockFormDataCacheRef}
       />
     );
 
@@ -248,6 +260,7 @@ describe('PredictionsForm', () => {
         showToast={mockShowToast}
         onProgressUpdate={mockOnProgressUpdate}
         onCompletionCelebration={mockOnCompletionCelebration}
+        formDataCacheRef={mockFormDataCacheRef}
       />
     );
 
@@ -275,6 +288,7 @@ describe('PredictionsForm', () => {
         showToast={mockShowToast}
         onProgressUpdate={mockOnProgressUpdate}
         onCompletionCelebration={mockOnCompletionCelebration}
+        formDataCacheRef={mockFormDataCacheRef}
       />
     );
 
