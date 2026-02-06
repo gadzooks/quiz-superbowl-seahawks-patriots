@@ -1,0 +1,173 @@
+/* TrophyProgress.css */
+
+.trophy-progress-container {
+  width: 100%;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.trophy-wrapper {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.trophy {
+  position: relative;
+  transition:
+    height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.trophy-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.5));
+}
+
+.trophy.celebrate {
+  animation: trophyCelebrate 2s ease-out forwards;
+}
+
+@keyframes trophyCelebrate {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  20% {
+    transform: scale(1.3) rotate(0deg) translateY(-10px);
+  }
+  40% {
+    transform: scale(1.3) rotate(360deg) translateY(-10px);
+  }
+  60% {
+    transform: scale(1.3) rotate(720deg) translateY(-10px);
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 1)) drop-shadow(0 0 20px rgba(255, 215, 0, 0.8))
+      drop-shadow(0 0 30px rgba(255, 215, 0, 0.6));
+  }
+  100% {
+    transform: scale(1) rotate(720deg) translateY(0);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  }
+}
+
+/* Sparkles around trophy */
+.sparkle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #ffd700;
+  border-radius: 50%;
+  animation: sparkleFloat 2s ease-in-out infinite;
+  box-shadow: 0 0 4px #ffd700;
+}
+
+.sparkle-1 {
+  top: 10%;
+  left: -5px;
+  animation-delay: 0s;
+}
+
+.sparkle-2 {
+  top: 30%;
+  right: -5px;
+  animation-delay: 0.7s;
+}
+
+.sparkle-3 {
+  top: 50%;
+  left: -8px;
+  animation-delay: 1.4s;
+}
+
+@keyframes sparkleFloat {
+  0%,
+  100% {
+    transform: translateY(0) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(-10px) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Progress bar */
+.trophy-progress-bar {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.trophy-progress-fill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--header-left-accent, #69be28) 0%,
+    var(--header-right-accent, #c60c30) 100%
+  );
+  border-radius: 4px;
+  transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+}
+
+.trophy-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.trophy-progress-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffd700;
+  min-width: 40px;
+  text-align: right;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .trophy-wrapper {
+    width: 40px;
+    height: 45px;
+  }
+
+  .trophy-progress-text {
+    font-size: 11px;
+    min-width: 35px;
+  }
+}
