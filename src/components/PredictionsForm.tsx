@@ -296,13 +296,11 @@ export const PredictionsForm = memo(function PredictionsForm({
             disabled={saveStatus === 'saving'}
             onClick={handleSave}
           >
-            {saveStatus === 'saving' ? (
-              'Saving...'
-            ) : saveStatus === 'saved' ? (
-              <>{'\u2705'} Saved!</>
-            ) : (
-              <>{'\u26A0\uFE0F'} Save Predictions</>
-            )}
+            {saveStatus === 'saving'
+              ? 'Saving...'
+              : saveStatus === 'saved'
+                ? '\u2705 Saved!'
+                : '\u26A0\uFE0F Save Predictions'}
           </button>
         </div>
       )}

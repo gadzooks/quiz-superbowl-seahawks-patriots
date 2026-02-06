@@ -175,6 +175,8 @@
 
 .save-predictions-btn {
   width: 100%;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .save-predictions-btn:disabled {
