@@ -57,7 +57,7 @@ export function useLeagueData(gameId: string, slug: string | null): LeagueData {
     games: {
       $: { where: { gameId } },
       questions: {
-        $: { order: { serverCreatedAt: 'asc' } },
+        $: { order: { sortOrder: 'asc' } },
       },
       ...(slug
         ? {
