@@ -176,7 +176,11 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
 
   // Auto-switch to seed tab if questions are empty
   // Auto-switch away from seed tab when questions become available
+  // Only run after initial load to avoid overriding saved tab preference
   useEffect(() => {
+    // Don't auto-switch during initial load
+    if (!hasLoadedRef.current) return;
+
     if (needsSeeding && currentTab !== 'seed') {
       // Questions missing - switch to seed tab
       setCurrentTab('seed');

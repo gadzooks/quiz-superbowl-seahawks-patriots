@@ -54,19 +54,6 @@ const DIVISION_MAP: Record<string, keyof DivisionTeams> = {
   seahawks: 'NFC West',
 };
 
-function isDivisionKey(key: string): key is keyof DivisionTeams {
-  return (
-    key === 'AFC East' ||
-    key === 'AFC North' ||
-    key === 'AFC South' ||
-    key === 'AFC West' ||
-    key === 'NFC East' ||
-    key === 'NFC North' ||
-    key === 'NFC South' ||
-    key === 'NFC West'
-  );
-}
-
 function getTeamsWithDivisions(): DivisionTeams {
   const teams = getTeamOptions();
 
@@ -87,6 +74,15 @@ function getTeamsWithDivisions(): DivisionTeams {
     if (division) {
       divisions[division].push(team);
     }
+  }
+
+  // Sort NFC West to put Seahawks first
+  if (divisions['NFC West'].length > 0) {
+    divisions['NFC West'].sort((a, b) => {
+      if (a.id === 'seahawks') return -1;
+      if (b.id === 'seahawks') return 1;
+      return a.name.localeCompare(b.name);
+    });
   }
 
   return divisions;
@@ -156,11 +152,21 @@ export function TeamPicker({ onSelect }: TeamPickerProps) {
   const selectedTheme = selectedTeamId ? getTeamTheme(selectedTeamId) : null;
   const logoUrl = selectedTeamId ? getTeamLogoUrl(selectedTeamId) : null;
 
+  // Division order - NFC West first, then the rest
+  const divisionOrder: Array<keyof DivisionTeams> = [
+    'NFC West',
+    'AFC East',
+    'AFC North',
+    'AFC South',
+    'AFC West',
+    'NFC East',
+    'NFC North',
+    'NFC South',
+  ];
+
   const lowerQuery = searchQuery.toLowerCase();
   const filteredDivisions: Partial<DivisionTeams> = {};
-  for (const divisionKey of Object.keys(divisions)) {
-    // Type guard: divisionKey is guaranteed to be a valid DivisionTeams key
-    if (!isDivisionKey(divisionKey)) continue;
+  for (const divisionKey of divisionOrder) {
     const teams = divisions[divisionKey];
     const visibleTeams = teams.filter((team) => team.name.toLowerCase().includes(lowerQuery));
     if (visibleTeams.length > 0) {
