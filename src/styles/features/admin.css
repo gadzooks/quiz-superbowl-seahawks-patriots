@@ -390,11 +390,26 @@
 .collapsible-toggle {
   background: transparent;
   border: none;
+  transition: all var(--duration-micro) var(--ease-micro);
+}
+
+.collapsible-toggle:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.collapsible-toggle:hover .admin-control-label {
+  color: var(--color-primary);
 }
 
 .collapsible-icon {
   color: var(--color-primary);
   font-size: 18px;
+  transition: transform var(--duration-micro) var(--ease-micro);
+}
+
+.collapsible-toggle:hover .collapsible-icon {
+  transform: scale(1.2);
 }
 
 /* ============================================

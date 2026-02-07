@@ -157,7 +157,8 @@ export async function seedGame(config: {
 }
 
 /**
- * Seed questions for a game if none exist.
+ * Seed questions for a game, adding only missing questions.
+ * Compares by questionId to detect which questions need to be added.
  */
 export async function seedQuestions(
   gameInstantId: string,
@@ -169,8 +170,8 @@ export async function seedQuestions(
     points: number;
     isTiebreaker: boolean;
   }>
-): Promise<void> {
-  // Check if questions already exist for this game
+): Promise<number> {
+  // Check which questions already exist for this game
   const result = await db.queryOnce({
     games: {
       $: { where: { id: gameInstantId } },
@@ -178,12 +179,21 @@ export async function seedQuestions(
     },
   });
   const gameData = result.data.games[0];
-  const existingQuestions = (gameData as unknown as { questions?: unknown[] }).questions;
-  if (existingQuestions && existingQuestions.length > 0) return;
+  const existingQuestions = (gameData as unknown as { questions?: Question[] }).questions ?? [];
 
+  // Build set of existing questionIds
+  const existingQuestionIds = new Set(existingQuestions.map((q: Question) => q.questionId));
+
+  // Find questions that need to be added
+  const questionsToAdd = questions.filter((q) => !existingQuestionIds.has(q.questionId));
+
+  if (questionsToAdd.length === 0) return 0;
+
+  // Add missing questions with correct sortOrder
   const txs: TransactionUpdate[] = [];
-  let i = 0;
-  for (const q of questions) {
+  const startingSortOrder = existingQuestions.length;
+  let i = startingSortOrder;
+  for (const q of questionsToAdd) {
     const qId = id();
     txs.push(
       db.tx.questions[qId].update({
@@ -199,6 +209,8 @@ export async function seedQuestions(
     txs.push(db.tx.questions[qId].link({ game: gameInstantId }));
   }
   await db.transact(txs);
+
+  return questionsToAdd.length;
 }
 
 /**

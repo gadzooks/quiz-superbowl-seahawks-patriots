@@ -195,11 +195,11 @@ export function AdminPanel({
         showToast={showToast}
       />
 
-      {/* Build Info */}
-      <BuildInfo appId={appId} />
-
       {/* Victory Celebrations */}
       <CelebrationControls leagueId={league.id} showToast={showToast} />
+
+      {/* Build Info */}
+      <BuildInfo appId={appId} />
 
       {/* Delete Confirmation Modal */}
       {pendingDelete && (

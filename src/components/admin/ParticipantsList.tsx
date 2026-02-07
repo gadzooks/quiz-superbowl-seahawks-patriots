@@ -42,7 +42,19 @@ export function ParticipantsList({
           cursor: 'pointer',
         }}
       >
-        <span className="admin-control-label">Participants ({predictions.length})</span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <span className="admin-control-label">Participants ({predictions.length})</span>
+          <span
+            style={{
+              fontSize: '13px',
+              color: 'var(--color-text-muted)',
+              fontWeight: '400',
+              marginTop: '2px',
+            }}
+          >
+            {isExpanded ? 'Click to collapse' : 'Click to view details'}
+          </span>
+        </div>
         <span className="collapsible-icon">{isExpanded ? '▼' : '▶'}</span>
       </button>
 

@@ -74,9 +74,8 @@ export function SeedingSection({
 
       // Generate and seed questions
       const questionData = createQuestionsFunc(config.teams);
-      await seedQuestions(gameInstantId, questionData);
+      const added = await seedQuestions(gameInstantId, questionData);
 
-      const added = questionData.length - existingQuestions.length;
       if (added > 0) {
         showToast(`✅ Added ${added} new question${added === 1 ? '' : 's'}!`, 'success');
       } else {
