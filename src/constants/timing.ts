@@ -17,6 +17,8 @@ export const CELEBRATION = {
   CONFETTI_DURATION: 3000,
   /** Duration of winner (top 3) celebration confetti */
   WINNER_DURATION: 5000,
+  /** Grace period for showing broadcast celebrations (accounts for display time + network delays) */
+  GRACE_PERIOD: 10000,
   /** Interval between confetti particle bursts */
   PARTICLE_INTERVAL: 250,
   /** Duration to show non-winner position toast */
