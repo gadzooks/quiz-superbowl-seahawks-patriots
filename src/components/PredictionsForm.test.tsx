@@ -183,8 +183,8 @@ describe('PredictionsForm', () => {
   it('shows points badge for questions with points', () => {
     renderForm();
 
-    expect(screen.getByText('🏈🏈🏈🏈🏈🏈🏈🏈🏈🏈')).toBeInTheDocument(); // 10 footballs
-    expect(screen.getByText('🏈🏈🏈🏈🏈')).toBeInTheDocument(); // 5 footballs
+    expect(screen.getByText('🏈 🏈 🏈 🏈 🏈 🏈 🏈 🏈 🏈 🏈')).toBeInTheDocument(); // 10 footballs
+    expect(screen.getByText('🏈 🏈 🏈 🏈 🏈')).toBeInTheDocument(); // 5 footballs
   });
 
   it('shows tiebreaker badge for tiebreaker questions', () => {

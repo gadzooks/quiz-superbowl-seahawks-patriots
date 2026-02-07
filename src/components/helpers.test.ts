@@ -511,12 +511,12 @@ describe('components/helpers', () => {
   });
 
   describe('pointsToFootballs', () => {
-    it('should convert points to football emojis', () => {
+    it('should convert points to football emojis with spacing', () => {
       expect(pointsToFootballs(0)).toBe('');
       expect(pointsToFootballs(1)).toBe('🏈');
-      expect(pointsToFootballs(3)).toBe('🏈🏈🏈');
-      expect(pointsToFootballs(6)).toBe('🏈🏈🏈🏈🏈🏈');
-      expect(pointsToFootballs(10)).toBe('🏈🏈🏈🏈🏈🏈🏈🏈🏈🏈');
+      expect(pointsToFootballs(3)).toBe('🏈 🏈 🏈');
+      expect(pointsToFootballs(6)).toBe('🏈 🏈 🏈 🏈 🏈 🏈');
+      expect(pointsToFootballs(10)).toBe('🏈 🏈 🏈 🏈 🏈 🏈 🏈 🏈 🏈 🏈');
     });
   });
 });

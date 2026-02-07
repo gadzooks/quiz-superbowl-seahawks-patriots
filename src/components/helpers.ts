@@ -38,11 +38,12 @@ export function formatSlugForDisplay(slug: string): string {
 }
 
 /**
- * Convert points to football emojis.
- * e.g., 6 points → "🏈🏈🏈🏈🏈🏈"
+ * Convert points to football emojis with spacing.
+ * e.g., 6 points → "🏈 🏈 🏈 🏈 🏈 🏈"
  */
 export function pointsToFootballs(points: number): string {
-  return '🏈'.repeat(points);
+  if (points === 0) return '';
+  return Array.from({ length: points }, () => '🏈').join(' ');
 }
 
 /**
