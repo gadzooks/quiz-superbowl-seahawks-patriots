@@ -11,6 +11,7 @@ import {
   sortPredictionsForParticipants,
   escapeHtml,
   escapeForJs,
+  pointsToFootballs,
 } from './helpers';
 
 describe('components/helpers', () => {
@@ -506,6 +507,16 @@ describe('components/helpers', () => {
     it('should handle multiple quotes', () => {
       const result = escapeForJs(`"'test'" and "'more'"`);
       expect(result).toContain('\\');
+    });
+  });
+
+  describe('pointsToFootballs', () => {
+    it('should convert points to football emojis', () => {
+      expect(pointsToFootballs(0)).toBe('');
+      expect(pointsToFootballs(1)).toBe('🏈');
+      expect(pointsToFootballs(3)).toBe('🏈🏈🏈');
+      expect(pointsToFootballs(6)).toBe('🏈🏈🏈🏈🏈🏈');
+      expect(pointsToFootballs(10)).toBe('🏈🏈🏈🏈🏈🏈🏈🏈🏈🏈');
     });
   });
 });

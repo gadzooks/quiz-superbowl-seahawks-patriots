@@ -38,6 +38,14 @@ export function formatSlugForDisplay(slug: string): string {
 }
 
 /**
+ * Convert points to football emojis.
+ * e.g., 6 points → "🏈🏈🏈🏈🏈🏈"
+ */
+export function pointsToFootballs(points: number): string {
+  return '🏈'.repeat(points);
+}
+
+/**
  * Check if a user's answer is correct.
  */
 export function isAnswerCorrect(

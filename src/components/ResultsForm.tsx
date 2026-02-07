@@ -4,6 +4,8 @@ import { AUTO_SAVE } from '../constants/timing';
 import { saveResults } from '../db/queries';
 import type { League, Prediction, Question } from '../types';
 
+import { pointsToFootballs } from './helpers';
+
 interface ResultsFormProps {
   questions: Question[];
   league: League;
@@ -189,7 +191,7 @@ export function ResultsForm({ questions, league, predictions, showToast }: Resul
                 <span className="results-question-number">Question {index + 1}</span>
                 <br />
                 <span>{q.label}</span>
-                <span className="results-points-badge">{q.points} pts</span>
+                <span className="results-points-badge">{pointsToFootballs(q.points)}</span>
               </label>
               {hasValue && (
                 <button
