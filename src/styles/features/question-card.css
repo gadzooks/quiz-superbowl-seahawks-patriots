@@ -71,6 +71,7 @@
   margin-left: var(--space-xs);
   line-height: 1.2;
   min-width: 120px;
+  float: right;
 }
 
 .question-tiebreaker-badge {
@@ -82,6 +83,7 @@
   font-size: 13px;
   font-weight: 600;
   margin-left: var(--space-xs);
+  float: right;
 }
 
 /* Closed submissions styling */
