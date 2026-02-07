@@ -421,10 +421,8 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
         league={league}
         teamName={teamName}
         currentTeamId={currentTeamId}
-        progressPercentage={progressPercentage || computedProgress}
         currentTab={currentTab}
         onReplayIntro={() => setShowIntro(true)}
-        hideProgressBar={hasCompletedFirstTimeRef.current}
       />
 
       {/* Animated progress bar that appears on scroll - only show if user hasn't completed predictions yet */}

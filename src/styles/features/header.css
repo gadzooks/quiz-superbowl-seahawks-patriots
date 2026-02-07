@@ -55,8 +55,7 @@
 .header-content,
 .team-logo-header,
 .play-sound-btn,
-.intro-replay-btn,
-.progress-bar-container {
+.intro-replay-btn {
   position: relative;
   z-index: 1;
 }
