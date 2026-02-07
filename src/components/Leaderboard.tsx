@@ -8,6 +8,7 @@ import {
   countAnsweredQuestions,
   formatSlugForDisplay,
   isAnswerCorrect,
+  pointsToFootballs,
 } from './helpers';
 
 interface LeaderboardProps {
@@ -252,11 +253,11 @@ function AnswerDetails({ prediction, questions, actualResults }: AnswerDetailsPr
             answerClass = 'answer-correct';
             statusIcon = '✓';
             pointsEarned = q.points;
-            pointsDisplay = `+${pointsEarned} pt${pointsEarned !== 1 ? 's' : ''}`;
+            pointsDisplay = `+${pointsToFootballs(pointsEarned)}`;
           } else {
             answerClass = 'answer-incorrect';
             statusIcon = '✗';
-            pointsDisplay = '0 pts';
+            pointsDisplay = '';
           }
         }
 

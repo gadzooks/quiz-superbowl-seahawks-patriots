@@ -3,7 +3,12 @@ import { type MutableRefObject, useState, useEffect, useRef, useCallback, memo }
 import { savePrediction } from '../db/queries';
 import type { Question, Prediction, League } from '../types';
 
-import { isAnswerCorrect, formatSlugForDisplay, countAnsweredQuestions } from './helpers';
+import {
+  isAnswerCorrect,
+  formatSlugForDisplay,
+  countAnsweredQuestions,
+  pointsToFootballs,
+} from './helpers';
 
 interface PredictionsFormProps {
   questions: Question[];
@@ -186,7 +191,7 @@ export const PredictionsForm = memo(function PredictionsForm({
                 <br />
                 <span className="question-text">{q.label}</span>
                 {q.points > 0 ? (
-                  <span className="question-points-badge">{q.points} pts</span>
+                  <span className="question-points-badge">{pointsToFootballs(q.points)}</span>
                 ) : (
                   <span className="question-tiebreaker-badge">Tiebreaker</span>
                 )}

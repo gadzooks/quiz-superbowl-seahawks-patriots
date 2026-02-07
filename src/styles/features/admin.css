@@ -66,14 +66,17 @@
 }
 
 .results-points-badge {
-  display: inline-block;
+  display: inline-flex;
+  justify-content: flex-end;
   background: #e57373;
   color: #ffffff;
   padding: 4px 12px;
   border-radius: 9999px;
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 700;
   margin-left: var(--space-xs);
+  line-height: 1.2;
+  min-width: 120px;
 }
 
 /* Results radio option overrides */
@@ -430,11 +433,15 @@
 }
 
 .answer-points-badge {
+  display: inline-flex;
+  justify-content: flex-end;
   margin-left: 10px;
   padding: 4px 10px;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 600;
+  line-height: 1.2;
+  min-width: 100px;
 }
 
 .answer-points-badge.points-earned {

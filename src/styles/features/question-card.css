@@ -71,14 +71,18 @@
 }
 
 .question-points-badge {
-  display: inline-block;
+  display: inline-flex;
+  justify-content: flex-end;
   background: var(--color-primary);
   color: var(--color-background);
   padding: 4px 12px;
   border-radius: 9999px;
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 700;
   margin-left: var(--space-xs);
+  line-height: 1.2;
+  min-width: 120px;
+  float: right;
 }
 
 .question-tiebreaker-badge {
@@ -90,6 +94,7 @@
   font-size: 13px;
   font-weight: 600;
   margin-left: var(--space-xs);
+  float: right;
 }
 
 /* Closed submissions styling */

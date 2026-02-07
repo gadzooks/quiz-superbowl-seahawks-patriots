@@ -71,6 +71,7 @@ function getTeamsWithDivisions(): DivisionTeams {
   const teams = getTeamOptions();
 
   const divisions: DivisionTeams = {
+    'NFC West': [],
     'AFC East': [],
     'AFC North': [],
     'AFC South': [],
@@ -78,7 +79,6 @@ function getTeamsWithDivisions(): DivisionTeams {
     'NFC East': [],
     'NFC North': [],
     'NFC South': [],
-    'NFC West': [],
   };
 
   for (const team of teams) {
