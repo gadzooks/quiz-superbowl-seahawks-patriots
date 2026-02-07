@@ -161,7 +161,8 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
   const lastCelebrationTriggerRef = useRef<number>(league ? getLastSeenCelebration(league.id) : 0);
 
   // Track if user has ever completed predictions (persisted to localStorage)
-  const hasCompletedFirstTimeRef = useRef<boolean>(
+  // Using state instead of ref so component re-renders when value changes
+  const [hasCompletedFirstTime, setHasCompletedFirstTime] = useState<boolean>(
     league ? getHasCompletedFirstTime(league.id, currentUserId) : false
   );
 
@@ -278,15 +279,15 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
       hasSeenCompletionCelebrationRef.current = true;
 
       // Also mark first-time completion
-      if (!hasCompletedFirstTimeRef.current) {
+      if (!hasCompletedFirstTime) {
         markFirstTimeCompletion(league.id, currentUserId);
-        hasCompletedFirstTimeRef.current = true;
+        setHasCompletedFirstTime(true);
       }
 
       // Trigger the confetti
       showCompletionCelebration();
     }
-  }, [league, currentUserId, showCompletionCelebration]);
+  }, [league, currentUserId, showCompletionCelebration, hasCompletedFirstTime]);
 
   const handleSave = useCallback(() => {
     if (!currentUserPrediction || !league?.isOpen || !formDataCacheRef.current) return;
@@ -426,7 +427,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
       />
 
       {/* Animated progress bar that appears on scroll - only show if user hasn't completed predictions yet */}
-      {!hasCompletedFirstTimeRef.current && (
+      {!hasCompletedFirstTime && (
         <ScrollProgress
           progressPercentage={progressPercentage || computedProgress}
           style="football"

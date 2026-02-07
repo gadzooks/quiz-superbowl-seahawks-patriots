@@ -10,7 +10,7 @@ interface SeahawksVictory3Props {
   duration?: number;
 }
 
-export function SeahawksVictory3({ onComplete, duration = 5000 }: SeahawksVictory3Props) {
+export function SeahawksVictory3({ onComplete, duration = 10000 }: SeahawksVictory3Props) {
   const [glitchActive, setGlitchActive] = useState(false);
   const [typedText, setTypedText] = useState('');
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -75,7 +75,7 @@ export function SeahawksVictory3({ onComplete, duration = 5000 }: SeahawksVictor
 
   // Glitch effect
   useEffect(() => {
-    const glitchIntervals = [800, 1600, 2400, 3200, 4000];
+    const glitchIntervals = [800, 1600, 2400, 3200, 4000, 5500, 7000, 8500];
     const glitchTimers = glitchIntervals.map((delay) =>
       setTimeout(() => {
         setGlitchActive(true);

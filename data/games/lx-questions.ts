@@ -62,7 +62,7 @@ export function createLXQuestions(teams: [string, string]): Array<{
     },
     {
       questionId: 'overtime',
-      label: 'Overtime?',
+      label: 'Does the game go to overtime?',
       type: 'radio',
       options: ['Yes', 'No'],
       points: 3,
@@ -70,7 +70,7 @@ export function createLXQuestions(teams: [string, string]): Array<{
     },
     {
       questionId: 'defensiveTD',
-      label: 'Defensive/special teams TD?',
+      label: 'Is there a Defensive/special teams TD?',
       type: 'radio',
       options: ['Yes', 'No'],
       points: 2,
@@ -94,7 +94,7 @@ export function createLXQuestions(teams: [string, string]): Array<{
     },
     {
       questionId: 'longestTD',
-      label: 'Longest TD (passing/running)?',
+      label: 'Longest TD (passing/running/special teams)?',
       type: 'radio',
       options: ['20-39', '40-59', '60+'],
       points: 1,
