@@ -348,7 +348,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
     setTimeout(() => {
       skipUnmountSaveRef.current = false;
     }, 0);
-    showToast('Changes discarded', 'info');
+    showToast('Changes discarded', 'success');
   }, [currentUserPrediction, showToast]);
 
   const handleTeamRegistered = useCallback(

@@ -189,6 +189,7 @@
   padding-bottom: calc(var(--space-md, 16px) + env(safe-area-inset-bottom));
   background: linear-gradient(to top, var(--color-background) 80%, transparent);
   z-index: 150;
+  pointer-events: none;
 }
 
 .unsaved-changes-bar-inner {
