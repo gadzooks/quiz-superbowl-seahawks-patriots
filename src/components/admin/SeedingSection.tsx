@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import { getGameConfig } from '../../config/games';
+import { fixQuestionOrder } from '../../db/fixQuestionOrder';
 import { seedGame, seedQuestions } from '../../db/queries';
 import type { Question } from '../../types';
 
@@ -76,10 +77,21 @@ export function SeedingSection({
       const questionData = createQuestionsFunc(config.teams);
       const added = await seedQuestions(gameInstantId, questionData);
 
-      if (added > 0) {
-        showToast(`✅ Added ${added} new question${added === 1 ? '' : 's'}!`, 'success');
+      // Fix the order of all questions to match the file order
+      const desiredQuestionIds = questionData.map((q: { questionId: string }) => q.questionId);
+      const fixed = await fixQuestionOrder(gameInstantId, desiredQuestionIds);
+
+      if (added > 0 || fixed > 0) {
+        const messages = [];
+        if (added > 0) {
+          messages.push(`Added ${added} question${added === 1 ? '' : 's'}`);
+        }
+        if (fixed > 0) {
+          messages.push(`Fixed order of ${fixed} question${fixed === 1 ? '' : 's'}`);
+        }
+        showToast(`✅ ${messages.join(', ')}!`, 'success');
       } else {
-        showToast('All questions already exist', 'info');
+        showToast('All questions already exist and in correct order', 'info');
       }
     } catch (error) {
       console.error('Seeding error:', error);
