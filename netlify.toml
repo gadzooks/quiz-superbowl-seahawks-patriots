@@ -95,7 +95,7 @@
 # Security Headers
 # ============================================================================
 
-# Security headers
+# Security headers for all pages
 [[headers]]
   for = "/*"
   [headers.values]
@@ -104,13 +104,30 @@
     X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
-# Cache static assets
+# Prevent caching of HTML files - always get fresh content (critical for SPAs)
 [[headers]]
-  for = "*.html"
+  for = "/*.html"
   [headers.values]
-    Cache-Control = "public, max-age=0, must-revalidate"
+    Cache-Control = "no-cache, no-store, must-revalidate"
 
-# Cache JS/CSS with long expiry (Vite adds content hashes)
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+# Cache images for 1 week
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+# Cache favicon for 1 week
+[[headers]]
+  for = "/favicon.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+# Cache JS/CSS with long expiry (Vite adds content hashes, so safe to cache forever)
 [[headers]]
   for = "/assets/*"
   [headers.values]
