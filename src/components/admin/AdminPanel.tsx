@@ -14,12 +14,11 @@ import { sortPredictionsForParticipants } from '../helpers';
 import { BuildInfo } from './BuildInfo';
 import { CelebrationControls } from './CelebrationControls';
 import { DeleteTeamModal } from './DeleteTeamModal';
+import { LeagueControls } from './LeagueControls';
 import { ParticipantsList } from './ParticipantsList';
 import { RecalculateSection } from './RecalculateSection';
 import { SeedingSection } from './SeedingSection';
 import { ShareSection } from './ShareSection';
-import { ShowAnswersControl } from './ShowAnswersControl';
-import { SubmissionControls } from './SubmissionControls';
 
 interface AdminPanelProps {
   gameId: string;
@@ -155,16 +154,12 @@ export function AdminPanel({
 
   return (
     <div>
-      {/* Submission Controls */}
-      <SubmissionControls
+      {/* League Settings Card */}
+      <LeagueControls
         isOpen={league.isOpen}
-        onToggle={(isOpen) => void handleSubmissionsToggle(isOpen)}
-      />
-
-      {/* Show Answers Control */}
-      <ShowAnswersControl
         showAllPredictions={league.showAllPredictions}
-        onToggle={(show) => void handleShowAnswersToggle(show)}
+        onToggleSubmissions={(isOpen) => void handleSubmissionsToggle(isOpen)}
+        onToggleShowAnswers={(show) => void handleShowAnswersToggle(show)}
       />
 
       {/* Participants List */}

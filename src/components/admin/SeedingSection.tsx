@@ -131,24 +131,24 @@ export function SeedingSection({
         )}
 
         <button
-          className="button button-secondary"
+          className="button button-primary"
           onClick={() => void handleSeed()}
           disabled={isSeeding || allSeeded}
-          style={{ marginTop: 'var(--space-md)' }}
+          style={{ marginTop: 'var(--space-md)', width: '100%' }}
         >
           {isSeeding
             ? '⏳ Seeding...'
             : allSeeded
               ? '✓ All Questions Loaded'
-              : `Seed ${missing} Question${missing === 1 ? '' : 's'}`}
+              : `🎯 Seed ${missing} Question${missing === 1 ? '' : 's'}`}
         </button>
 
         {allSeeded && (
           <button
-            className="button button-tertiary"
+            className="button button-secondary"
             onClick={() => void handleSeed()}
             disabled={isSeeding}
-            style={{ marginTop: 'var(--space-sm)' }}
+            style={{ marginTop: 'var(--space-sm)', width: '100%' }}
           >
             🔄 Re-run Seed (check for updates)
           </button>
