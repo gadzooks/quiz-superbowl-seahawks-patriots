@@ -16,6 +16,7 @@ interface HeaderProps {
   progressPercentage: number;
   currentTab?: string;
   onReplayIntro: () => void;
+  hideProgressBar?: boolean;
 }
 
 // Convert hex color to RGB string (e.g., "#FF0000" -> "255, 0, 0")
@@ -33,6 +34,7 @@ export function Header({
   progressPercentage,
   currentTab,
   onReplayIntro,
+  hideProgressBar = false,
 }: HeaderProps) {
   const isSeahawks = currentTeamId === 'seahawks';
   const team1Name = game?.team1 ?? 'Seahawks';
@@ -179,7 +181,7 @@ export function Header({
         </div>
       )}
 
-      {progressPercentage > 0 && (
+      {progressPercentage > 0 && !hideProgressBar && (
         <div className="progress-bar-container">
           <div className="progress-bar" style={{ width: `${progressPercentage}%` }} />
         </div>
