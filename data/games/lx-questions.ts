@@ -1,3 +1,5 @@
+// lx-questions.ts
+
 /**
  * Super Bowl LX Questions
  * Seahawks vs Patriots - 2026
@@ -22,28 +24,25 @@ export function createLXQuestions(teams: [string, string]): Array<{
   type: string;
   options?: string[];
   points: number;
-  sortOrder: number;
   isTiebreaker: boolean;
 }> {
   const [team1, team2] = teams;
 
   return [
     {
-      questionId: 'winner',
-      label: `The winner is ...`,
+      questionId: 'coinToss',
+      label: `Who wins the coin toss?`,
       type: 'radio',
       options: [team1, team2],
-      points: 6,
-      sortOrder: 0,
+      points: 1,
       isTiebreaker: false,
     },
     {
-      questionId: 'winningMargin',
-      label: 'Winning margin?',
+      questionId: 'firstScore',
+      label: `Who scores first?`,
       type: 'radio',
-      options: ['1-7', '8-14', '15+'],
-      points: 6,
-      sortOrder: 1,
+      options: [team1, team2],
+      points: 1,
       isTiebreaker: false,
     },
     {
@@ -52,7 +51,6 @@ export function createLXQuestions(teams: [string, string]): Array<{
       type: 'radio',
       options: [team1, team2, 'Tied'],
       points: 3,
-      sortOrder: 2,
       isTiebreaker: false,
     },
     {
@@ -60,7 +58,6 @@ export function createLXQuestions(teams: [string, string]): Array<{
       label: 'Total touchdowns?',
       type: 'number',
       points: 3,
-      sortOrder: 3,
       isTiebreaker: false,
     },
     {
@@ -69,7 +66,6 @@ export function createLXQuestions(teams: [string, string]): Array<{
       type: 'radio',
       options: ['Yes', 'No'],
       points: 3,
-      sortOrder: 4,
       isTiebreaker: false,
     },
     {
@@ -78,7 +74,6 @@ export function createLXQuestions(teams: [string, string]): Array<{
       type: 'radio',
       options: ['Yes', 'No'],
       points: 2,
-      sortOrder: 5,
       isTiebreaker: false,
     },
     {
@@ -87,7 +82,6 @@ export function createLXQuestions(teams: [string, string]): Array<{
       type: 'radio',
       options: ['Yes', 'No'],
       points: 2,
-      sortOrder: 6,
       isTiebreaker: false,
     },
     {
@@ -96,7 +90,6 @@ export function createLXQuestions(teams: [string, string]): Array<{
       type: 'radio',
       options: ['Even', 'Odd'],
       points: 1,
-      sortOrder: 7,
       isTiebreaker: false,
     },
     {
@@ -105,7 +98,22 @@ export function createLXQuestions(teams: [string, string]): Array<{
       type: 'radio',
       options: ['20-39', '40-59', '60+'],
       points: 1,
-      sortOrder: 8,
+      isTiebreaker: false,
+    },
+    {
+      questionId: 'winner',
+      label: `The winner is ...`,
+      type: 'radio',
+      options: [team1, team2],
+      points: 6,
+      isTiebreaker: false,
+    },
+    {
+      questionId: 'winningMargin',
+      label: 'Winning margin?',
+      type: 'radio',
+      options: ['1-7', '8-14', '15+'],
+      points: 6,
       isTiebreaker: false,
     },
     {
@@ -113,7 +121,6 @@ export function createLXQuestions(teams: [string, string]): Array<{
       label: 'Total combined points',
       type: 'number',
       points: 0,
-      sortOrder: 9,
       isTiebreaker: true,
     },
   ];

@@ -1,3 +1,5 @@
+// queries.ts
+
 /**
  * Database query functions for InstantDB
  * Type assertions are used after validation to work with InstantDB's untyped query results
@@ -165,7 +167,6 @@ export async function seedQuestions(
     type: string;
     options?: string[];
     points: number;
-    sortOrder: number;
     isTiebreaker: boolean;
   }>
 ): Promise<void> {
@@ -181,6 +182,7 @@ export async function seedQuestions(
   if (existingQuestions && existingQuestions.length > 0) return;
 
   const txs: TransactionUpdate[] = [];
+  let i = 0;
   for (const q of questions) {
     const qId = id();
     txs.push(
@@ -190,7 +192,7 @@ export async function seedQuestions(
         type: q.type,
         options: q.options ?? null,
         points: q.points,
-        sortOrder: q.sortOrder,
+        sortOrder: i++,
         isTiebreaker: q.isTiebreaker,
       })
     );

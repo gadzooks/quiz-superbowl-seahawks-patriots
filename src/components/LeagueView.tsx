@@ -509,8 +509,10 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
         )}
 
         {/* Admin tab (creator only) */}
-        {currentTab === 'admin' && isCreator && (
+        {currentTab === 'admin' && isCreator && game && (
           <AdminPanel
+            gameId={game.gameId}
+            gameInstantId={game.id}
             league={league}
             predictions={predictions}
             questions={questions}

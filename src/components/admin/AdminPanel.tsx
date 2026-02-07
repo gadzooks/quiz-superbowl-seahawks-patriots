@@ -16,11 +16,14 @@ import { CelebrationControls } from './CelebrationControls';
 import { DeleteTeamModal } from './DeleteTeamModal';
 import { ParticipantsList } from './ParticipantsList';
 import { RecalculateSection } from './RecalculateSection';
+import { SeedingSection } from './SeedingSection';
 import { ShareSection } from './ShareSection';
 import { ShowAnswersControl } from './ShowAnswersControl';
 import { SubmissionControls } from './SubmissionControls';
 
 interface AdminPanelProps {
+  gameId: string;
+  gameInstantId: string;
   league: League;
   predictions: Prediction[];
   questions: Question[];
@@ -38,6 +41,8 @@ interface AdminPanelProps {
  * Provides controls for submissions, visibility, participants, and scoring
  */
 export function AdminPanel({
+  gameId,
+  gameInstantId,
   league,
   predictions,
   questions,
@@ -180,6 +185,14 @@ export function AdminPanel({
       <RecalculateSection
         onRecalculate={handleRecalculate}
         hasResults={Boolean(league.actualResults && Object.keys(league.actualResults).length > 0)}
+      />
+
+      {/* Game Seeding Section */}
+      <SeedingSection
+        gameId={gameId}
+        gameInstantId={gameInstantId}
+        existingQuestions={questions}
+        showToast={showToast}
       />
 
       {/* Build Info */}
