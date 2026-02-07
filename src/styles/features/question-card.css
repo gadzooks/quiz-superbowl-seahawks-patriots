@@ -60,7 +60,8 @@
 }
 
 .question-points-badge {
-  display: inline-block;
+  display: inline-flex;
+  justify-content: flex-end;
   background: var(--color-primary);
   color: var(--color-background);
   padding: 4px 12px;
@@ -69,7 +70,7 @@
   font-weight: 700;
   margin-left: var(--space-xs);
   line-height: 1.2;
-  text-align: right;
+  min-width: 120px;
 }
 
 .question-tiebreaker-badge {
