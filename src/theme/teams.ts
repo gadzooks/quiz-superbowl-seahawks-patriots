@@ -25,8 +25,8 @@ export const TEAM_THEMES: Record<string, TeamTheme> = {
   // AFC East
   bills: {
     name: 'Buffalo Bills',
-    primary: '#00338D',
-    secondary: '#C60C30',
+    primary: '#C60C30',
+    secondary: '#00338D',
     background: '#00338D',
     backgroundAlt: '#002a75',
     text: '#FFFFFF',
@@ -34,8 +34,8 @@ export const TEAM_THEMES: Record<string, TeamTheme> = {
   },
   dolphins: {
     name: 'Miami Dolphins',
-    primary: '#008E97',
-    secondary: '#FC4C02',
+    primary: '#FC4C02',
+    secondary: '#008E97',
     background: '#005F66',
     backgroundAlt: '#004A50',
     text: '#FFFFFF',
@@ -52,7 +52,7 @@ export const TEAM_THEMES: Record<string, TeamTheme> = {
   },
   jets: {
     name: 'New York Jets',
-    primary: '#125740',
+    primary: '#20B270',
     secondary: '#000000',
     background: '#0A3928',
     backgroundAlt: '#072A1E',
