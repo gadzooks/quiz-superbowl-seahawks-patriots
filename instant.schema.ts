@@ -40,6 +40,7 @@ const _schema = i.schema({
       tiebreakDiff: i.number(),
       isManager: i.boolean(),
       predictions: i.json(),
+      themeTeamId: i.string().optional(),
     }),
   },
 

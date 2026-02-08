@@ -44,6 +44,7 @@ export interface Prediction {
   tiebreakDiff: number;
   isManager: boolean;
   predictions: Record<string, string | number>;
+  themeTeamId?: string;
 }
 
 export interface AppState {

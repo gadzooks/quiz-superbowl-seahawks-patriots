@@ -4,8 +4,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useAppContext } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
-import { savePrediction } from '../db/queries';
+import { savePrediction, saveThemePreference } from '../db/queries';
 import { useLeagueData } from '../hooks/useLeagueData';
+import { setTeamTheme } from '../theme/apply';
 import { isAdminOverride } from '../utils/url';
 
 import { AdminPanel } from './AdminPanel';
@@ -38,6 +39,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
     currentTab,
     setCurrentTab,
     currentTeamId,
+    setCurrentTeamId,
     hasShownCompletionCelebration,
     setHasShownCompletionCelebration,
     hasUnviewedScoreUpdate,
@@ -171,6 +173,22 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
       setHasUnviewedScoreUpdate(false);
     }
   }, [currentTab, hasUnviewedScoreUpdate, setHasUnviewedScoreUpdate]);
+
+  // Apply stored theme from DB when loading via ?team= on a new device
+  const hasAppliedDbThemeRef = useRef(false);
+  useEffect(() => {
+    if (hasAppliedDbThemeRef.current || !teamParam || !teamOverridePrediction?.themeTeamId) return;
+    hasAppliedDbThemeRef.current = true;
+    setTeamTheme(teamOverridePrediction.themeTeamId);
+    setCurrentTeamId(teamOverridePrediction.themeTeamId);
+  }, [teamParam, teamOverridePrediction, setCurrentTeamId]);
+
+  // Persist theme changes to DB
+  useEffect(() => {
+    if (!currentUserPrediction || !currentTeamId) return;
+    if (currentUserPrediction.themeTeamId === currentTeamId) return;
+    void saveThemePreference(currentUserPrediction.id, currentTeamId);
+  }, [currentTeamId, currentUserPrediction]);
 
   const handleTabChange = useCallback(
     (tab: typeof currentTab) => {
