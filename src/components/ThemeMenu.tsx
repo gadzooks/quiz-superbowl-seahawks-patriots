@@ -1,3 +1,5 @@
+// ThemeMenu.tsx
+
 import { useState, useCallback, useEffect } from 'react';
 
 import { useAppContext } from '../context/AppContext';
@@ -41,14 +43,14 @@ const TEAM_DIVISIONS: Record<string, string> = {
 };
 
 const DIVISION_ORDER = [
+  'NFC West',
+  'NFC East',
+  'NFC North',
+  'NFC South',
   'AFC East',
   'AFC North',
   'AFC South',
   'AFC West',
-  'NFC East',
-  'NFC North',
-  'NFC South',
-  'NFC West',
 ];
 
 interface TeamsByDivision {

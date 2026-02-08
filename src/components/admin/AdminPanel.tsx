@@ -14,13 +14,15 @@ import { sortPredictionsForParticipants } from '../helpers';
 import { BuildInfo } from './BuildInfo';
 import { CelebrationControls } from './CelebrationControls';
 import { DeleteTeamModal } from './DeleteTeamModal';
+import { LeagueControls } from './LeagueControls';
 import { ParticipantsList } from './ParticipantsList';
 import { RecalculateSection } from './RecalculateSection';
+import { SeedingSection } from './SeedingSection';
 import { ShareSection } from './ShareSection';
-import { ShowAnswersControl } from './ShowAnswersControl';
-import { SubmissionControls } from './SubmissionControls';
 
 interface AdminPanelProps {
+  gameId: string;
+  gameInstantId: string;
   league: League;
   predictions: Prediction[];
   questions: Question[];
@@ -38,6 +40,8 @@ interface AdminPanelProps {
  * Provides controls for submissions, visibility, participants, and scoring
  */
 export function AdminPanel({
+  gameId,
+  gameInstantId,
   league,
   predictions,
   questions,
@@ -150,16 +154,12 @@ export function AdminPanel({
 
   return (
     <div>
-      {/* Submission Controls */}
-      <SubmissionControls
+      {/* League Settings Card */}
+      <LeagueControls
         isOpen={league.isOpen}
-        onToggle={(isOpen) => void handleSubmissionsToggle(isOpen)}
-      />
-
-      {/* Show Answers Control */}
-      <ShowAnswersControl
         showAllPredictions={league.showAllPredictions}
-        onToggle={(show) => void handleShowAnswersToggle(show)}
+        onToggleSubmissions={(isOpen) => void handleSubmissionsToggle(isOpen)}
+        onToggleShowAnswers={(show) => void handleShowAnswersToggle(show)}
       />
 
       {/* Participants List */}
@@ -182,11 +182,19 @@ export function AdminPanel({
         hasResults={Boolean(league.actualResults && Object.keys(league.actualResults).length > 0)}
       />
 
-      {/* Build Info */}
-      <BuildInfo appId={appId} />
+      {/* Game Seeding Section */}
+      <SeedingSection
+        gameId={gameId}
+        gameInstantId={gameInstantId}
+        existingQuestions={questions}
+        showToast={showToast}
+      />
 
       {/* Victory Celebrations */}
       <CelebrationControls leagueId={league.id} showToast={showToast} />
+
+      {/* Build Info */}
+      <BuildInfo appId={appId} />
 
       {/* Delete Confirmation Modal */}
       {pendingDelete && (

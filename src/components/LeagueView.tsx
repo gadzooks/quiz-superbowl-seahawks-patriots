@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { CELEBRATION } from '../constants/timing';
 import { useAppContext } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { savePrediction, saveThemePreference } from '../db/queries';
@@ -40,8 +41,6 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
     setCurrentTab,
     currentTeamId,
     setCurrentTeamId,
-    hasShownCompletionCelebration,
-    setHasShownCompletionCelebration,
     hasUnviewedScoreUpdate,
     setHasUnviewedScoreUpdate,
     setActiveCelebration,
@@ -115,11 +114,82 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
   const needsSeeding = questions.length === 0;
 
   // Track last celebration trigger time to detect new celebrations
-  const lastCelebrationTriggerRef = useRef<number>(0);
+  // Initialize from localStorage to persist across page refreshes
+  const getLastSeenCelebration = (leagueId: string): number => {
+    try {
+      const key = `celebration-last-seen-${leagueId}`;
+      const stored = localStorage.getItem(key);
+      return stored ? parseInt(stored, 10) : 0;
+    } catch {
+      return 0;
+    }
+  };
+
+  // Check if user has ever completed predictions for this league
+  const getHasCompletedFirstTime = (leagueId: string, userId: string): boolean => {
+    try {
+      const key = `first-completion-${leagueId}-${userId}`;
+      const stored = localStorage.getItem(key);
+      return stored === 'true';
+    } catch {
+      return false;
+    }
+  };
+
+  // Mark that user has completed predictions for the first time
+  const markFirstTimeCompletion = (leagueId: string, userId: string): void => {
+    try {
+      const key = `first-completion-${leagueId}-${userId}`;
+      localStorage.setItem(key, 'true');
+    } catch (error) {
+      console.warn('Failed to persist first-time completion flag:', error);
+    }
+  };
+
+  // Check if user has already seen completion celebration
+  const getHasSeenCompletionCelebration = (leagueId: string, userId: string): boolean => {
+    try {
+      const key = `completion-celebration-${leagueId}-${userId}`;
+      const stored = localStorage.getItem(key);
+      return stored === 'true';
+    } catch {
+      return false;
+    }
+  };
+
+  // Mark that user has seen completion celebration
+  const markCompletionCelebrationSeen = (leagueId: string, userId: string): void => {
+    try {
+      const key = `completion-celebration-${leagueId}-${userId}`;
+      localStorage.setItem(key, 'true');
+    } catch (error) {
+      console.warn('Failed to persist completion celebration flag:', error);
+    }
+  };
+
+  const lastCelebrationTriggerRef = useRef<number>(league ? getLastSeenCelebration(league.id) : 0);
+
+  // Track if user has ever completed predictions (persisted to localStorage)
+  // Using state instead of ref so component re-renders when value changes
+  const [hasCompletedFirstTime, setHasCompletedFirstTime] = useState<boolean>(
+    league ? getHasCompletedFirstTime(league.id, currentUserId) : false
+  );
+
+  // Track if user has seen completion celebration (persisted to localStorage)
+  const hasSeenCompletionCelebrationRef = useRef<boolean>(
+    league ? getHasSeenCompletionCelebration(league.id, currentUserId) : false
+  );
+
+  // Track when user loaded the page - celebrations before this should not display
+  const mountTimeRef = useRef<number>(Date.now());
 
   // Auto-switch to seed tab if questions are empty
   // Auto-switch away from seed tab when questions become available
+  // Only run after initial load to avoid overriding saved tab preference
   useEffect(() => {
+    // Don't auto-switch during initial load
+    if (!hasLoadedRef.current) return;
+
     if (needsSeeding && currentTab !== 'seed') {
       // Questions missing - switch to seed tab
       setCurrentTab('seed');
@@ -128,6 +198,12 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
       setCurrentTab('predictions');
     }
   }, [needsSeeding, currentTab, setCurrentTab]);
+
+  // Update lastCelebrationTriggerRef when league changes
+  useEffect(() => {
+    if (!league) return;
+    lastCelebrationTriggerRef.current = getLastSeenCelebration(league.id);
+  }, [league?.id]);
 
   // Watch for celebration triggers from the league (admin broadcasts)
   useEffect(() => {
@@ -141,10 +217,27 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
 
     if (!league.activeCelebration || !league.celebrationTriggeredAt) return;
 
-    // Only trigger if this is a new celebration (different timestamp)
-    if (league.celebrationTriggeredAt > lastCelebrationTriggerRef.current) {
+    // Three conditions for showing a celebration:
+    // 1. isNew: Haven't seen this celebration yet (localStorage tracking)
+    // 2. isRecent: Celebration was triggered within the last 10 seconds
+    // 3. isAfterMount: Celebration was triggered AFTER this user loaded the page
+    const celebrationAge = Date.now() - league.celebrationTriggeredAt;
+    const isRecent = celebrationAge < CELEBRATION.GRACE_PERIOD;
+    const isAfterMount = league.celebrationTriggeredAt > mountTimeRef.current;
+    const isNew = league.celebrationTriggeredAt > lastCelebrationTriggerRef.current;
+
+    if (isNew && isRecent && isAfterMount) {
       console.log('🎉 Triggering celebration:', league.activeCelebration);
       lastCelebrationTriggerRef.current = league.celebrationTriggeredAt;
+
+      // Persist to localStorage so refreshing the page doesn't show it again
+      try {
+        const key = `celebration-last-seen-${league.id}`;
+        localStorage.setItem(key, league.celebrationTriggeredAt.toString());
+      } catch (error) {
+        console.warn('Failed to persist celebration timestamp:', error);
+      }
+
       setActiveCelebration(league.activeCelebration);
     }
   }, [league, setActiveCelebration]);
@@ -206,11 +299,24 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
   }, []);
 
   const handleCompletionCelebration = useCallback(() => {
-    if (!hasShownCompletionCelebration) {
-      setHasShownCompletionCelebration(true);
+    if (!league) return;
+
+    // Check localStorage instead of React state
+    if (!hasSeenCompletionCelebrationRef.current) {
+      // Mark as seen in localStorage and ref
+      markCompletionCelebrationSeen(league.id, currentUserId);
+      hasSeenCompletionCelebrationRef.current = true;
+
+      // Also mark first-time completion
+      if (!hasCompletedFirstTime) {
+        markFirstTimeCompletion(league.id, currentUserId);
+        setHasCompletedFirstTime(true);
+      }
+
+      // Trigger the confetti
       showCompletionCelebration();
     }
-  }, [hasShownCompletionCelebration, setHasShownCompletionCelebration, showCompletionCelebration]);
+  }, [league, currentUserId, showCompletionCelebration, hasCompletedFirstTime]);
 
   const handleSave = useCallback(() => {
     if (!currentUserPrediction || !league?.isOpen || !formDataCacheRef.current) return;
@@ -271,7 +377,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
     setTimeout(() => {
       skipUnmountSaveRef.current = false;
     }, 0);
-    showToast('Changes discarded', 'info');
+    showToast('Changes discarded', 'success');
   }, [currentUserPrediction, showToast]);
 
   const handleTeamRegistered = useCallback(
@@ -345,16 +451,17 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
         league={league}
         teamName={teamName}
         currentTeamId={currentTeamId}
-        progressPercentage={progressPercentage || computedProgress}
         currentTab={currentTab}
         onReplayIntro={() => setShowIntro(true)}
       />
 
-      {/* Animated progress bar that appears on scroll */}
-      <ScrollProgress
-        progressPercentage={progressPercentage || computedProgress}
-        style="football"
-      />
+      {/* Animated progress bar that appears on scroll - only show if user hasn't completed predictions yet */}
+      {!hasCompletedFirstTime && (
+        <ScrollProgress
+          progressPercentage={progressPercentage || computedProgress}
+          style="football"
+        />
+      )}
 
       <div className="container mx-auto p-4 max-w-lg">
         <Tabs
@@ -430,8 +537,10 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
         )}
 
         {/* Admin tab (creator only) */}
-        {currentTab === 'admin' && isCreator && (
+        {currentTab === 'admin' && isCreator && game && (
           <AdminPanel
+            gameId={game.gameId}
+            gameInstantId={game.id}
             league={league}
             predictions={predictions}
             questions={questions}

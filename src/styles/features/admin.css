@@ -101,35 +101,49 @@
  * ============================================ */
 
 .admin-control-row {
-  margin-bottom: 16px;
+  margin-bottom: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
 }
 
 .admin-control-label {
   color: var(--color-text);
   font-weight: 600;
-  font-size: 15px;
+  font-size: 16px;
+  min-width: 140px;
 }
 
 .admin-toggle-group {
   display: flex;
-  gap: 6px;
+  gap: 0;
+  flex: 1;
+  max-width: 280px;
 }
 
 .admin-toggle-option {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border-radius: 8px;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
   cursor: pointer;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   transition: all var(--duration-micro) var(--ease-micro);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.admin-toggle-option:first-of-type {
+  border-radius: 8px 0 0 8px;
+}
+
+.admin-toggle-option:last-of-type {
+  border-radius: 0 8px 8px 0;
 }
 
 .admin-toggle-active-open {
@@ -198,6 +212,57 @@
   display: block;
   width: 120px;
   height: 120px;
+}
+
+.admin-section {
+  margin-top: 24px;
+}
+
+.admin-section-title {
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.admin-card {
+  padding: 16px;
+  background: var(--color-input-bg);
+  border-radius: 8px;
+}
+
+.admin-info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-label {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.admin-value {
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-warning {
+  padding: 12px;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 6px;
+  color: var(--color-warning);
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .admin-build-info {
@@ -339,11 +404,26 @@
 .collapsible-toggle {
   background: transparent;
   border: none;
+  transition: all var(--duration-micro) var(--ease-micro);
+}
+
+.collapsible-toggle:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.collapsible-toggle:hover .admin-control-label {
+  color: var(--color-primary);
 }
 
 .collapsible-icon {
   color: var(--color-primary);
   font-size: 18px;
+  transition: transform var(--duration-micro) var(--ease-micro);
+}
+
+.collapsible-toggle:hover .collapsible-icon {
+  transform: scale(1.2);
 }
 
 /* ============================================

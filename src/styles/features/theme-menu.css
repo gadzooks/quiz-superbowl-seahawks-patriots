@@ -21,7 +21,7 @@
 /* Floating Action Button (FAB) */
 #theme-fab {
   position: fixed;
-  bottom: 24px;
+  bottom: 96px;
   right: 24px;
   width: 56px;
   height: 56px;
@@ -56,7 +56,7 @@
 /* Theme Menu - slide-up panel */
 #theme-menu {
   position: fixed;
-  bottom: 96px;
+  bottom: 168px;
   right: 24px;
   width: 280px;
   max-height: 70dvh;
@@ -181,13 +181,13 @@
 /* Mobile responsive - larger touch targets */
 @media (max-width: 640px) {
   #theme-fab {
-    bottom: 20px;
+    bottom: 92px;
     right: 20px;
   }
 
   #theme-menu {
     right: 20px;
-    bottom: 92px;
+    bottom: 164px;
     width: calc(100vw - 40px);
     max-width: 320px;
   }
