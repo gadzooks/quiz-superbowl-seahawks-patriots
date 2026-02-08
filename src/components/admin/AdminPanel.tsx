@@ -93,8 +93,8 @@ export function AdminPanel({
   };
 
   // Handler: Copy recovery link for specific user
-  const handleCopyRecoveryLink = (userId: string, teamName: string) => {
-    const recoveryUrl = `${shareUrl}?user=${userId}`;
+  const handleCopyRecoveryLink = (_userId: string, teamName: string) => {
+    const recoveryUrl = `${shareUrl}?team=${encodeURIComponent(teamName)}`;
     void (async () => {
       try {
         await navigator.clipboard.writeText(recoveryUrl);

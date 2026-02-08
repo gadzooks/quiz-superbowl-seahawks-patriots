@@ -5,8 +5,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { CELEBRATION } from '../constants/timing';
 import { useAppContext } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
-import { savePrediction } from '../db/queries';
+import { savePrediction, saveThemePreference } from '../db/queries';
 import { useLeagueData } from '../hooks/useLeagueData';
+import { setTeamTheme } from '../theme/apply';
 import { isAdminOverride } from '../utils/url';
 
 import { AdminPanel } from './AdminPanel';
@@ -39,6 +40,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
     currentTab,
     setCurrentTab,
     currentTeamId,
+    setCurrentTeamId,
     hasUnviewedScoreUpdate,
     setHasUnviewedScoreUpdate,
     setActiveCelebration,
@@ -48,6 +50,13 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
     gameId,
     leagueSlug
   );
+
+  // Override current user based on ?team= query param (shared device support)
+  const teamParam = new URLSearchParams(window.location.search).get('team');
+  const teamOverridePrediction = teamParam
+    ? predictions.find((p) => p.teamName.toLowerCase() === teamParam.toLowerCase())
+    : null;
+  const effectiveUserId = teamOverridePrediction?.userId ?? currentUserId;
 
   const [showIntro, setShowIntro] = useState(false);
   const [progressPercentage, setProgressPercentage] = useState(0);
@@ -72,7 +81,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
 
   // Derived state — cache the prediction so it doesn't flicker to undefined
   // during InstantDB real-time updates (which would unmount PredictionsForm)
-  const livePrediction = predictions.find((p) => p.userId === currentUserId);
+  const livePrediction = predictions.find((p) => p.userId === effectiveUserId);
   const cachedPredictionRef = useRef(livePrediction);
   if (livePrediction) {
     cachedPredictionRef.current = livePrediction;
@@ -96,7 +105,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
     lastExplicitSaveRef.current = JSON.stringify(currentUserPrediction.predictions);
   }
 
-  const isCreator = league?.creatorId === currentUserId || isAdminOverride();
+  const isCreator = league?.creatorId === effectiveUserId || isAdminOverride();
   const isManager = currentUserPrediction?.isManager ?? false;
   const hasAdminAccess = isCreator || isManager;
   const teamName = currentUserPrediction?.teamName ?? '';
@@ -258,6 +267,22 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
     }
   }, [currentTab, hasUnviewedScoreUpdate, setHasUnviewedScoreUpdate]);
 
+  // Apply stored theme from DB when loading via ?team= on a new device
+  const hasAppliedDbThemeRef = useRef(false);
+  useEffect(() => {
+    if (hasAppliedDbThemeRef.current || !teamParam || !teamOverridePrediction?.themeTeamId) return;
+    hasAppliedDbThemeRef.current = true;
+    setTeamTheme(teamOverridePrediction.themeTeamId);
+    setCurrentTeamId(teamOverridePrediction.themeTeamId);
+  }, [teamParam, teamOverridePrediction, setCurrentTeamId]);
+
+  // Persist theme changes to DB
+  useEffect(() => {
+    if (!currentUserPrediction || !currentTeamId) return;
+    if (currentUserPrediction.themeTeamId === currentTeamId) return;
+    void saveThemePreference(currentUserPrediction.id, currentTeamId);
+  }, [currentTeamId, currentUserPrediction]);
+
   const handleTabChange = useCallback(
     (tab: typeof currentTab) => {
       setCurrentTab(tab);
@@ -302,7 +327,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
     savePrediction({
       id: currentUserPrediction.id,
       leagueId: league.id,
-      userId: currentUserId,
+      userId: effectiveUserId,
       teamName: currentUserPrediction.teamName,
       predictions: dataToSave,
       isManager: currentUserPrediction.isManager,
@@ -329,7 +354,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
   }, [
     currentUserPrediction,
     league,
-    currentUserId,
+    effectiveUserId,
     questions,
     showToast,
     handleCompletionCelebration,
@@ -401,7 +426,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
       <div className="container mx-auto p-4 max-w-lg">
         <TeamNameEntry
           league={league}
-          userId={currentUserId}
+          userId={effectiveUserId}
           showToast={showToast}
           onRegistered={handleTeamRegistered}
         />
@@ -467,7 +492,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
             questions={questions}
             userPrediction={currentUserPrediction}
             league={league}
-            userId={currentUserId}
+            userId={effectiveUserId}
             onProgressUpdate={handleProgressUpdate}
             formDataCacheRef={formDataCacheRef}
             lastExplicitSaveRef={lastExplicitSaveRef}
@@ -483,7 +508,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
               predictions={predictions}
               league={league}
               questions={questions}
-              currentUserId={currentUserId}
+              currentUserId={effectiveUserId}
               onWinnerCelebration={triggerWinnerCelebration}
               onNonWinnerCelebration={triggerNonWinnerCelebration}
             />
@@ -540,7 +565,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
         predictionId={editingPredictionId}
         currentName={editingTeamName}
         allPredictions={predictions}
-        currentUserId={currentUserId}
+        currentUserId={effectiveUserId}
         showToast={showToast}
       />
 

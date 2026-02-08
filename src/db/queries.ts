@@ -339,6 +339,16 @@ export async function toggleManager(predictionId: string, isManager: boolean): P
 }
 
 /**
+ * Save theme preference to a prediction.
+ */
+export async function saveThemePreference(
+  predictionId: string,
+  themeTeamId: string
+): Promise<void> {
+  await db.transact([db.tx.predictions[predictionId].update({ themeTeamId })]);
+}
+
+/**
  * Delete a prediction.
  */
 export async function deletePrediction(predictionId: string): Promise<void> {
