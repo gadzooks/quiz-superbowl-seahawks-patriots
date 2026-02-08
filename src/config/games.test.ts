@@ -7,6 +7,7 @@ import {
   DEFAULT_GAME_ID,
   GAMES,
   getTeamIds,
+  getSubmissionDeadline,
 } from './games';
 
 describe('config/games', () => {
@@ -32,6 +33,7 @@ describe('config/games', () => {
       expect(GAMES.lx.displayName).toBe('Super Bowl LX');
       expect(GAMES.lx.year).toBe(2026);
       expect(GAMES.lx.teams).toEqual(['Seahawks', 'Patriots']);
+      expect(GAMES.lx.kickoffTime).toBe('2026-02-08T15:30:00-08:00');
     });
   });
 
@@ -136,6 +138,29 @@ describe('config/games', () => {
       expect(teamIds.length).toBe(2);
       expect(typeof teamIds[0]).toBe('string');
       expect(typeof teamIds[1]).toBe('string');
+    });
+  });
+
+  describe('getSubmissionDeadline', () => {
+    it('should return a Date 20 minutes before kickoff', () => {
+      const config = GAMES.lx;
+      const deadline = getSubmissionDeadline(config);
+
+      expect(deadline).toBeInstanceOf(Date);
+      const kickoff = new Date(config.kickoffTime!);
+      expect(deadline!.getTime()).toBe(kickoff.getTime() - 20 * 60 * 1000);
+    });
+
+    it('should return null when no kickoffTime is set', () => {
+      const config = {
+        gameId: 'test',
+        displayName: 'Test',
+        year: 2027,
+        teams: ['A', 'B'] as [string, string],
+      };
+      const deadline = getSubmissionDeadline(config);
+
+      expect(deadline).toBeNull();
     });
   });
 });

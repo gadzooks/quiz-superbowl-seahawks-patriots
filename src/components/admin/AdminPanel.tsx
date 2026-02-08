@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { getGameConfig, getSubmissionDeadline } from '../../config/games';
 import {
   updateLeagueStatus,
   updateShowAllPredictions,
@@ -53,6 +54,9 @@ export function AdminPanel({
     id: string;
     name: string;
   } | null>(null);
+
+  const gameConfig = getGameConfig(gameId);
+  const deadline = gameConfig ? getSubmissionDeadline(gameConfig) : null;
 
   const shareUrl = getLeagueUrl(league.slug);
   const appId = import.meta.env.VITE_INSTANTDB_APP_ID || '';
@@ -160,6 +164,7 @@ export function AdminPanel({
         showAllPredictions={league.showAllPredictions}
         onToggleSubmissions={(isOpen) => void handleSubmissionsToggle(isOpen)}
         onToggleShowAnswers={(show) => void handleShowAnswersToggle(show)}
+        deadline={deadline}
       />
 
       {/* Participants List */}

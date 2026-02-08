@@ -6,6 +6,20 @@ export interface GameConfig {
   displayName: string; // e.g., "Super Bowl LX" - shown in UI
   year: number; // e.g., 2026
   teams: [string, string]; // Display names e.g., ["Seahawks", "Patriots"]
+  kickoffTime?: string; // ISO 8601 string for game kickoff (e.g., '2026-02-08T15:30:00-08:00')
+}
+
+/** Minutes before kickoff that submissions auto-close */
+const SUBMISSION_CLOSE_MINUTES = 20;
+
+/**
+ * Get the submission deadline for a game (20 minutes before kickoff).
+ * Returns null if no kickoff time is configured.
+ */
+export function getSubmissionDeadline(config: GameConfig): Date | null {
+  if (!config.kickoffTime) return null;
+  const kickoff = new Date(config.kickoffTime);
+  return new Date(kickoff.getTime() - SUBMISSION_CLOSE_MINUTES * 60 * 1000);
 }
 
 /**
@@ -26,6 +40,7 @@ export const GAMES: Record<string, GameConfig> = {
     displayName: 'Super Bowl LX',
     year: 2026,
     teams: ['Seahawks', 'Patriots'],
+    kickoffTime: '2026-02-08T15:30:00-08:00',
   },
   // Future games can be added here:
   // lxi: {

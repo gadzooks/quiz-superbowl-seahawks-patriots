@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { getGameConfig, getSubmissionDeadline } from '../config/games';
 import { CELEBRATION } from '../constants/timing';
 import { useAppContext } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
-import { savePrediction, saveThemePreference } from '../db/queries';
+import { savePrediction, saveThemePreference, updateLeagueStatus } from '../db/queries';
 import { useLeagueData } from '../hooks/useLeagueData';
 import { setTeamTheme } from '../theme/apply';
 import { isAdminOverride } from '../utils/url';
@@ -14,6 +15,7 @@ import { AdminPanel } from './AdminPanel';
 import { AllPredictionsTable } from './AllPredictionsTable';
 import { useConfetti } from './Celebration';
 import { VictoryCelebration } from './celebrations/VictoryCelebration';
+import { CountdownBubble } from './CountdownBubble';
 import { Header } from './Header';
 import { countAnsweredQuestions } from './helpers';
 import { IntroOverlay } from './IntroPage';
@@ -112,6 +114,55 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
 
   // Check if game needs seeding
   const needsSeeding = questions.length === 0;
+
+  // Compute submission deadline from game config
+  const gameConfig = getGameConfig(gameId);
+  const deadline = gameConfig ? getSubmissionDeadline(gameConfig) : null;
+
+  // Check if user has answered all questions
+  const allAnswered =
+    questions.length > 0 &&
+    countAnsweredQuestions(currentUserPrediction?.predictions, questions) === questions.length;
+
+  // Auto-close submissions when deadline passes (runs independently of the bubble)
+  const autoCloseTriggeredRef = useRef(false);
+  useEffect(() => {
+    if (!deadline || !league?.isOpen || autoCloseTriggeredRef.current) return;
+
+    const msUntilDeadline = deadline.getTime() - Date.now();
+    if (msUntilDeadline <= 0) {
+      // Already past deadline — close immediately
+      autoCloseTriggeredRef.current = true;
+      void updateLeagueStatus(league.id, false);
+      showToast('Submissions auto-closed — game starts soon!', 'warning', 5000);
+      return;
+    }
+
+    const timerId = setTimeout(() => {
+      // Re-check league.isOpen at fire time via ref would be ideal,
+      // but the effect re-runs when league.isOpen changes anyway
+      autoCloseTriggeredRef.current = true;
+
+      // Save any unsaved predictions before closing
+      if (currentUserPrediction && formDataCacheRef.current) {
+        void savePrediction({
+          id: currentUserPrediction.id,
+          leagueId: league.id,
+          userId: effectiveUserId,
+          teamName: currentUserPrediction.teamName,
+          predictions: { ...formDataCacheRef.current },
+          isManager: currentUserPrediction.isManager,
+          actualResults: league.actualResults,
+          questions,
+        });
+      }
+
+      void updateLeagueStatus(league.id, false);
+      showToast('Submissions auto-closed — game starts soon!', 'warning', 5000);
+    }, msUntilDeadline);
+
+    return () => clearTimeout(timerId);
+  }, [deadline, league, currentUserPrediction, effectiveUserId, questions, showToast]);
 
   // Track last celebration trigger time to detect new celebrations
   // Initialize from localStorage to persist across page refreshes
@@ -454,6 +505,11 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
         currentTab={currentTab}
         onReplayIntro={() => setShowIntro(true)}
       />
+
+      {/* Floating countdown bubble — fixed above theme FAB */}
+      {deadline && deadline.getTime() > Date.now() && league.isOpen && !allAnswered && (
+        <CountdownBubble deadline={deadline} />
+      )}
 
       {/* Animated progress bar that appears on scroll - only show if user hasn't completed predictions yet */}
       {!hasCompletedFirstTime && (
