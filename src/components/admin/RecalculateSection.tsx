@@ -3,13 +3,18 @@ import { useState } from 'react';
 interface RecalculateSectionProps {
   onRecalculate: () => Promise<void>;
   hasResults: boolean;
+  disabled?: boolean;
 }
 
 /**
  * Collapsible section for recalculating all participant scores
  * Only enabled when actual results have been entered
  */
-export function RecalculateSection({ onRecalculate, hasResults }: RecalculateSectionProps) {
+export function RecalculateSection({
+  onRecalculate,
+  hasResults,
+  disabled = false,
+}: RecalculateSectionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [status, setStatus] = useState('');
 
@@ -63,6 +68,7 @@ export function RecalculateSection({ onRecalculate, hasResults }: RecalculateSec
           </p>
           <button
             onClick={() => void handleRecalculate()}
+            disabled={disabled}
             style={{
               width: '100%',
               padding: '12px 16px',

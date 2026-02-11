@@ -10,6 +10,19 @@ import { LeagueCreation } from './LeagueCreation';
 vi.mock('../handlers/league');
 vi.mock('../utils/game');
 
+// Mock game config to return non-completed game for tests
+vi.mock('../config/games', () => ({
+  getGameConfig: vi.fn(() => ({
+    gameId: 'lx',
+    displayName: 'Super Bowl LX',
+    year: 2026,
+    teams: ['Seahawks', 'Patriots'],
+    kickoffTime: '2026-02-08T15:30:00-08:00',
+    status: 'upcoming', // Not completed for tests
+  })),
+  isGameCompleted: vi.fn(() => false), // Not completed for tests
+}));
+
 // Mock db.client - the mock will be controlled per test
 const mockUseQuery = vi.fn();
 vi.mock('../db/client', () => ({

@@ -1,13 +1,18 @@
 interface ShowAnswersControlProps {
   showAllPredictions: boolean;
   onToggle: (show: boolean) => void;
+  disabled?: boolean;
 }
 
 /**
  * Toggle control for showing/hiding all participant answers
  * Shows confirmation dialog before changing state
  */
-export function ShowAnswersControl({ showAllPredictions, onToggle }: ShowAnswersControlProps) {
+export function ShowAnswersControl({
+  showAllPredictions,
+  onToggle,
+  disabled = false,
+}: ShowAnswersControlProps) {
   const handleToggle = (show: boolean) => {
     const action = show ? 'show' : 'hide';
     const confirmed = confirm(`Are you sure you want to ${action} all answers?`);
@@ -31,6 +36,7 @@ export function ShowAnswersControl({ showAllPredictions, onToggle }: ShowAnswers
             value="hidden"
             checked={!showAllPredictions}
             onChange={() => handleToggle(false)}
+            disabled={disabled}
           />
           🔒 Hidden
         </label>
@@ -45,6 +51,7 @@ export function ShowAnswersControl({ showAllPredictions, onToggle }: ShowAnswers
             value="visible"
             checked={showAllPredictions}
             onChange={() => handleToggle(true)}
+            disabled={disabled}
           />
           👁️ Visible
         </label>

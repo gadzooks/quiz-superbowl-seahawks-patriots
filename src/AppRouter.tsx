@@ -4,23 +4,34 @@ import { LeagueCreation } from './components/LeagueCreation';
 import { LeagueView } from './components/LeagueView';
 import { TeamPicker } from './components/TeamPicker';
 import { ThemeMenu } from './components/ThemeMenu';
+import { isGameReadOnly } from './config/games';
 import { useAppContext } from './context/AppContext';
 import { useUrlParams } from './hooks/useUrlParams';
 import { SoundManager } from './sound/manager';
-import { initTheme, applyHeaderTeamColors } from './theme/apply';
+import { initTheme, applyHeaderTeamColors, applyTeamTheme } from './theme/apply';
 import { needsTeamSelection } from './ui/teamPicker';
 import { getCurrentGameConfig } from './utils/game';
+import { getGuestTheme } from './utils/guestTheme';
 
 export function AppRouter() {
   const { gameId, leagueSlug } = useUrlParams();
   const { setCurrentTeamId } = useAppContext();
-  const [showTeamPicker, setShowTeamPicker] = useState(() => needsTeamSelection());
+  const [showTeamPicker, setShowTeamPicker] = useState(() => needsTeamSelection(gameId));
   const [initialized, setInitialized] = useState(false);
 
   // One-time app initialization
   useEffect(() => {
     if (!showTeamPicker) {
-      const teamId = initTheme();
+      let teamId: string;
+
+      // For completed games, apply guest theme
+      if (isGameReadOnly(gameId)) {
+        teamId = getGuestTheme();
+        applyTeamTheme(teamId);
+      } else {
+        teamId = initTheme();
+      }
+
       setCurrentTeamId(teamId);
 
       const gameConfig = getCurrentGameConfig();
@@ -29,7 +40,7 @@ export function AppRouter() {
 
     SoundManager.init();
     setInitialized(true);
-  }, []);
+  }, [gameId, showTeamPicker, setCurrentTeamId]);
 
   if (showTeamPicker) {
     return (

@@ -1,0 +1,39 @@
+/**
+ * Banner component styles.
+ * Read-only banners for completed games.
+ */
+
+.read-only-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-lg);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 15px;
+  background: rgba(var(--color-primary-rgb), 0.1);
+  border: 2px solid var(--color-primary);
+  color: var(--color-text);
+}
+
+.read-only-banner--warning {
+  background: var(--color-warning-bg);
+  border-color: var(--color-warning);
+}
+
+.read-only-banner__icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.read-only-banner__text {
+  flex: 1;
+}
+
+@media (max-width: 640px) {
+  .read-only-banner {
+    padding: var(--space-sm) var(--space-md);
+    font-size: 14px;
+  }
+}

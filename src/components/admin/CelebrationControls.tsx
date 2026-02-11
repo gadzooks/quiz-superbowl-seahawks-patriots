@@ -3,6 +3,7 @@ import { triggerCelebration } from '../../db/queries';
 interface CelebrationControlsProps {
   leagueId: string;
   showToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
+  disabled?: boolean;
 }
 
 /**
@@ -10,7 +11,11 @@ interface CelebrationControlsProps {
  * Shows buttons for each of the 3 celebration styles
  * Broadcasts celebrations to all users in real-time via InstantDB
  */
-export function CelebrationControls({ leagueId, showToast }: CelebrationControlsProps) {
+export function CelebrationControls({
+  leagueId,
+  showToast,
+  disabled = false,
+}: CelebrationControlsProps) {
   const handleCelebration = async (type: 'stadium' | 'boom' | 'matrix', name: string) => {
     try {
       await triggerCelebration(leagueId, type);
@@ -35,6 +40,7 @@ export function CelebrationControls({ leagueId, showToast }: CelebrationControls
             type="button"
             onClick={() => void handleCelebration('stadium', '12th Man Stadium Roar')}
             className="btn btn-primary btn-block justify-start text-left h-auto py-3"
+            disabled={disabled}
           >
             <div className="flex flex-col items-start w-full">
               <div className="flex items-center gap-2 mb-1">
@@ -52,6 +58,7 @@ export function CelebrationControls({ leagueId, showToast }: CelebrationControls
             type="button"
             onClick={() => void handleCelebration('boom', 'Boom Tower Shake')}
             className="btn btn-secondary btn-block justify-start text-left h-auto py-3"
+            disabled={disabled}
           >
             <div className="flex flex-col items-start w-full">
               <div className="flex items-center gap-2 mb-1">
@@ -69,6 +76,7 @@ export function CelebrationControls({ leagueId, showToast }: CelebrationControls
             type="button"
             onClick={() => void handleCelebration('matrix', 'Matrix Rain Championship')}
             className="btn btn-accent btn-block justify-start text-left h-auto py-3"
+            disabled={disabled}
           >
             <div className="flex flex-col items-start w-full">
               <div className="flex items-center gap-2 mb-1">
