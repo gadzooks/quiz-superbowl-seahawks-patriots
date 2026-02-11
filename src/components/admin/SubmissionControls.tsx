@@ -2,6 +2,7 @@ interface SubmissionControlsProps {
   isOpen: boolean;
   onToggle: (isOpen: boolean) => void;
   deadline?: Date | null;
+  disabled?: boolean;
 }
 
 /** Format a deadline Date for display (e.g., "3:10 PM PST") */
@@ -17,7 +18,12 @@ function formatDeadlineTime(date: Date): string {
  * Toggle control for opening/closing submissions
  * Shows confirmation dialog before changing state
  */
-export function SubmissionControls({ isOpen, onToggle, deadline }: SubmissionControlsProps) {
+export function SubmissionControls({
+  isOpen,
+  onToggle,
+  deadline,
+  disabled = false,
+}: SubmissionControlsProps) {
   const handleToggle = (newState: boolean) => {
     const action = newState ? 'open' : 'close';
     const confirmed = confirm(`Are you sure you want to ${action} submissions?`);
@@ -40,6 +46,7 @@ export function SubmissionControls({ isOpen, onToggle, deadline }: SubmissionCon
             name="submissions"
             value="open"
             checked={isOpen}
+            disabled={disabled}
             onChange={() => handleToggle(true)}
           />
           🔓 Open
@@ -54,6 +61,7 @@ export function SubmissionControls({ isOpen, onToggle, deadline }: SubmissionCon
             name="submissions"
             value="closed"
             checked={!isOpen}
+            disabled={disabled}
             onChange={() => handleToggle(false)}
           />
           🔒 Closed

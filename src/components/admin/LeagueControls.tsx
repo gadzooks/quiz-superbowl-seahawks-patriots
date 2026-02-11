@@ -7,6 +7,7 @@ interface LeagueControlsProps {
   onToggleSubmissions: (isOpen: boolean) => void;
   onToggleShowAnswers: (show: boolean) => void;
   deadline?: Date | null;
+  disabled?: boolean;
 }
 
 /**
@@ -19,16 +20,23 @@ export function LeagueControls({
   onToggleSubmissions,
   onToggleShowAnswers,
   deadline,
+  disabled = false,
 }: LeagueControlsProps) {
   return (
     <div className="admin-section">
       <h3 className="admin-section-title">⚙️ League Settings</h3>
       <div className="admin-card" style={{ padding: 'var(--space-md)' }}>
-        <SubmissionControls isOpen={isOpen} onToggle={onToggleSubmissions} deadline={deadline} />
+        <SubmissionControls
+          isOpen={isOpen}
+          onToggle={onToggleSubmissions}
+          deadline={deadline}
+          disabled={disabled}
+        />
         <div style={{ marginTop: 'var(--space-md)' }}>
           <ShowAnswersControl
             showAllPredictions={showAllPredictions}
             onToggle={onToggleShowAnswers}
+            disabled={disabled}
           />
         </div>
       </div>

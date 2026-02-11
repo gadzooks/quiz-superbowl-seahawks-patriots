@@ -11,6 +11,7 @@ interface ParticipantsListProps {
   onToggleManager: (predictionId: string, makeManager: boolean) => void;
   onDeleteClick: (predictionId: string, teamName: string) => void;
   onEditTeamName: (predictionId: string, teamName: string) => void;
+  disabled?: boolean;
 }
 
 /**
@@ -25,6 +26,7 @@ export function ParticipantsList({
   onToggleManager,
   onDeleteClick,
   onEditTeamName,
+  disabled = false,
 }: ParticipantsListProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -94,18 +96,19 @@ export function ParticipantsList({
                   >
                     <div style={{ flex: 1 }}>
                       <h3
-                        onClick={() => onEditTeamName(pred.id, pred.teamName)}
+                        onClick={() => !disabled && onEditTeamName(pred.id, pred.teamName)}
                         style={{
                           fontWeight: 'bold',
                           fontSize: '18px',
-                          cursor: 'pointer',
+                          cursor: disabled ? 'default' : 'pointer',
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: '6px',
+                          opacity: disabled ? 0.5 : 1,
                         }}
                       >
                         {pred.teamName}
-                        <span className="team-name-edit-btn">Edit</span>
+                        {!disabled && <span className="team-name-edit-btn">Edit</span>}
                       </h3>
                       <p
                         style={{
@@ -174,6 +177,7 @@ export function ParticipantsList({
                                       ? 'manager-toggle-active'
                                       : 'manager-toggle-inactive'
                                   }`}
+                                  disabled={disabled}
                                 >
                                   No
                                 </button>
@@ -184,6 +188,7 @@ export function ParticipantsList({
                                       ? 'manager-toggle-active-yes'
                                       : 'manager-toggle-inactive'
                                   }`}
+                                  disabled={disabled}
                                 >
                                   👑 Yes
                                 </button>
@@ -192,6 +197,7 @@ export function ParticipantsList({
                             <button
                               onClick={() => onDeleteClick(pred.id, pred.teamName)}
                               className="delete-team-btn"
+                              disabled={disabled}
                             >
                               🗑️ Delete
                             </button>

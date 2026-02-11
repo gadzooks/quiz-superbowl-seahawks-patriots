@@ -15,11 +15,18 @@ interface ResultsFormProps {
     type?: 'success' | 'error' | 'info' | 'warning',
     duration?: number
   ) => void;
+  isReadOnly?: boolean;
 }
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
-export function ResultsForm({ questions, league, predictions, showToast }: ResultsFormProps) {
+export function ResultsForm({
+  questions,
+  league,
+  predictions,
+  showToast,
+  isReadOnly = false,
+}: ResultsFormProps) {
   // Initialize local state from league.actualResults
   const [results, setResults] = useState<Record<string, string | number>>(() => {
     return league.actualResults ?? {};
@@ -68,9 +75,11 @@ export function ResultsForm({ questions, league, predictions, showToast }: Resul
     [league.id, predictions, questions, showToast]
   );
 
-  // Debounced save function
+  // Debounced save function (skip in read-only mode)
   const debouncedSave = useCallback(
     (updatedResults: Record<string, string | number>) => {
+      if (isReadOnly) return;
+
       // Clear existing timeout
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
@@ -87,7 +96,7 @@ export function ResultsForm({ questions, league, predictions, showToast }: Resul
         void performSave(updatedResults);
       }, AUTO_SAVE.RESULTS_INPUT_DELAY);
     },
-    [performSave]
+    [performSave, isReadOnly]
   );
 
   // Flush pending save on unmount (don't lose user's work!)
@@ -198,6 +207,7 @@ export function ResultsForm({ questions, league, predictions, showToast }: Resul
                   type="button"
                   onClick={() => handleClear(q.questionId)}
                   className="results-clear-btn"
+                  disabled={isReadOnly}
                 >
                   ✕ Clear
                 </button>
@@ -220,6 +230,7 @@ export function ResultsForm({ questions, league, predictions, showToast }: Resul
                         name={`result-${q.questionId}`}
                         value={value}
                         checked={isChecked}
+                        disabled={isReadOnly}
                         onChange={() => handleRadioChange(q.questionId, value)}
                       />
                       <span>{option}</span>
@@ -234,6 +245,7 @@ export function ResultsForm({ questions, league, predictions, showToast }: Resul
                 value={results[q.questionId] ?? ''}
                 onChange={(e) => handleNumberChange(q.questionId, e.target.value)}
                 min="0"
+                disabled={isReadOnly}
                 placeholder="Enter number"
                 className="results-number-input"
               />

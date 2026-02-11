@@ -1,10 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
+import { isGameReadOnly } from '../config/games';
 import { applyTeamTheme, getSavedTeamId } from '../theme/apply';
 import { DEFAULT_TEAM_ID } from '../theme/teams';
 import type { TabType } from '../types';
-import { getUserId } from '../utils/user';
+import { getCurrentGameId } from '../utils/game';
+import { getOrCreateGuestId, getUserId } from '../utils/user';
 
 export type VictoryCelebrationType = 'stadium' | 'boom' | 'matrix' | null;
 
@@ -37,7 +39,13 @@ function getInitialTab(): TabType {
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [currentUserId] = useState(() => getUserId());
+  const [currentUserId] = useState(() => {
+    const gameId = getCurrentGameId();
+    if (isGameReadOnly(gameId)) {
+      return getOrCreateGuestId();
+    }
+    return getUserId();
+  });
   const [currentTab, setCurrentTabRaw] = useState<TabType>(getInitialTab);
   const [currentTeamId, setCurrentTeamIdRaw] = useState(() => getSavedTeamId() ?? DEFAULT_TEAM_ID);
   const [hasShownCompletionCelebration, setHasShownCompletionCelebration] = useState(false);

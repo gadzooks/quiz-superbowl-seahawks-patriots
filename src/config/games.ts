@@ -7,6 +7,7 @@ export interface GameConfig {
   year: number; // e.g., 2026
   teams: [string, string]; // Display names e.g., ["Seahawks", "Patriots"]
   kickoffTime?: string; // ISO 8601 string for game kickoff (e.g., '2026-02-08T15:30:00-08:00')
+  status?: 'upcoming' | 'in-progress' | 'completed'; // Game status for read-only mode
 }
 
 /** Minutes before kickoff that submissions auto-close */
@@ -41,6 +42,7 @@ export const GAMES: Record<string, GameConfig> = {
     year: 2026,
     teams: ['Seahawks', 'Patriots'],
     kickoffTime: '2026-02-08T15:30:00-08:00',
+    status: 'completed',
   },
   // Future games can be added here:
   // lxi: {
@@ -76,4 +78,20 @@ export function isValidGameId(gameId: string): boolean {
  */
 export function getAvailableGameIds(): string[] {
   return Object.keys(GAMES);
+}
+
+/**
+ * Check if a game is completed.
+ */
+export function isGameCompleted(config: GameConfig): boolean {
+  return config.status === 'completed';
+}
+
+/**
+ * Check if a game should be in read-only mode.
+ * Returns false if the game doesn't exist.
+ */
+export function isGameReadOnly(gameId: string): boolean {
+  const config = getGameConfig(gameId);
+  return config ? isGameCompleted(config) : false;
 }

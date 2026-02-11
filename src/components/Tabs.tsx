@@ -9,6 +9,9 @@ interface TabsProps {
   hasUnviewedScoreUpdate: boolean;
   teamName: string;
   showSeedTab?: boolean;
+  isReadOnly?: boolean;
+  isGuestUser?: boolean;
+  showPredictionsTab?: boolean;
 }
 
 export function Tabs({
@@ -18,6 +21,9 @@ export function Tabs({
   isCreator,
   hasUnviewedScoreUpdate,
   showSeedTab = false,
+  isReadOnly = false,
+  isGuestUser = false,
+  showPredictionsTab = true,
 }: TabsProps) {
   const handleTabClick = (tab: TabType) => {
     SoundManager.playClick();
@@ -38,14 +44,16 @@ export function Tabs({
         </button>
       )}
 
-      <button
-        className={`tab ${currentTab === 'predictions' ? 'tab-active' : ''}`}
-        onClick={() => handleTabClick('predictions')}
-        role="tab"
-        aria-selected={currentTab === 'predictions'}
-      >
-        Questions
-      </button>
+      {showPredictionsTab && (
+        <button
+          className={`tab ${currentTab === 'predictions' ? 'tab-active' : ''}`}
+          onClick={() => handleTabClick('predictions')}
+          role="tab"
+          aria-selected={currentTab === 'predictions'}
+        >
+          {isReadOnly && isGuestUser ? 'All Predictions' : 'Questions'}
+        </button>
+      )}
 
       <button
         className={`tab ${currentTab === 'scores' ? 'tab-active' : ''}`}
@@ -57,7 +65,7 @@ export function Tabs({
         {hasUnviewedScoreUpdate && <span className="badge badge-primary badge-sm ml-1" />}
       </button>
 
-      {hasAdminAccess && (
+      {(hasAdminAccess || isReadOnly) && (
         <button
           className={`tab tab-results ${currentTab === 'results' ? 'tab-active' : ''}`}
           onClick={() => handleTabClick('results')}
@@ -68,7 +76,7 @@ export function Tabs({
         </button>
       )}
 
-      {isCreator && (
+      {(isCreator || isReadOnly) && (
         <button
           className={`tab ${currentTab === 'admin' ? 'tab-active' : ''}`}
           onClick={() => handleTabClick('admin')}

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { getGameConfig, getSubmissionDeadline } from '../config/games';
+import { getGameConfig, getSubmissionDeadline, isGameCompleted } from '../config/games';
 import { CELEBRATION } from '../constants/timing';
 import { useAppContext } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
@@ -10,6 +10,7 @@ import { savePrediction, saveThemePreference, updateLeagueStatus } from '../db/q
 import { useLeagueData } from '../hooks/useLeagueData';
 import { setTeamTheme } from '../theme/apply';
 import { isAdminOverride } from '../utils/url';
+import { isGuestUser } from '../utils/user';
 
 import { AdminPanel } from './AdminPanel';
 import { AllPredictionsTable } from './AllPredictionsTable';
@@ -22,6 +23,7 @@ import { IntroOverlay } from './IntroPage';
 import { Leaderboard } from './Leaderboard';
 import { LeagueNotFound } from './LeagueNotFound';
 import { PredictionsForm } from './PredictionsForm';
+import { ReadOnlyBanner } from './ReadOnlyBanner';
 import { ResultsForm } from './ResultsForm';
 import { ScrollProgress } from './ScrollProgress';
 import { SeedTab } from './SeedTab';
@@ -52,6 +54,11 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
     gameId,
     leagueSlug
   );
+
+  // Check if game is completed (read-only mode)
+  const gameConfig = getGameConfig(gameId);
+  const isReadOnly = gameConfig ? isGameCompleted(gameConfig) : false;
+  const isGuest = isGuestUser(currentUserId);
 
   // Override current user based on ?team= query param (shared device support)
   const teamParam = new URLSearchParams(window.location.search).get('team');
@@ -115,8 +122,10 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
   // Check if game needs seeding
   const needsSeeding = questions.length === 0;
 
+  // For read-only games, guests without a team prediction shouldn't see the predictions tab
+  const showPredictionsTab = !(isReadOnly && isGuest && !currentUserPrediction);
+
   // Compute submission deadline from game config
-  const gameConfig = getGameConfig(gameId);
   const deadline = gameConfig ? getSubmissionDeadline(gameConfig) : null;
 
   // Check if user has answered all questions
@@ -334,6 +343,13 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
     void saveThemePreference(currentUserPrediction.id, currentTeamId);
   }, [currentTeamId, currentUserPrediction]);
 
+  // Auto-switch to scores tab if predictions tab is hidden
+  useEffect(() => {
+    if (!showPredictionsTab && currentTab === 'predictions') {
+      setCurrentTab('scores');
+    }
+  }, [showPredictionsTab, currentTab, setCurrentTab]);
+
   const handleTabChange = useCallback(
     (tab: typeof currentTab) => {
       setCurrentTab(tab);
@@ -471,8 +487,8 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
     return <LeagueNotFound slug={leagueSlug} gameId={gameId} />;
   }
 
-  // User not registered — show team name entry
-  if (!currentUserPrediction) {
+  // User not registered — show team name entry (skip for guests in read-only mode)
+  if (!currentUserPrediction && !(isReadOnly && isGuest)) {
     return (
       <div className="container mx-auto p-4 max-w-lg">
         <TeamNameEntry
@@ -490,8 +506,8 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
     return <IntroOverlay teamName={teamName} onComplete={() => setShowIntro(false)} />;
   }
 
-  // Compute progress from user prediction
-  const userAnswered = countAnsweredQuestions(currentUserPrediction.predictions, questions);
+  // Compute progress from user prediction (if available)
+  const userAnswered = countAnsweredQuestions(currentUserPrediction?.predictions, questions);
   const computedProgress =
     questions.length > 0 ? Math.round((userAnswered / questions.length) * 100) : 0;
 
@@ -506,10 +522,22 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
         onReplayIntro={() => setShowIntro(true)}
       />
 
-      {/* Floating countdown bubble — fixed above theme FAB */}
-      {deadline && deadline.getTime() > Date.now() && league.isOpen && !allAnswered && (
-        <CountdownBubble deadline={deadline} />
+      {/* Read-only banner for completed games */}
+      {isReadOnly && (
+        <div className="container mx-auto p-4 max-w-lg">
+          <ReadOnlyBanner
+            message="This game is completed. All data is read-only."
+            variant="warning"
+          />
+        </div>
       )}
+
+      {/* Floating countdown bubble — fixed above theme FAB (not shown for completed games) */}
+      {!isReadOnly &&
+        deadline &&
+        deadline.getTime() > Date.now() &&
+        league.isOpen &&
+        !allAnswered && <CountdownBubble deadline={deadline} />}
 
       {/* Animated progress bar that appears on scroll - only show if user hasn't completed predictions yet */}
       {!hasCompletedFirstTime && (
@@ -528,6 +556,9 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
           hasUnviewedScoreUpdate={hasUnviewedScoreUpdate}
           teamName={teamName}
           showSeedTab={needsSeeding}
+          isReadOnly={isReadOnly}
+          isGuestUser={isGuest}
+          showPredictionsTab={showPredictionsTab}
         />
 
         {/* Seed tab - shown when game/questions not seeded */}
@@ -541,7 +572,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
           />
         )}
 
-        {/* Predictions tab */}
+        {/* Predictions tab - show user's predictions (or selected team via ?team=) */}
         {currentTab === 'predictions' && !needsSeeding && (
           <PredictionsForm
             key={formResetKey}
@@ -554,6 +585,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
             lastExplicitSaveRef={lastExplicitSaveRef}
             onUnsavedChangesUpdate={handleUnsavedChangesUpdate}
             skipUnmountSaveRef={skipUnmountSaveRef}
+            isReadOnly={isReadOnly}
           />
         )}
 
@@ -582,18 +614,19 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
           </>
         )}
 
-        {/* Results tab (admin only) */}
-        {currentTab === 'results' && hasAdminAccess && (
+        {/* Results tab (admin only, or everyone in read-only mode) */}
+        {currentTab === 'results' && (hasAdminAccess || isReadOnly) && (
           <ResultsForm
             questions={questions}
             league={league}
             predictions={predictions}
             showToast={showToast}
+            isReadOnly={isReadOnly}
           />
         )}
 
-        {/* Admin tab (creator only) */}
-        {currentTab === 'admin' && isCreator && game && (
+        {/* Admin tab (creator only, or everyone in read-only mode) */}
+        {currentTab === 'admin' && (isCreator || isReadOnly) && game && (
           <AdminPanel
             gameId={game.gameId}
             gameInstantId={game.id}
@@ -603,12 +636,13 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
             isCreator={isCreator}
             showToast={showToast}
             onOpenTeamNameModal={handleOpenTeamNameModal}
+            isReadOnly={isReadOnly}
           />
         )}
       </div>
 
-      {/* Floating save/cancel bar — visible on any tab when there are unsaved changes */}
-      {league.isOpen && (hasUnsavedChanges || saveStatus !== 'idle') && (
+      {/* Floating save/cancel bar — visible on any tab when there are unsaved changes (not in read-only mode) */}
+      {!isReadOnly && league.isOpen && (hasUnsavedChanges || saveStatus !== 'idle') && (
         <UnsavedChangesBar saveStatus={saveStatus} onSave={handleSave} onCancel={handleCancel} />
       )}
 

@@ -15,6 +15,7 @@
 @import './components/badges.css';
 @import './components/progress.css';
 @import './components/tables.css';
+@import './components/banners.css';
 
 /* Feature-specific styles */
 @import './features/header.css';

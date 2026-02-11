@@ -34,6 +34,7 @@ interface AdminPanelProps {
     duration?: number
   ) => void;
   onOpenTeamNameModal: (predictionId: string, teamName: string) => void;
+  isReadOnly?: boolean;
 }
 
 /**
@@ -49,6 +50,7 @@ export function AdminPanel({
   isCreator,
   showToast,
   onOpenTeamNameModal,
+  isReadOnly = false,
 }: AdminPanelProps) {
   const [pendingDelete, setPendingDelete] = useState<{
     id: string;
@@ -165,6 +167,7 @@ export function AdminPanel({
         onToggleSubmissions={(isOpen) => void handleSubmissionsToggle(isOpen)}
         onToggleShowAnswers={(show) => void handleShowAnswersToggle(show)}
         deadline={deadline}
+        disabled={isReadOnly}
       />
 
       {/* Participants List */}
@@ -176,6 +179,7 @@ export function AdminPanel({
         onToggleManager={handleToggleManager}
         onDeleteClick={handleDeleteClick}
         onEditTeamName={onOpenTeamNameModal}
+        disabled={isReadOnly}
       />
 
       {/* Share Section */}
@@ -185,6 +189,7 @@ export function AdminPanel({
       <RecalculateSection
         onRecalculate={handleRecalculate}
         hasResults={Boolean(league.actualResults && Object.keys(league.actualResults).length > 0)}
+        disabled={isReadOnly}
       />
 
       {/* Game Seeding Section */}
@@ -193,10 +198,11 @@ export function AdminPanel({
         gameInstantId={gameInstantId}
         existingQuestions={questions}
         showToast={showToast}
+        disabled={isReadOnly}
       />
 
       {/* Victory Celebrations */}
-      <CelebrationControls leagueId={league.id} showToast={showToast} />
+      <CelebrationControls leagueId={league.id} showToast={showToast} disabled={isReadOnly} />
 
       {/* Build Info */}
       <BuildInfo appId={appId} />

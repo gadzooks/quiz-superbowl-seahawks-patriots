@@ -24,6 +24,8 @@ interface PredictionsFormProps {
   onUnsavedChangesUpdate: (hasUnsaved: boolean) => void;
   /** Parent sets true before cancel-triggered remount to skip unmount save */
   skipUnmountSaveRef: MutableRefObject<boolean>;
+  /** Read-only mode for completed games */
+  isReadOnly?: boolean;
 }
 
 export const PredictionsForm = memo(function PredictionsForm({
@@ -36,6 +38,7 @@ export const PredictionsForm = memo(function PredictionsForm({
   lastExplicitSaveRef,
   onUnsavedChangesUpdate,
   skipUnmountSaveRef,
+  isReadOnly = false,
 }: PredictionsFormProps) {
   // Form state — local only, not driven by InstantDB after initial load
   const [formData, setFormData] = useState<Record<string, string | number>>({});
@@ -151,14 +154,15 @@ export const PredictionsForm = memo(function PredictionsForm({
   // Derived display state
   const hasResults = league.actualResults && Object.keys(league.actualResults).length > 0;
   const showCorrectAnswers = !league.isOpen && hasResults;
+  const isDisabled = !league.isOpen || isReadOnly;
 
   return (
-    <section id="predictionsSection" className={!league.isOpen ? 'submissions-closed' : ''}>
-      {!league.isOpen && (
+    <section id="predictionsSection" className={isDisabled ? 'submissions-closed' : ''}>
+      {!isReadOnly && !league.isOpen && (
         <div className="closed-banner">Submissions Closed - Your predictions are locked in!</div>
       )}
 
-      {league.isOpen && (
+      {league.isOpen && !isReadOnly && (
         <div className="alert alert-info" style={{ marginTop: '24px' }}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -215,7 +219,7 @@ export const PredictionsForm = memo(function PredictionsForm({
                           name={`prediction-${q.questionId}`}
                           value={value}
                           checked={checked}
-                          disabled={!league.isOpen}
+                          disabled={isDisabled}
                           onChange={(e) => handleRadioChange(q.questionId, e.target.value)}
                         />
                         <span>{option}</span>
@@ -232,7 +236,7 @@ export const PredictionsForm = memo(function PredictionsForm({
                   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- key may not exist at runtime
                   value={userAnswer ?? ''}
                   min="0"
-                  disabled={!league.isOpen}
+                  disabled={isDisabled}
                   placeholder="Enter number"
                   className={
                     showCorrectAnswers && hasCorrectAnswer && userAnswer !== ''

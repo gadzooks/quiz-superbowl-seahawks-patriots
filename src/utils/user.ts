@@ -26,3 +26,26 @@ export function getUserId(): string {
   }
   return userId;
 }
+
+/**
+ * Generate a guest user ID (session-only, not persisted).
+ */
+export function createGuestUserId(): string {
+  return `guest-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+}
+
+/**
+ * Check if a user ID is a guest.
+ */
+export function isGuestUser(userId: string): boolean {
+  return userId.startsWith('guest-');
+}
+
+/**
+ * Get or create guest ID for current session (memory only).
+ */
+let sessionGuestId: string | null = null;
+export function getOrCreateGuestId(): string {
+  sessionGuestId ??= createGuestUserId();
+  return sessionGuestId;
+}

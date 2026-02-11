@@ -14,6 +14,7 @@ interface SeedingSectionProps {
     type?: 'success' | 'error' | 'info' | 'warning',
     duration?: number
   ) => void;
+  disabled?: boolean;
 }
 
 /**
@@ -25,6 +26,7 @@ export function SeedingSection({
   gameInstantId,
   existingQuestions,
   showToast,
+  disabled = false,
 }: SeedingSectionProps) {
   const [isSeeding, setIsSeeding] = useState(false);
   const [questionCount, setQuestionCount] = useState(0);
@@ -145,7 +147,7 @@ export function SeedingSection({
         <button
           className="button button-primary"
           onClick={() => void handleSeed()}
-          disabled={isSeeding || allSeeded}
+          disabled={disabled || isSeeding || allSeeded}
           style={{ marginTop: 'var(--space-md)', width: '100%' }}
         >
           {isSeeding
@@ -159,7 +161,7 @@ export function SeedingSection({
           <button
             className="button button-secondary"
             onClick={() => void handleSeed()}
-            disabled={isSeeding}
+            disabled={disabled || isSeeding}
             style={{ marginTop: 'var(--space-sm)', width: '100%' }}
           >
             🔄 Re-run Seed (check for updates)
