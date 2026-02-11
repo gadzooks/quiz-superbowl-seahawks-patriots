@@ -1,5 +1,6 @@
 import { useState, type FormEvent, useEffect, useRef } from 'react';
 
+import { getGameConfig, isGameCompleted } from '../config/games';
 import { db } from '../db/client';
 import { handleLeagueCreation } from '../handlers/league';
 import { buildGamePath } from '../utils/game';
@@ -9,6 +10,9 @@ interface LeagueCreationProps {
 }
 
 export function LeagueCreation({ gameId }: LeagueCreationProps) {
+  const gameConfig = getGameConfig(gameId);
+  const isCompleted = gameConfig ? isGameCompleted(gameConfig) : false;
+
   const [leagueName, setLeagueName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pendingSlug, setPendingSlug] = useState<string | null>(null);
@@ -91,6 +95,41 @@ export function LeagueCreation({ gameId }: LeagueCreationProps) {
       setIsSubmitting(false);
     }
   };
+
+  // Show message if game is completed
+  if (isCompleted) {
+    return (
+      <div className="card bg-base-200">
+        <div className="card-body">
+          <h2 className="card-title text-2xl text-primary">
+            {gameConfig?.displayName ?? 'Game'} Has Ended
+          </h2>
+          <div className="alert alert-warning">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="stroke-current shrink-0 h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+            <span>
+              This game has been completed. New leagues can no longer be created for this event.
+            </span>
+          </div>
+          <p className="text-base-content/70 mt-4">
+            You can still browse existing leagues if you have a league link. All data is available
+            in read-only mode.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="card bg-base-200">

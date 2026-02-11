@@ -1,6 +1,7 @@
 // League handlers
 // Handle league creation and management
 
+import { isGameCompleted } from '../config/games';
 import { createLeague, leagueExists, seedGame } from '../db/queries';
 import { validateLeagueName, toLeagueSlug } from '../services/validation';
 import { getCurrentGameId, getCurrentGameConfig } from '../utils/game';
@@ -23,6 +24,14 @@ export async function handleLeagueCreation(
   const gameId = getCurrentGameId();
   const currentUserId = getUserId();
   const gameConfig = getCurrentGameConfig();
+
+  // Check if game is completed
+  if (isGameCompleted(gameConfig)) {
+    return {
+      success: false,
+      error: 'This game has been completed. New leagues can no longer be created.',
+    };
+  }
 
   // Ensure game exists in DB (seeds if needed)
   // Note: Questions must be manually seeded via scripts/seed-game.ts before creating leagues
