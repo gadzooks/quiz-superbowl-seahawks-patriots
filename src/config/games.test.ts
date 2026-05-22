@@ -38,8 +38,8 @@ describe('config/games', () => {
   });
 
   describe('DEFAULT_GAME_ID', () => {
-    it('should be set to lx', () => {
-      expect(DEFAULT_GAME_ID).toBe('lx');
+    it('should be set to wedding', () => {
+      expect(DEFAULT_GAME_ID).toBe('wedding');
     });
 
     it('should exist in GAMES registry', () => {

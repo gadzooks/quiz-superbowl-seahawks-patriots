@@ -56,6 +56,12 @@
   command = "yarn install && yarn db:verify-app-id && yarn tsx scripts/push-schema.ts -y && yarn build"
   publish = "dist"
 
+# Wedding quiz branch — dedicated InstantDB app, runs indefinitely
+# Set VITE_INSTANTDB_APP_ID for this context in Netlify dashboard
+[context.wedding]
+  command = "yarn install && yarn db:verify-app-id && yarn tsx scripts/push-schema.ts -y && yarn build"
+  publish = "dist"
+
 # ============================================================================
 # Environment Variables
 # ============================================================================

@@ -38,14 +38,14 @@ describe('utils/game', () => {
     it('should return default game ID for empty path', () => {
       const result = parseUrlPath('/');
 
-      expect(result.gameId).toBe('lx');
+      expect(result.gameId).toBe('wedding');
       expect(result.leagueSlug).toBeNull();
     });
 
     it('should handle invalid game ID by using default', () => {
       const result = parseUrlPath('/invalid-game');
 
-      expect(result.gameId).toBe('lx');
+      expect(result.gameId).toBe('wedding');
       expect(result.leagueSlug).toBe('invalid-game');
     });
 
@@ -80,7 +80,7 @@ describe('utils/game', () => {
 
       const gameId = getCurrentGameId();
 
-      expect(gameId).toBe('lx');
+      expect(gameId).toBe('wedding');
     });
   });
 
@@ -136,7 +136,7 @@ describe('utils/game', () => {
 
       const config = getCurrentGameConfig();
 
-      expect(config.gameId).toBe('lx');
+      expect(config.gameId).toBe('wedding');
     });
   });
 

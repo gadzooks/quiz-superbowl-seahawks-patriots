@@ -112,8 +112,8 @@ describe('teams', () => {
   });
 
   describe('DEFAULT_TEAM_ID', () => {
-    it('should be seahawks theme', () => {
-      expect(DEFAULT_TEAM_ID).toBe('seahawks');
+    it('should be neutral theme', () => {
+      expect(DEFAULT_TEAM_ID).toBe('neutral');
     });
 
     it('should be a valid theme ID', () => {

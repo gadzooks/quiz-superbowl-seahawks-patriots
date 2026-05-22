@@ -345,6 +345,6 @@ export function getTeamTheme(teamId: string): TeamTheme | undefined {
 }
 
 /**
- * Default team theme (Seahawks for users with no preference).
+ * Default team theme (neutral for users with no preference).
  */
-export const DEFAULT_TEAM_ID = 'seahawks';
+export const DEFAULT_TEAM_ID = 'neutral';

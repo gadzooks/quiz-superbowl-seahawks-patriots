@@ -42,6 +42,13 @@ export const GAMES: Record<string, GameConfig> = {
     teams: ['Seahawks', 'Patriots'],
     kickoffTime: '2026-02-08T15:30:00-08:00',
   },
+  wedding: {
+    gameId: 'wedding',
+    displayName: 'The Wedding Quiz',
+    year: 2026,
+    teams: ['Kimberly', 'Amit'],
+    // No kickoffTime — admin closes submissions manually
+  },
   // Future games can be added here:
   // lxi: {
   //   gameId: 'lxi',
@@ -54,7 +61,7 @@ export const GAMES: Record<string, GameConfig> = {
 /**
  * Default game ID when none can be determined from URL.
  */
-export const DEFAULT_GAME_ID = 'lx';
+export const DEFAULT_GAME_ID = 'wedding';
 
 /**
  * Get a game configuration by ID.
