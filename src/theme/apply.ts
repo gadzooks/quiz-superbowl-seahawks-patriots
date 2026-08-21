@@ -73,8 +73,11 @@ export function applyTeamTheme(teamId: string): boolean {
  * Creates a split header/background with left team colors and right team colors.
  */
 export function applyHeaderTeamColors(gameConfig: GameConfig): void {
+  const teamIds = getTeamIds(gameConfig);
+  if (!teamIds) return; // No teams (e.g., weekly quiz) - keep user theme header
+
   const root = document.documentElement;
-  const [leftTeamId, rightTeamId] = getTeamIds(gameConfig);
+  const [leftTeamId, rightTeamId] = teamIds;
 
   const leftTheme = getTeamTheme(leftTeamId);
   const rightTheme = getTeamTheme(rightTeamId);

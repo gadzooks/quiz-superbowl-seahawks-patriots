@@ -1,7 +1,22 @@
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import { resolve } from 'path';
 import { execSync } from 'child_process';
 import react from '@vitejs/plugin-react';
+
+// Serve the SPA for /weekly/* URLs in dev. In production this is handled by
+// a Netlify rewrite (/weekly/* -> /index.html); the dev server only falls
+// back to index.html under the /superbowl base path, so mirror it here.
+const weeklySpaFallback = (): Plugin => ({
+  name: 'weekly-spa-fallback',
+  configureServer(server) {
+    server.middlewares.use((req, _res, next) => {
+      if (req.url?.startsWith('/weekly')) {
+        req.url = '/superbowl/index.html';
+      }
+      next();
+    });
+  },
+});
 
 // Get git commit hash at build time
 const getGitCommit = (): string => {
@@ -24,7 +39,7 @@ const getGitCommitMessage = (): string => {
 
 export default defineConfig({
   base: '/superbowl/',
-  plugins: [react()],
+  plugins: [react(), weeklySpaFallback()],
   define: {
     __GIT_COMMIT__: JSON.stringify(getGitCommit()),
     __GIT_COMMIT_MESSAGE__: JSON.stringify(getGitCommitMessage()),

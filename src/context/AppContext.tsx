@@ -12,6 +12,8 @@ export type VictoryCelebrationType = 'stadium' | 'boom' | 'matrix' | null;
 
 interface AppContextValue {
   currentUserId: string;
+  /** True when the current game is completed (read-only mode). Single source of truth for components. */
+  isGameReadOnly: boolean;
   currentTab: TabType;
   setCurrentTab: (tab: TabType) => void;
   currentTeamId: string;
@@ -39,9 +41,9 @@ function getInitialTab(): TabType {
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  const [gameReadOnly] = useState(() => isGameReadOnly(getCurrentGameId()));
   const [currentUserId] = useState(() => {
-    const gameId = getCurrentGameId();
-    if (isGameReadOnly(gameId)) {
+    if (isGameReadOnly(getCurrentGameId())) {
       return getOrCreateGuestId();
     }
     return getUserId();
@@ -71,6 +73,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AppContextValue>(
     () => ({
       currentUserId,
+      isGameReadOnly: gameReadOnly,
       currentTab,
       setCurrentTab,
       currentTeamId,
@@ -88,6 +91,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }),
     [
       currentUserId,
+      gameReadOnly,
       currentTab,
       setCurrentTab,
       currentTeamId,

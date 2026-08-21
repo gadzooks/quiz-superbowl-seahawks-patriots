@@ -8,6 +8,11 @@ import {
   GAMES,
   getTeamIds,
   getSubmissionDeadline,
+  isWeeklyGameId,
+  isValidQuizDate,
+  buildWeeklyGameId,
+  getQuizDateFromGameId,
+  getUpcomingQuizDate,
 } from './games';
 
 describe('config/games', () => {
@@ -23,7 +28,7 @@ describe('config/games', () => {
         expect(game).toHaveProperty('year');
         expect(game).toHaveProperty('teams');
         expect(Array.isArray(game.teams)).toBe(true);
-        expect(game.teams.length).toBe(2);
+        expect(game.teams?.length).toBe(2);
       });
     });
 
@@ -134,10 +139,116 @@ describe('config/games', () => {
       const config = GAMES.lx;
       const teamIds = getTeamIds(config);
 
+      expect(teamIds).not.toBeNull();
       expect(Array.isArray(teamIds)).toBe(true);
-      expect(teamIds.length).toBe(2);
-      expect(typeof teamIds[0]).toBe('string');
-      expect(typeof teamIds[1]).toBe('string');
+      expect(teamIds!.length).toBe(2);
+      expect(typeof teamIds![0]).toBe('string');
+      expect(typeof teamIds![1]).toBe('string');
+    });
+
+    it('should return null when the config has no teams', () => {
+      const config = {
+        gameId: 'weekly-2026-08-26',
+        eventType: 'weekly' as const,
+        displayName: 'Weekly Quiz',
+        year: 2026,
+      };
+
+      expect(getTeamIds(config)).toBeNull();
+    });
+  });
+
+  describe('isValidQuizDate', () => {
+    it('should accept a real calendar date', () => {
+      expect(isValidQuizDate('2026-08-26')).toBe(true);
+    });
+
+    it('should reject a malformed string', () => {
+      expect(isValidQuizDate('not-a-date')).toBe(false);
+      expect(isValidQuizDate('2026-8-26')).toBe(false);
+    });
+
+    it('should reject a date that does not exist', () => {
+      expect(isValidQuizDate('2026-02-30')).toBe(false);
+    });
+  });
+
+  describe('buildWeeklyGameId / getQuizDateFromGameId', () => {
+    it('should round-trip a quiz date through a weekly game ID', () => {
+      const gameId = buildWeeklyGameId('2026-08-26');
+
+      expect(gameId).toBe('weekly-2026-08-26');
+      expect(getQuizDateFromGameId(gameId)).toBe('2026-08-26');
+    });
+
+    it('should return null for a non-weekly game ID', () => {
+      expect(getQuizDateFromGameId('lx')).toBeNull();
+    });
+  });
+
+  describe('isWeeklyGameId', () => {
+    it('should return true for a valid weekly game ID', () => {
+      expect(isWeeklyGameId('weekly-2026-08-26')).toBe(true);
+    });
+
+    it('should return false for a Super Bowl game ID', () => {
+      expect(isWeeklyGameId('lx')).toBe(false);
+    });
+
+    it('should return false when the date portion is invalid', () => {
+      expect(isWeeklyGameId('weekly-2026-02-30')).toBe(false);
+    });
+  });
+
+  describe('isValidGameId - weekly', () => {
+    it('should accept a well-formed weekly game ID', () => {
+      expect(isValidGameId('weekly-2026-08-26')).toBe(true);
+    });
+
+    it('should reject a malformed weekly game ID', () => {
+      expect(isValidGameId('weekly-not-a-date')).toBe(false);
+    });
+  });
+
+  describe('getUpcomingQuizDate', () => {
+    it('should return a Sunday', () => {
+      // Wednesday 2026-08-19
+      const wednesday = new Date(2026, 7, 19);
+      const upcoming = getUpcomingQuizDate(wednesday);
+      const [year, month, day] = upcoming.split('-').map(Number);
+
+      expect(new Date(year, month - 1, day).getDay()).toBe(0);
+    });
+
+    it('should return today when today is already Sunday', () => {
+      // Sunday 2026-08-23
+      const sunday = new Date(2026, 7, 23);
+      expect(getUpcomingQuizDate(sunday)).toBe('2026-08-23');
+    });
+  });
+
+  describe('getGameConfig - weekly quizzes', () => {
+    it('should synthesize a config for a valid weekly game ID', () => {
+      const config = getGameConfig('weekly-2026-08-26');
+
+      expect(config).toBeDefined();
+      expect(config?.eventType).toBe('weekly');
+      expect(config?.quizDate).toBe('2026-08-26');
+      expect(config?.teams).toBeUndefined();
+    });
+
+    it('should return undefined for an invalid weekly game ID', () => {
+      expect(getGameConfig('weekly-not-a-date')).toBeUndefined();
+    });
+
+    it('should mark a past quiz date as completed', () => {
+      const config = getGameConfig('weekly-2020-01-05');
+      expect(config?.status).toBe('completed');
+    });
+
+    it('should mark a far-future quiz date as upcoming', () => {
+      const config = getGameConfig('weekly-2099-01-04');
+      expect(config?.status).toBe('upcoming');
     });
   });
 
@@ -154,6 +265,7 @@ describe('config/games', () => {
     it('should return null when no kickoffTime is set', () => {
       const config = {
         gameId: 'test',
+        eventType: 'superbowl' as const,
         displayName: 'Test',
         year: 2027,
         teams: ['A', 'B'] as [string, string],

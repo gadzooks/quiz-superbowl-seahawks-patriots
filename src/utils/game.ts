@@ -1,30 +1,69 @@
 // Game utility functions for path-based routing and game configuration
 //
-// URL structure (with /superbowl base path):
+// URL structure:
 //   /superbowl/:gameId              - Game home (create/join league)
 //   /superbowl/:gameId/:leagueSlug  - Specific league within a game
+//   /weekly/:leagueSlug             - Weekly quiz league home
+//   /weekly/:leagueSlug/:quizDate   - A specific week's quiz for a league
 //
 // Examples:
 //   /superbowl/lx                   - Super Bowl LX home
 //   /superbowl/lx/smith-family      - Smith Family league in Super Bowl LX
+//   /weekly/smith-family/2026-08-26 - Smith Family quiz for the week of Aug 26
 
-import { getGameConfig, isValidGameId, DEFAULT_GAME_ID, type GameConfig } from '../config/games';
+import {
+  getGameConfig,
+  isValidGameId,
+  isValidQuizDate,
+  buildWeeklyGameId,
+  DEFAULT_GAME_ID,
+  type EventType,
+  type GameConfig,
+} from '../config/games';
 
 /**
- * Base path for the application (set in vite.config.ts)
+ * Base path for the Super Bowl product (set in vite.config.ts)
  */
 const BASE_PATH = '/superbowl';
 
 /**
- * Parse game ID and league slug from the URL path.
- *
- * Returns { gameId, leagueSlug } where leagueSlug may be null.
+ * Path prefix for the weekly quiz product.
  */
-export function parseUrlPath(pathname: string = window.location.pathname): {
-  gameId: string;
+const WEEKLY_PATH = '/weekly';
+
+export interface ParsedRoute {
+  eventType: EventType;
+  /** Game ID; null only for weekly routes with no quiz date in the URL */
+  gameId: string | null;
   leagueSlug: string | null;
-} {
-  // Strip base path if present
+  /** YYYY-MM-DD quiz date for weekly routes */
+  quizDate: string | null;
+}
+
+/**
+ * Parse the event type, game ID, league slug, and quiz date from the URL path.
+ */
+export function parseUrlPath(pathname: string = window.location.pathname): ParsedRoute {
+  // Weekly product: /weekly/:leagueSlug/:quizDate?
+  if (pathname === WEEKLY_PATH || pathname.startsWith(`${WEEKLY_PATH}/`)) {
+    const parts = pathname
+      .slice(WEEKLY_PATH.length)
+      .replace(/^\/|\/$/g, '')
+      .split('/')
+      .filter(Boolean);
+
+    const leagueSlug = parts[0]?.toLowerCase() || null;
+    const quizDate = parts[1] && isValidQuizDate(parts[1]) ? parts[1] : null;
+
+    return {
+      eventType: 'weekly',
+      gameId: quizDate ? buildWeeklyGameId(quizDate) : null,
+      leagueSlug,
+      quizDate,
+    };
+  }
+
+  // Super Bowl product: /superbowl/:gameId/:leagueSlug?
   let path = pathname;
   if (path.startsWith(BASE_PATH)) {
     path = path.slice(BASE_PATH.length);
@@ -38,7 +77,7 @@ export function parseUrlPath(pathname: string = window.location.pathname): {
 
   // No path segments - use default game
   if (parts.length === 0) {
-    return { gameId: DEFAULT_GAME_ID, leagueSlug: null };
+    return { eventType: 'superbowl', gameId: DEFAULT_GAME_ID, leagueSlug: null, quizDate: null };
   }
 
   // First segment should be game ID
@@ -46,8 +85,10 @@ export function parseUrlPath(pathname: string = window.location.pathname): {
 
   if (isValidGameId(potentialGameId)) {
     return {
+      eventType: 'superbowl',
       gameId: potentialGameId,
       leagueSlug: parts[1] || null,
+      quizDate: null,
     };
   }
 
@@ -55,16 +96,20 @@ export function parseUrlPath(pathname: string = window.location.pathname): {
   // Could be a legacy URL with just league slug, or invalid path
   // Fall back to default game, treat first segment as league slug
   return {
+    eventType: 'superbowl',
     gameId: DEFAULT_GAME_ID,
     leagueSlug: parts[0] || null,
+    quizDate: null,
   };
 }
 
 /**
  * Get the current game ID from URL.
+ * Falls back to the default game when the URL has no game (e.g., a weekly
+ * route without a quiz date).
  */
 export function getCurrentGameId(): string {
-  return parseUrlPath().gameId;
+  return parseUrlPath().gameId ?? DEFAULT_GAME_ID;
 }
 
 /**
@@ -109,4 +154,22 @@ export function buildGamePath(gameId: string, leagueSlug?: string): string {
 export function buildGameUrl(gameId: string, leagueSlug?: string): string {
   const path = buildGamePath(gameId, leagueSlug);
   return `${window.location.origin}${path}`;
+}
+
+/**
+ * Build a URL path for a weekly quiz league, optionally for a specific week.
+ * URL shape: /weekly/:leagueSlug/:quizDate
+ */
+export function buildWeeklyPath(leagueSlug: string, quizDate?: string): string {
+  if (quizDate) {
+    return `${WEEKLY_PATH}/${leagueSlug}/${quizDate}`;
+  }
+  return `${WEEKLY_PATH}/${leagueSlug}`;
+}
+
+/**
+ * Build a full URL for a weekly quiz league/week.
+ */
+export function buildWeeklyUrl(leagueSlug: string, quizDate?: string): string {
+  return `${window.location.origin}${buildWeeklyPath(leagueSlug, quizDate)}`;
 }

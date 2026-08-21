@@ -39,7 +39,7 @@ export function SeedingSection({
       try {
         const questionsModule = await import(`../../../data/games/${gameId}-questions.ts`);
         const createQuestionsFunc = questionsModule[`create${gameId.toUpperCase()}Questions`];
-        if (createQuestionsFunc && config) {
+        if (createQuestionsFunc && config?.teams) {
           const questions = createQuestionsFunc(config.teams);
           setQuestionCount(questions.length);
         }
@@ -50,10 +50,11 @@ export function SeedingSection({
   }, [gameId, config]);
 
   const handleSeed = async () => {
-    if (!config) {
+    if (!config?.teams) {
       showToast('Game configuration not found', 'error');
       return;
     }
+    const teams = config.teams;
 
     setIsSeeding(true);
 
@@ -71,12 +72,12 @@ export function SeedingSection({
         gameId: config.gameId,
         displayName: config.displayName,
         year: config.year,
-        team1: config.teams[0],
-        team2: config.teams[1],
+        team1: teams[0],
+        team2: teams[1],
       });
 
       // Generate and seed questions
-      const questionData = createQuestionsFunc(config.teams);
+      const questionData = createQuestionsFunc(teams);
       const added = await seedQuestions(gameInstantId, questionData);
 
       // Fix the order of all questions to match the file order
@@ -123,12 +124,14 @@ export function SeedingSection({
             <span className="admin-label">Game:</span>
             <span className="admin-value">{config.displayName}</span>
           </div>
-          <div className="admin-info-row">
-            <span className="admin-label">Teams:</span>
-            <span className="admin-value">
-              {config.teams[0]} vs {config.teams[1]}
-            </span>
-          </div>
+          {config.teams && (
+            <div className="admin-info-row">
+              <span className="admin-label">Teams:</span>
+              <span className="admin-value">
+                {config.teams[0]} vs {config.teams[1]}
+              </span>
+            </div>
+          )}
           <div className="admin-info-row">
             <span className="admin-label">Questions:</span>
             <span className="admin-value">

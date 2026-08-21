@@ -1,18 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { parseUrlPath } from '../utils/game';
-
-interface UrlParams {
-  gameId: string;
-  leagueSlug: string | null;
-}
+import { parseUrlPath, type ParsedRoute } from '../utils/game';
 
 /**
- * Hook that parses game ID and league slug from the URL path.
- * Re-evaluates on popstate (browser back/forward).
+ * Hook that parses the route (event type, game ID, league slug, quiz date)
+ * from the URL path. Re-evaluates on popstate (browser back/forward).
  */
-export function useUrlParams(): UrlParams {
-  const [params, setParams] = useState<UrlParams>(() => parseUrlPath());
+export function useUrlParams(): ParsedRoute {
+  const [params, setParams] = useState<ParsedRoute>(() => parseUrlPath());
 
   const handlePopState = useCallback(() => {
     setParams(parseUrlPath());

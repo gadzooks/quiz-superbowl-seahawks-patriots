@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { getGameConfig, getSubmissionDeadline, isGameCompleted } from '../config/games';
+import { getGameConfig, getSubmissionDeadline } from '../config/games';
 import { CELEBRATION } from '../constants/timing';
 import { useAppContext } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
@@ -41,6 +41,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
   const { showToast } = useToast();
   const {
     currentUserId,
+    isGameReadOnly: isReadOnly,
     currentTab,
     setCurrentTab,
     currentTeamId,
@@ -55,9 +56,7 @@ export function LeagueView({ gameId, leagueSlug }: LeagueViewProps) {
     leagueSlug
   );
 
-  // Check if game is completed (read-only mode)
   const gameConfig = getGameConfig(gameId);
-  const isReadOnly = gameConfig ? isGameCompleted(gameConfig) : false;
   const isGuest = isGuestUser(currentUserId);
 
   // Override current user based on ?team= query param (shared device support)

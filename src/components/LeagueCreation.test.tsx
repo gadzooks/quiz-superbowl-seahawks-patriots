@@ -14,6 +14,7 @@ vi.mock('../utils/game');
 vi.mock('../config/games', () => ({
   getGameConfig: vi.fn(() => ({
     gameId: 'lx',
+    eventType: 'superbowl',
     displayName: 'Super Bowl LX',
     year: 2026,
     teams: ['Seahawks', 'Patriots'],
@@ -21,6 +22,11 @@ vi.mock('../config/games', () => ({
     status: 'upcoming', // Not completed for tests
   })),
   isGameCompleted: vi.fn(() => false), // Not completed for tests
+}));
+
+// Mock app context - LeagueCreation reads isGameReadOnly from here
+vi.mock('../context/AppContext', () => ({
+  useAppContext: vi.fn(() => ({ isGameReadOnly: false })),
 }));
 
 // Mock db.client - the mock will be controlled per test

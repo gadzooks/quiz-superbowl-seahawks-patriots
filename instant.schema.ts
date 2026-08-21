@@ -6,8 +6,10 @@ const _schema = i.schema({
       gameId: i.string().unique().indexed(),
       displayName: i.string(),
       year: i.number().indexed(),
-      team1: i.string(),
-      team2: i.string(),
+      team1: i.string().optional(), // absent for weekly quizzes
+      team2: i.string().optional(), // absent for weekly quizzes
+      eventType: i.string().optional().indexed(), // 'superbowl' (default when absent) or 'weekly'
+      quizDate: i.string().optional().indexed(), // YYYY-MM-DD, weekly quizzes only
     }),
 
     questions: i.entity({
@@ -56,6 +58,13 @@ const _schema = i.schema({
     predictionLeague: {
       forward: { on: 'predictions', has: 'one', label: 'league' },
       reverse: { on: 'leagues', has: 'many', label: 'predictions' },
+    },
+    // Weekly quiz support: a league hosts many quizzes over a season, so
+    // predictions link directly to the game (quiz) they belong to.
+    // Super Bowl predictions may leave this unset (game derives from league).
+    predictionGame: {
+      forward: { on: 'predictions', has: 'one', label: 'game' },
+      reverse: { on: 'games', has: 'many', label: 'gamePredictions' },
     },
   },
 });

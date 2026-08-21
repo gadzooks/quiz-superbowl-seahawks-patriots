@@ -33,6 +33,14 @@ export async function handleLeagueCreation(
     };
   }
 
+  // This flow only creates Super Bowl leagues (weekly quiz leagues come later)
+  if (!gameConfig.teams) {
+    return {
+      success: false,
+      error: 'Leagues can only be created for Super Bowl games.',
+    };
+  }
+
   // Ensure game exists in DB (seeds if needed)
   // Note: Questions must be manually seeded via scripts/seed-game.ts before creating leagues
   const gameInstantId = await seedGame({

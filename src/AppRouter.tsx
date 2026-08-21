@@ -4,7 +4,8 @@ import { LeagueCreation } from './components/LeagueCreation';
 import { LeagueView } from './components/LeagueView';
 import { TeamPicker } from './components/TeamPicker';
 import { ThemeMenu } from './components/ThemeMenu';
-import { isGameReadOnly } from './config/games';
+import { WeeklyView } from './components/WeeklyView';
+import { DEFAULT_GAME_ID, isGameReadOnly } from './config/games';
 import { useAppContext } from './context/AppContext';
 import { useUrlParams } from './hooks/useUrlParams';
 import { SoundManager } from './sound/manager';
@@ -14,9 +15,12 @@ import { getCurrentGameConfig } from './utils/game';
 import { getGuestTheme } from './utils/guestTheme';
 
 export function AppRouter() {
-  const { gameId, leagueSlug } = useUrlParams();
+  const { eventType, gameId, leagueSlug, quizDate } = useUrlParams();
+  const isWeekly = eventType === 'weekly';
   const { setCurrentTeamId } = useAppContext();
-  const [showTeamPicker, setShowTeamPicker] = useState(() => needsTeamSelection(gameId));
+  const [showTeamPicker, setShowTeamPicker] = useState(
+    () => !isWeekly && needsTeamSelection(gameId ?? undefined)
+  );
   const [initialized, setInitialized] = useState(false);
 
   // One-time app initialization
@@ -24,8 +28,8 @@ export function AppRouter() {
     if (!showTeamPicker) {
       let teamId: string;
 
-      // For completed games, apply guest theme
-      if (isGameReadOnly(gameId)) {
+      // Weekly quizzes have no team affiliation; completed games use guest theme
+      if (isWeekly || (gameId !== null && isGameReadOnly(gameId))) {
         teamId = getGuestTheme();
         applyTeamTheme(teamId);
       } else {
@@ -34,13 +38,15 @@ export function AppRouter() {
 
       setCurrentTeamId(teamId);
 
-      const gameConfig = getCurrentGameConfig();
-      applyHeaderTeamColors(gameConfig);
+      if (!isWeekly) {
+        const gameConfig = getCurrentGameConfig();
+        applyHeaderTeamColors(gameConfig);
+      }
     }
 
     SoundManager.init();
     setInitialized(true);
-  }, [gameId, showTeamPicker, setCurrentTeamId]);
+  }, [gameId, isWeekly, showTeamPicker, setCurrentTeamId]);
 
   if (showTeamPicker) {
     return (
@@ -64,10 +70,21 @@ export function AppRouter() {
     );
   }
 
+  if (isWeekly) {
+    return (
+      <>
+        <WeeklyView leagueSlug={leagueSlug} quizDate={quizDate} />
+        <ThemeMenu />
+      </>
+    );
+  }
+
+  const superbowlGameId = gameId ?? DEFAULT_GAME_ID;
+
   if (!leagueSlug) {
     return (
       <>
-        <LeagueCreation gameId={gameId} />
+        <LeagueCreation gameId={superbowlGameId} />
         <ThemeMenu />
       </>
     );
@@ -75,7 +92,7 @@ export function AppRouter() {
 
   return (
     <>
-      <LeagueView gameId={gameId} leagueSlug={leagueSlug} />
+      <LeagueView gameId={superbowlGameId} leagueSlug={leagueSlug} />
       <ThemeMenu />
     </>
   );

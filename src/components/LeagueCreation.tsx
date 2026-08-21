@@ -2,7 +2,8 @@
 
 import { useState, type FormEvent, useEffect, useRef } from 'react';
 
-import { getGameConfig, isGameCompleted } from '../config/games';
+import { getGameConfig } from '../config/games';
+import { useAppContext } from '../context/AppContext';
 import { db } from '../db/client';
 import { handleLeagueCreation } from '../handlers/league';
 import { buildGamePath } from '../utils/game';
@@ -13,7 +14,7 @@ interface LeagueCreationProps {
 
 export function LeagueCreation({ gameId }: LeagueCreationProps) {
   const gameConfig = getGameConfig(gameId);
-  const isCompleted = gameConfig ? isGameCompleted(gameConfig) : false;
+  const { isGameReadOnly: isCompleted } = useAppContext();
 
   const [leagueName, setLeagueName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);

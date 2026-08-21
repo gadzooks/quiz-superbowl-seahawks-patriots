@@ -62,6 +62,14 @@ async function main() {
     process.exit(1);
   }
 
+  if (!config.teams) {
+    console.error(
+      `❌ Error: '${gameId}' has no teams configured (weekly quizzes are not seeded here)`
+    );
+    process.exit(1);
+  }
+  const teams = config.teams;
+
   // Check if questions file exists
   const questionsPath = join(__dirname, `../data/games/${gameId}-questions.ts`);
   if (!existsSync(questionsPath)) {
@@ -90,14 +98,14 @@ async function main() {
       gameId: config.gameId,
       displayName: config.displayName,
       year: config.year,
-      team1: config.teams[0],
-      team2: config.teams[1],
+      team1: teams[0],
+      team2: teams[1],
     });
 
     console.log(`✅ Game created/loaded: ${config.displayName}`);
 
     // Generate and seed questions
-    const questionData = createQuestionsFunc(config.teams);
+    const questionData = createQuestionsFunc(teams);
     await seedQuestions(gameInstantId, questionData);
 
     console.log(`✅ ${questionData.length} questions seeded successfully!`);

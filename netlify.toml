@@ -181,6 +181,19 @@
   to = "/index.html"
   status = 200
 
+# Weekly quiz product shares the same SPA bundle
+# URL structure: /weekly/:leagueSlug/:quizDate (e.g., /weekly/smith-family/2026-08-26)
+# Assets still load from /superbowl/assets (absolute paths in the built HTML)
+[[redirects]]
+  from = "/weekly/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/weekly"
+  to = "/index.html"
+  status = 200
+
 # Root redirect to /superbowl (optional - for convenience)
 [[redirects]]
   from = "/"

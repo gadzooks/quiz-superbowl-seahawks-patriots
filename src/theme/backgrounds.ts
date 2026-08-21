@@ -80,7 +80,10 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } {
  * Body background follows the user's selected theme.
  */
 export function applyGameTeamBackgrounds(gameConfig: GameConfig): void {
-  const [leftTeamId, rightTeamId] = getTeamIds(gameConfig);
+  const teamIds = getTeamIds(gameConfig);
+  if (!teamIds) return; // No teams (e.g., weekly quiz) - keep user theme background
+
+  const [leftTeamId, rightTeamId] = teamIds;
   const leftTheme = getTeamTheme(leftTeamId);
   const rightTheme = getTeamTheme(rightTeamId);
 

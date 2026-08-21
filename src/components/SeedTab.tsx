@@ -72,11 +72,12 @@ export function SeedTab({ gameId, onSeeded }: SeedTabProps) {
 
   async function handleSeed() {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (!config) {
+    if (!config?.teams) {
       setStatus('error');
       setMessage('Invalid game configuration');
       return;
     }
+    const teams = config.teams;
 
     setStatus('seeding');
     setMessage('Seeding game and questions...');
@@ -87,15 +88,15 @@ export function SeedTab({ gameId, onSeeded }: SeedTabProps) {
         gameId: config.gameId,
         displayName: config.displayName,
         year: config.year,
-        team1: config.teams[0],
-        team2: config.teams[1],
+        team1: teams[0],
+        team2: teams[1],
       });
 
       setMessage('Game created. Adding questions...');
 
       // Dynamically import questions for this game
       const { createLXQuestions } = await import('../../data/games/lx-questions');
-      const questionData = createLXQuestions(config.teams);
+      const questionData = createLXQuestions(teams);
 
       await seedQuestions(gameInstantId, questionData);
 
@@ -173,12 +174,14 @@ export function SeedTab({ gameId, onSeeded }: SeedTabProps) {
               <p>
                 📅 Year: <span className="font-semibold">{config.year}</span>
               </p>
-              <p>
-                🏈 Teams:{' '}
-                <span className="font-semibold">
-                  {config.teams[0]} vs {config.teams[1]}
-                </span>
-              </p>
+              {config.teams && (
+                <p>
+                  🏈 Teams:{' '}
+                  <span className="font-semibold">
+                    {config.teams[0]} vs {config.teams[1]}
+                  </span>
+                </p>
+              )}
             </div>
           </div>
         )}

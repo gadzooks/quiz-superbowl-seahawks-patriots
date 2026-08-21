@@ -26,6 +26,7 @@ describe('handleLeagueCreation', () => {
     vi.mocked(getCurrentGameId).mockReturnValue('lx');
     vi.mocked(getCurrentGameConfig).mockReturnValue({
       gameId: 'lx',
+      eventType: 'superbowl',
       displayName: 'Super Bowl LX',
       year: 2026,
       teams: ['seahawks', 'patriots'],
