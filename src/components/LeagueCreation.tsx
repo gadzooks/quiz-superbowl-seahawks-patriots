@@ -7,6 +7,7 @@ import { useAppContext } from '../context/AppContext';
 import { db } from '../db/client';
 import { handleLeagueCreation } from '../handlers/league';
 import { buildGamePath } from '../utils/game';
+import { startYahooLogin } from '../utils/yahooAuth';
 
 interface LeagueCreationProps {
   gameId: string;
@@ -15,6 +16,7 @@ interface LeagueCreationProps {
 export function LeagueCreation({ gameId }: LeagueCreationProps) {
   const gameConfig = getGameConfig(gameId);
   const { isGameReadOnly: isCompleted } = useAppContext();
+  const { user, isLoading: authLoading } = db.useAuth();
 
   const [leagueName, setLeagueName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -80,10 +82,15 @@ export function LeagueCreation({ gameId }: LeagueCreationProps) {
       return;
     }
 
+    if (!user) {
+      startYahooLogin(window.location.pathname);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      const result = await handleLeagueCreation(leagueName.trim());
+      const result = await handleLeagueCreation(leagueName.trim(), user.id);
 
       if (result.success && result.slug) {
         // Set pending slug to trigger subscription and wait for league to exist
@@ -139,6 +146,11 @@ export function LeagueCreation({ gameId }: LeagueCreationProps) {
         <p className="text-base-content/80">
           Enter a name for your prediction league. You'll get a shareable link to invite others!
         </p>
+        {!authLoading && !user && (
+          <p className="text-sm text-base-content/60 mt-2">
+            You'll need to sign in with Yahoo to create a league.
+          </p>
+        )}
 
         <form onSubmit={(e) => void handleSubmit(e)}>
           <div className="form-control">
@@ -157,8 +169,12 @@ export function LeagueCreation({ gameId }: LeagueCreationProps) {
             />
           </div>
 
-          <button type="submit" className="btn btn-primary w-full btn-lg" disabled={isSubmitting}>
-            {isSubmitting ? 'Creating...' : 'Create League'}
+          <button
+            type="submit"
+            className="btn btn-primary w-full btn-lg"
+            disabled={isSubmitting || authLoading}
+          >
+            {isSubmitting ? 'Creating...' : user ? 'Create League' : 'Sign in with Yahoo'}
           </button>
         </form>
       </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { AccountBar } from './components/AccountBar';
 import { LeagueCreation } from './components/LeagueCreation';
 import { LeagueView } from './components/LeagueView';
 import { TeamPicker } from './components/TeamPicker';
@@ -75,6 +76,7 @@ export function AppRouter() {
   if (isWeekly) {
     return (
       <>
+        <AccountBar />
         <WeeklyView leagueSlug={leagueSlug} quizDate={quizDate} />
         <ThemeMenu />
       </>
@@ -86,6 +88,7 @@ export function AppRouter() {
   if (!leagueSlug) {
     return (
       <>
+        <AccountBar />
         <LeagueCreation gameId={superbowlGameId} />
         <ThemeMenu />
       </>
@@ -94,6 +97,7 @@ export function AppRouter() {
 
   return (
     <>
+      <AccountBar />
       <LeagueView gameId={superbowlGameId} leagueSlug={leagueSlug} />
       <ThemeMenu />
     </>

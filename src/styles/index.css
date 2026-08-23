@@ -16,6 +16,7 @@
 @import './components/progress.css';
 @import './components/tables.css';
 @import './components/banners.css';
+@import './components/account-bar.css';
 
 /* Feature-specific styles */
 @import './features/header.css';

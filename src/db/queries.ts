@@ -221,6 +221,8 @@ export async function createLeague(data: {
   name: string;
   slug: string;
   creatorId: string;
+  /** $users id of the signed-in creator; auto-assigned as the league's admin. */
+  adminUserId: string;
 }): Promise<string> {
   const leagueId = id();
   await db.transact([
@@ -233,7 +235,7 @@ export async function createLeague(data: {
       actualResults: null,
       showAllPredictions: false,
     }),
-    db.tx.leagues[leagueId].link({ game: data.gameInstantId }),
+    db.tx.leagues[leagueId].link({ game: data.gameInstantId, admins: data.adminUserId }),
   ]);
   return leagueId;
 }
@@ -286,6 +288,8 @@ export async function savePrediction(data: {
   isManager?: boolean;
   actualResults?: Record<string, string | number> | null;
   questions?: Question[];
+  /** $users id of the signed-in owner; required when creating (no `id`). */
+  authUserId?: string;
 }): Promise<string> {
   const predictionId = data.id ?? id();
   const score =
@@ -317,6 +321,9 @@ export async function savePrediction(data: {
   // Only link on creation (no existing id)
   if (!data.id) {
     txs.push(db.tx.predictions[predictionId].link({ league: data.leagueId }));
+    if (data.authUserId) {
+      txs.push(db.tx.predictions[predictionId].link({ user: data.authUserId }));
+    }
   }
 
   await db.transact(txs);

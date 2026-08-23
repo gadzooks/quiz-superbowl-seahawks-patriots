@@ -39,7 +39,7 @@ describe('handleLeagueCreation', () => {
       vi.mocked(leagueExists).mockResolvedValue(false);
       vi.mocked(createLeague).mockResolvedValue('league-id-123');
 
-      const result = await handleLeagueCreation('Good Vibes');
+      const result = await handleLeagueCreation('Good Vibes', 'auth-user-123');
 
       expect(result).toEqual({
         success: true,
@@ -52,7 +52,7 @@ describe('handleLeagueCreation', () => {
       vi.mocked(leagueExists).mockResolvedValue(false);
       vi.mocked(createLeague).mockResolvedValue('league-id-123');
 
-      await handleLeagueCreation('  Good Vibes  ');
+      await handleLeagueCreation('  Good Vibes  ', 'auth-user-123');
 
       expect(createLeague).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -67,7 +67,7 @@ describe('handleLeagueCreation', () => {
       vi.mocked(leagueExists).mockResolvedValue(false);
       vi.mocked(createLeague).mockResolvedValue('league-id-123');
 
-      await handleLeagueCreation('Good Vibes');
+      await handleLeagueCreation('Good Vibes', 'auth-user-123');
 
       expect(seedGame).toHaveBeenCalledWith({
         gameId: 'lx',
@@ -83,7 +83,7 @@ describe('handleLeagueCreation', () => {
       vi.mocked(leagueExists).mockResolvedValue(false);
       vi.mocked(createLeague).mockResolvedValue('league-id-123');
 
-      await handleLeagueCreation('Good Vibes');
+      await handleLeagueCreation('Good Vibes', 'auth-user-123');
 
       expect(createLeague).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -91,11 +91,38 @@ describe('handleLeagueCreation', () => {
         })
       );
     });
+
+    it('should link the signed-in user as the league admin', async () => {
+      vi.mocked(seedGame).mockResolvedValue('game-instant-id');
+      vi.mocked(leagueExists).mockResolvedValue(false);
+      vi.mocked(createLeague).mockResolvedValue('league-id-123');
+
+      await handleLeagueCreation('Good Vibes', 'auth-user-123');
+
+      expect(createLeague).toHaveBeenCalledWith(
+        expect.objectContaining({
+          adminUserId: 'auth-user-123',
+        })
+      );
+    });
+  });
+
+  describe('auth requirement', () => {
+    it('should reject when no signed-in user is provided', async () => {
+      const result = await handleLeagueCreation('Good Vibes', undefined);
+
+      expect(result).toEqual({
+        success: false,
+        error: 'Please sign in with Yahoo to create a league.',
+      });
+      expect(createLeague).not.toHaveBeenCalled();
+      expect(seedGame).not.toHaveBeenCalled();
+    });
   });
 
   describe('validation errors', () => {
     it('should reject empty league name', async () => {
-      const result = await handleLeagueCreation('');
+      const result = await handleLeagueCreation('', 'auth-user-123');
 
       expect(result).toEqual({
         success: false,
@@ -105,7 +132,7 @@ describe('handleLeagueCreation', () => {
     });
 
     it('should reject league name with only whitespace', async () => {
-      const result = await handleLeagueCreation('   ');
+      const result = await handleLeagueCreation('   ', 'auth-user-123');
 
       expect(result).toEqual({
         success: false,
@@ -116,7 +143,7 @@ describe('handleLeagueCreation', () => {
 
     it('should reject league name that is too long', async () => {
       const longName = 'a'.repeat(51);
-      const result = await handleLeagueCreation(longName);
+      const result = await handleLeagueCreation(longName, 'auth-user-123');
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('at most 50');
@@ -129,7 +156,7 @@ describe('handleLeagueCreation', () => {
       vi.mocked(seedGame).mockResolvedValue('game-instant-id');
       vi.mocked(leagueExists).mockResolvedValue(true);
 
-      const result = await handleLeagueCreation('Good Vibes');
+      const result = await handleLeagueCreation('Good Vibes', 'auth-user-123');
 
       expect(result).toEqual({
         success: false,
@@ -142,7 +169,7 @@ describe('handleLeagueCreation', () => {
       vi.mocked(seedGame).mockResolvedValue('game-instant-id');
       vi.mocked(leagueExists).mockResolvedValue(true);
 
-      await handleLeagueCreation('Good Vibes');
+      await handleLeagueCreation('Good Vibes', 'auth-user-123');
 
       expect(leagueExists).toHaveBeenCalledWith('lx', 'good-vibes');
     });
@@ -154,7 +181,7 @@ describe('handleLeagueCreation', () => {
       vi.mocked(leagueExists).mockResolvedValue(false);
       vi.mocked(createLeague).mockRejectedValue(new Error('Database connection failed'));
 
-      const result = await handleLeagueCreation('Good Vibes');
+      const result = await handleLeagueCreation('Good Vibes', 'auth-user-123');
 
       expect(result).toEqual({
         success: false,
@@ -167,7 +194,7 @@ describe('handleLeagueCreation', () => {
       vi.mocked(leagueExists).mockResolvedValue(false);
       vi.mocked(createLeague).mockRejectedValue('Something went wrong');
 
-      const result = await handleLeagueCreation('Good Vibes');
+      const result = await handleLeagueCreation('Good Vibes', 'auth-user-123');
 
       expect(result).toEqual({
         success: false,

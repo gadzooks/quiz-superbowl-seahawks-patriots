@@ -3,12 +3,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { handleLeagueCreation } from '../handlers/league';
 import { buildGamePath } from '../utils/game';
+import { startYahooLogin } from '../utils/yahooAuth';
 
 import { LeagueCreation } from './LeagueCreation';
 
 // Mock dependencies
 vi.mock('../handlers/league');
 vi.mock('../utils/game');
+vi.mock('../utils/yahooAuth');
 
 // Mock game config to return non-completed game for tests
 vi.mock('../config/games', () => ({
@@ -31,9 +33,11 @@ vi.mock('../context/AppContext', () => ({
 
 // Mock db.client - the mock will be controlled per test
 const mockUseQuery = vi.fn();
+const mockUseAuth = vi.fn();
 vi.mock('../db/client', () => ({
   db: {
     useQuery: (...args: unknown[]) => mockUseQuery(...args),
+    useAuth: () => mockUseAuth(),
   },
 }));
 
@@ -62,6 +66,13 @@ describe('LeagueCreation', () => {
       data: null,
       isLoading: false,
       error: null,
+    });
+
+    // Signed in by default; individual tests override for the signed-out case
+    mockUseAuth.mockReturnValue({
+      isLoading: false,
+      user: { id: 'auth-user-123', email: 'amit@example.com', isGuest: false },
+      error: undefined,
     });
   });
 
@@ -108,6 +119,34 @@ describe('LeagueCreation', () => {
     });
   });
 
+  describe('auth requirement', () => {
+    it('should show a sign-in button instead of Create League when signed out', () => {
+      mockUseAuth.mockReturnValue({ isLoading: false, user: undefined, error: undefined });
+
+      render(<LeagueCreation gameId="lx" />);
+
+      expect(screen.getByRole('button', { name: 'Sign in with Yahoo' })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Create League' })).not.toBeInTheDocument();
+    });
+
+    it('should start Yahoo login instead of creating a league when signed out', async () => {
+      mockUseAuth.mockReturnValue({ isLoading: false, user: undefined, error: undefined });
+
+      render(<LeagueCreation gameId="lx" />);
+
+      const input = screen.getByLabelText('League Name');
+      const submitButton = screen.getByRole('button', { name: 'Sign in with Yahoo' });
+
+      fireEvent.change(input, { target: { value: 'Good Vibes' } });
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(startYahooLogin).toHaveBeenCalled();
+      });
+      expect(mockHandleLeagueCreation).not.toHaveBeenCalled();
+    });
+  });
+
   describe('successful league creation', () => {
     it('should call handleLeagueCreation with trimmed name', async () => {
       mockHandleLeagueCreation.mockResolvedValue({
@@ -124,7 +163,7 @@ describe('LeagueCreation', () => {
       fireEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(mockHandleLeagueCreation).toHaveBeenCalledWith('Good Vibes');
+        expect(mockHandleLeagueCreation).toHaveBeenCalledWith('Good Vibes', 'auth-user-123');
       });
     });
 

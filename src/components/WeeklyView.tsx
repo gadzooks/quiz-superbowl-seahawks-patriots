@@ -1,8 +1,6 @@
 import { formatQuizDate, getUpcomingQuizDate } from '../config/games';
 import { buildWeeklyPath } from '../utils/game';
 
-import { YahooSignIn } from './YahooSignIn';
-
 interface WeeklyViewProps {
   leagueSlug: string | null;
   quizDate: string | null;
@@ -12,6 +10,7 @@ interface WeeklyViewProps {
  * Weekly quiz product surface (placeholder).
  * Routes: /weekly/:leagueSlug and /weekly/:leagueSlug/:quizDate
  * Data wiring (quiz questions, predictions, standings) lands in a later phase.
+ * Sign-in control lives in the app-wide AccountBar, not here.
  */
 export function WeeklyView({ leagueSlug, quizDate }: WeeklyViewProps) {
   const upcomingDate = getUpcomingQuizDate();
@@ -19,10 +18,7 @@ export function WeeklyView({ leagueSlug, quizDate }: WeeklyViewProps) {
   return (
     <div className="card bg-base-200">
       <div className="card-body">
-        <div className="flex items-center justify-between gap-2">
-          <h2 className="card-title text-2xl text-primary">Weekly Quiz</h2>
-          <YahooSignIn />
-        </div>
+        <h2 className="card-title text-2xl text-primary">Weekly Quiz</h2>
 
         {leagueSlug ? (
           <>

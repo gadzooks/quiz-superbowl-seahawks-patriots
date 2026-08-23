@@ -2,6 +2,12 @@ import { i } from '@instantdb/core';
 
 const _schema = i.schema({
   entities: {
+    // Built-in auth entity (magic-code/OAuth via signInWithToken). Declared
+    // with no fields — this SDK version needs it as an explicit entity key
+    // for links to reference '$users'; InstantDB merges it with the real
+    // system entity rather than creating a new one.
+    $users: i.entity({}),
+
     games: i.entity({
       gameId: i.string().unique().indexed(),
       displayName: i.string(),
@@ -65,6 +71,18 @@ const _schema = i.schema({
     predictionGame: {
       forward: { on: 'predictions', has: 'one', label: 'game' },
       reverse: { on: 'games', has: 'many', label: 'gamePredictions' },
+    },
+    // Phase 3 (league admin roles): real ownership, distinct from the
+    // pre-auth `predictions.userId` / `leagues.creatorId` string fields
+    // (kept for backwards compat with anonymous/frozen LX data). Perms use
+    // these to enforce that only the signed-in owner/admin can write.
+    predictionUser: {
+      forward: { on: 'predictions', has: 'one', label: 'user' },
+      reverse: { on: '$users', has: 'many', label: 'predictions' },
+    },
+    leagueAdmins: {
+      forward: { on: 'leagues', has: 'many', label: 'admins' },
+      reverse: { on: '$users', has: 'many', label: 'adminLeagues' },
     },
   },
 });

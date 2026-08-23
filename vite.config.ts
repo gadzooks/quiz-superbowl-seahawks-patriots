@@ -60,7 +60,11 @@ export default defineConfig({
 
   server: {
     port: 8000,
-    open: true,
+    // Under `netlify dev`, Vite's own port (8000) has no /.netlify/functions/*
+    // routing — only the outer netlify dev proxy (8888) does. Auto-opening
+    // Vite's own URL here would land the browser on the wrong port for
+    // anything that hits a Netlify Function (e.g. Yahoo login).
+    open: !process.env.NETLIFY_DEV,
     // `netlify dev` already terminates HTTPS on its own proxy (see
     // [dev.https] in netlify.toml) and expects a plain-HTTP upstream target;
     // enabling HTTPS here too breaks its proxying. Only self-serve HTTPS

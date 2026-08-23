@@ -1,0 +1,9 @@
+/* Persistent app-wide sign-in/account control (top of every page) */
+
+.account-bar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md);
+}

@@ -12,8 +12,14 @@ import { getUserId } from '../utils/user';
  * Returns the created league slug or null if creation failed.
  */
 export async function handleLeagueCreation(
-  leagueName: string
+  leagueName: string,
+  /** $users id of the signed-in creator; required (Yahoo login is required to create a league). */
+  adminUserId: string | undefined
 ): Promise<{ success: boolean; slug?: string; error?: string }> {
+  if (!adminUserId) {
+    return { success: false, error: 'Please sign in with Yahoo to create a league.' };
+  }
+
   // Validate league name
   const validation = validateLeagueName(leagueName);
   if (!validation.valid) {
@@ -66,6 +72,7 @@ export async function handleLeagueCreation(
       name: leagueName.trim(),
       slug,
       creatorId: currentUserId,
+      adminUserId,
     });
 
     return { success: true, slug };

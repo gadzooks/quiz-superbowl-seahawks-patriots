@@ -1,18 +1,39 @@
 # Weekly Quiz Support — Implementation Plan & Handoff
 
-Status handoff document. **Phase 1 (event model + routing) is complete**: type-check, lint, format, and all 336 unit tests pass (`yarn run validate`), `yarn run check:unused` is clean, and a production build (`yarn run build`) succeeds. Manually verified via curl that both `/superbowl/lx` and `/weekly/smith-family/2026-08-26` serve the SPA shell correctly in dev. Changes are uncommitted — see "Next steps" for what's left before Phase 2. `DESIGN_REVIEW.md` has the full architecture review this work is based on.
+Status handoff document. **Phase 1 (event model + routing) is complete and committed** (`1f1d43a`). **Phase 2 (auth + perms) is in progress**: `instant.perms.ts` exists, the Yahoo OAuth broker (`netlify/functions/auth-yahoo-*.ts`) is verified end-to-end against a real Yahoo account, and the client is wired up (`useYahooAuthCallback`, `YahooSignIn` in `WeeklyView`) — committed as `bb29e8f` and `6e5434b`. Remaining Phase 2 work: link `predictions`/`leagues` to `$users` so perms can move from open writes to real ownership checks. `DESIGN_REVIEW.md` has the full architecture review this work is based on.
 
 ## Decisions already made (with the user)
 
 - **URL scheme:** `/superbowl/:gameId/:leagueSlug` (unchanged) and `/weekly/:leagueSlug/:quizDate` (league-first, e.g. `/weekly/smith-family/2026-08-26`).
 - Weekly quiz game IDs are **date-based and synthesized**, not registered in code: `weekly-YYYY-MM-DD`. Quiz dates are auto-generated (next Sunday) via `getUpcomingQuizDate()`.
 - For now there is **one family league** for weekly; leagues may skip weeks (quizzes created ad hoc).
-- **Everything moves to Yahoo auth eventually.** All writes will require Yahoo login; reads stay public. LX stays visible read-only forever; old localStorage `user-*` IDs are never migrated (frozen with LX). User explicitly OK'd deprecating anonymous flows.
+- **Yahoo login is required for both weekly and Super Bowl going forward** (updated 2026-08-23 — supersedes the earlier "weekly gets Yahoo auth, Super Bowl stays anonymous for now" framing). Applies to new/active leagues in both products; the already-completed, read-only Super Bowl LX (2026) is unaffected since it has no writes to gate regardless — old localStorage `user-*` IDs stay frozen with it, never migrated. Exact scope (gate all reads, or only writes/predictions?) still to be nailed down — see open questions below.
+- **Future: Google login for Super Bowl only** (not Yahoo), on top of Yahoo for weekly. Not being built now — noting so the auth broker isn't designed in a way that makes adding a second provider painful later (e.g. keep the "mint an InstantDB token from a verified email" pattern provider-agnostic).
 - Roadmap order (user approved "Event model + routing" first):
-  1. **Event model + routing** ← current phase
-  2. Auth + perms: `instant.perms.ts`, Yahoo OAuth via Netlify Function → InstantDB `signInWithToken`, `users` entity. Blocks on user creating a Yahoo developer app + InstantDB admin token.
-  3. Admin question authoring (replace `data/games/<id>-questions.ts` files with admin UI writing `questions` rows).
-  4. Weekly quiz UI (real data wiring, season navigation, cumulative standings TBD).
+  1. **Event model + routing** — done (`1f1d43a`).
+  2. **Auth + perms** — `instant.perms.ts`, Yahoo OAuth via Netlify Function → InstantDB `signInWithToken`, client wiring — done (`bb29e8f`, `6e5434b`). Remaining: link `predictions`/`leagues` to `$users`.
+  3. **League admin roles (plumbing)** — done 2026-08-23. Decisions made: writes require sign-in, reads stay public ("gate writes only"); sign-in control lives in a persistent app-wide `AccountBar` (not scoped to weekly); a league's admin is auto-assigned to whoever creates it while signed in (no invite flow yet). Implemented: `leagueAdmins` (`leagues` ↔ `$users`, many-to-many) and `predictionUser` (`predictions` → `$users`, one) links in `instant.schema.ts`; `instant.perms.ts` now requires `auth.id != null` to create leagues/predictions, admin-only to update/delete a league, owner-or-league-admin to update a prediction, league-admin-only to delete one; `AccountBar` component mounted in `AppRouter` on every branch; `LeagueCreation.tsx` and `TeamNameEntry.tsx` (the only two entity-creation call sites) redirect to `startYahooLogin()` instead of writing when signed out, and pass the InstantDB `$users` id through to `createLeague`/`savePrediction` so the new links get set. `predictions.userId` / `leagues.creatorId` string fields are unchanged (still localStorage-based, kept for backward compat / display) — this pass adds real ownership alongside them, it does not replace `AppContext.currentUserId`, which still drives gameplay identity (guest detection, celebration tracking, theme). **Pushed to the dev InstantDB app** (`c77accca...c7e0`) 2026-08-23 via `instant-cli push all -y` (schema + perms both applied, confirmed idempotent on re-push). Note: `yarn db:push`'s interactive confirm prompt needs a real TTY — it silently no-ops (while still reporting success) when run non-interactively without `-y`, so automated pushes must call `instant-cli push all -y` directly.
+  4. **Admin question authoring UI** ← next phase. The per-league admin role from step 3 is who gets access to this: replace `data/games/<id>-questions.ts` files with an admin UI writing `questions` rows, and build the "validate/enter actual results" UI (writes `leagues.actualResults`, per league — not a global scoring admin). Needs an `isLeagueAdmin` check in the client (via `auth.id` + the league's `admins` link) gating the UI, mirroring what perms already enforce server-side.
+  5. Weekly quiz UI (real data wiring, season navigation, cumulative standings TBD).
+  6. **Seasons: unify weekly + Super Bowl under one league** (added 2026-08-23 at user's request — not yet built, design only). See "Seasons — design" below.
+
+## Seasons — design (Phase 6, not yet built)
+
+Two distinct kinds of league going forward:
+
+- **Season leagues** (the user's fantasy football league). One league, scoped to a season (e.g. `lxi`), not to a single game. Members participate in both that season's weekly quizzes and its Super Bowl — joining once (whichever surface they land on first) auto-enrolls them in both; there's no separate "join the Super Bowl" step. Standings are **three separate leaderboards, not one combined score**: (1) each individual week's winner, (2) cumulative weekly-quiz total across the season ("bragging rights"), (3) the Super Bowl leaderboard — entirely separate scoring, never mixed into the weekly total.
+- **Standalone Super Bowl leagues** (open to anyone, e.g. today's LX leagues). Unchanged — scoped to a single game via `leagueGame`, no season, no weekly quizzes. This is how the app stays usable for people who only care about the Super Bowl.
+
+URL scheme changes to accommodate a season prefix, e.g. `/lxi/weekly/smith-family/2026-08-30` (a specific week) and season-level views at `/lxi/weekly/smith-family` (cumulative weekly standings) and `/lxi/superbowl/smith-family` (that league's Super Bowl leaderboard). Today's `/superbowl/:gameId/:leagueSlug` and `/weekly/:leagueSlug/:quizDate` (no season prefix) keep working for standalone leagues — needs a decision on whether standalone leagues ever get a season-prefixed URL or stay on the old scheme permanently.
+
+Schema implications (not yet implemented):
+
+- A season league can't link to one `game` the way `leagueGame` does today — it's scoped to a season instead. Reuse `games.year` as the season id (`lxi` → its year, via the existing `GAMES` config) rather than adding a new `seasonId` field, so no new entity needed there.
+- Every prediction in a season league — weekly **and** Super Bowl — needs its game explicit via the `predictionGame` link (already in schema from Phase 1), since the league itself no longer implies "the game" the way it does for standalone leagues.
+- Need a way to tell season leagues apart from standalone ones — likely `leagues.eventType` (`'season' | 'superbowl'`, mirroring `games.eventType`) or simply: has a season year vs. has a `game` link.
+- The three-leaderboard model means score aggregation logic is new work: per-week (already works — one prediction's score), season-cumulative-weekly (sum of a user's `predictions.score` across all weekly-quiz predictions in that league for the season year), and Super Bowl (unchanged, single prediction's score).
+
+Not started — this is a bigger schema/routing change than Phase 3's plumbing and should get its own confirmation pass before implementation, especially the URL restructuring (it changes routes already tested in Phase 1) and the standalone-vs-season league split (`leagues.eventType` or equivalent).
 
 ## Phase 1 changes already made (this session, uncommitted)
 

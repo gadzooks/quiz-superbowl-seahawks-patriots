@@ -1,8 +1,10 @@
 import { useState, type FormEvent } from 'react';
 
+import { db } from '../db/client';
 import { savePrediction } from '../db/queries';
 import { validateTeamName } from '../services/validation';
 import type { League } from '../types';
+import { startYahooLogin } from '../utils/yahooAuth';
 
 interface TeamNameEntryProps {
   league: League;
@@ -16,6 +18,7 @@ interface TeamNameEntryProps {
 }
 
 export function TeamNameEntry({ league, userId, showToast, onRegistered }: TeamNameEntryProps) {
+  const { user, isLoading: authLoading } = db.useAuth();
   const [teamName, setTeamName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -30,6 +33,11 @@ export function TeamNameEntry({ league, userId, showToast, onRegistered }: TeamN
       return;
     }
 
+    if (!user) {
+      startYahooLogin(window.location.pathname);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -39,6 +47,7 @@ export function TeamNameEntry({ league, userId, showToast, onRegistered }: TeamN
         teamName: trimmedName,
         predictions: {},
         isManager: false,
+        authUserId: user.id,
       });
 
       onRegistered(trimmedName);
@@ -57,6 +66,11 @@ export function TeamNameEntry({ league, userId, showToast, onRegistered }: TeamN
         <p className="text-sm mt-2 text-warning">
           ⚠️ Choose carefully — only admins can change team names later.
         </p>
+        {!authLoading && !user && (
+          <p className="text-sm text-base-content/60 mt-2">
+            You'll need to sign in with Yahoo to join this league.
+          </p>
+        )}
 
         <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4 mt-4">
           <div className="form-control">
@@ -77,8 +91,12 @@ export function TeamNameEntry({ league, userId, showToast, onRegistered }: TeamN
             />
           </div>
 
-          <button type="submit" className="btn btn-primary w-full btn-lg" disabled={isSubmitting}>
-            {isSubmitting ? 'Joining...' : 'Continue'}
+          <button
+            type="submit"
+            className="btn btn-primary w-full btn-lg"
+            disabled={isSubmitting || authLoading}
+          >
+            {isSubmitting ? 'Joining...' : user ? 'Continue' : 'Sign in with Yahoo'}
           </button>
         </form>
       </div>
