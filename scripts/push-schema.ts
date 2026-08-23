@@ -56,7 +56,7 @@ function pushSchema() {
   const yesFlag = autoConfirm ? '-y' : '';
 
   try {
-    execSync(`yarn instant-cli push schema instant.schema.ts -a ${appId} ${tokenFlag} ${yesFlag}`, {
+    execSync(`yarn instant-cli push all -a ${appId} ${tokenFlag} ${yesFlag}`, {
       stdio: 'inherit',
       env: {
         ...process.env,

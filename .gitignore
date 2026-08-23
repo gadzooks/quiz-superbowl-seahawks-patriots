@@ -17,6 +17,10 @@ node_modules/
 # Package manager lock files (using yarn.lock only)
 package-lock.json
 
+# Local HTTPS dev certs (mkcert)
+localhost.pem
+localhost-key.pem
+
 # OS files
 .DS_Store
 Thumbs.db
@@ -30,6 +34,7 @@ Thumbs.db
 
 # Netlify
 .netlify/
+deno.lock
 
 # Database backups
 backups/

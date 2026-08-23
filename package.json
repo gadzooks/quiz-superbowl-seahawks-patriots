@@ -79,6 +79,7 @@
     "vitest": "^4.0.18"
   },
   "dependencies": {
+    "@instantdb/admin": "^1.0.65",
     "@instantdb/core": "^0.22.119",
     "@instantdb/react": "^0.22.121",
     "canvas-confetti": "^1.9.4",

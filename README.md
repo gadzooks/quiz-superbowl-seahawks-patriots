@@ -168,6 +168,46 @@ netlify deploy --prod --dir .
 3. Use browser DevTools to inspect InstantDB queries
 4. Check Network tab for real-time updates
 
+### Running with HTTPS (required for Yahoo login)
+
+Yahoo OAuth requires the redirect URI to be HTTPS, so if you're testing Yahoo
+login locally you need to serve the dev server over `https://localhost:8000`
+instead of plain HTTP. This uses [mkcert](https://github.com/FiloSottile/mkcert)
+to generate a locally-trusted certificate.
+
+1. Install mkcert:
+
+   ```bash
+   brew install mkcert
+   ```
+
+2. Install the local CA into your system trust store (prompts for your
+   password):
+
+   ```bash
+   mkcert -install
+   ```
+
+3. Generate a cert/key pair for `localhost` in the project root:
+
+   ```bash
+   mkcert localhost
+   ```
+
+   This creates `localhost.pem` and `localhost-key.pem` (already gitignored).
+   `vite.config.ts` picks these up automatically if present.
+
+4. Run the dev server as usual:
+
+   ```bash
+   yarn run dev
+   ```
+
+   It will start on `https://localhost:8000/superbowl/` with a trusted
+   certificate. Use this URL as your Yahoo app's redirect URI.
+
+   If you skip these steps, the dev server falls back to plain HTTP.
+
 ## Support
 
 For issues with:

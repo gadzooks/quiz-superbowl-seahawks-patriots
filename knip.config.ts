@@ -9,8 +9,15 @@ const config: KnipConfig = {
     'e2e/**/*.spec.ts',
     // Scripts
     'scripts/**/*.ts',
+    // Netlify Functions (Yahoo OAuth broker) — each file is its own entry point
+    'netlify/functions/**/*.ts',
   ],
-  project: ['src/**/*.{ts,tsx}', 'e2e/**/*.{ts,tsx}', 'scripts/**/*.ts'],
+  project: [
+    'src/**/*.{ts,tsx}',
+    'e2e/**/*.{ts,tsx}',
+    'scripts/**/*.ts',
+    'netlify/functions/**/*.ts',
+  ],
   ignore: [
     // Build output
     'dist/**',

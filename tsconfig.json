@@ -28,7 +28,9 @@
     "scripts/**/*",
     "vite.config.ts",
     "playwright.config.ts",
-    "instant.schema.ts"
+    "instant.schema.ts",
+    "instant.perms.ts",
+    "netlify/functions/**/*"
   ],
   "exclude": ["node_modules", "dist"]
 }

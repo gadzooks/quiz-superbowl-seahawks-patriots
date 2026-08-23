@@ -1,6 +1,7 @@
 import { defineConfig, type Plugin } from 'vite';
 import { resolve } from 'path';
 import { execSync } from 'child_process';
+import fs from 'fs';
 import react from '@vitejs/plugin-react';
 
 // Serve the SPA for /weekly/* URLs in dev. In production this is handled by
@@ -60,6 +61,12 @@ export default defineConfig({
   server: {
     port: 8000,
     open: true,
+    https: fs.existsSync('./localhost-key.pem')
+      ? {
+          key: fs.readFileSync('./localhost-key.pem'),
+          cert: fs.readFileSync('./localhost.pem'),
+        }
+      : undefined,
   },
 
   // Copy static assets

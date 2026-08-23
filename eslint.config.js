@@ -143,6 +143,20 @@ export default [
     },
   },
   {
+    // Netlify Functions run server-side (Node), not in the browser bundle,
+    // and parse untyped third-party API responses (Yahoo OAuth).
+    files: ['netlify/functions/**/*.ts'],
+    languageOptions: {
+      globals: {
+        Buffer: 'readonly',
+        process: 'readonly',
+      },
+    },
+    rules: {
+      'no-restricted-syntax': 'off', // Allow type assertions when parsing external API responses
+    },
+  },
+  {
     files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', 'src/test/**/*.ts'],
     languageOptions: {
       globals: {

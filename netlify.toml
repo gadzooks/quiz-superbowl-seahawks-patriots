@@ -18,6 +18,22 @@
   # Publish the dist directory created by Vite
   publish = "dist"
 
+[functions]
+  # Yahoo OAuth broker (netlify/functions/auth-yahoo-*.ts) — see WEEKLY_QUIZ_PLAN.md Phase 2.
+  # Requires YAHOO_CLIENT_ID, YAHOO_CLIENT_SECRET, YAHOO_REDIRECT_URI, APP_BASE_URL,
+  # VITE_INSTANTDB_APP_ID, and INSTANT_ADMIN_TOKEN set per deploy context.
+  directory = "netlify/functions"
+
+[dev]
+  # `netlify dev` proxies Vite (server.port 8000) + functions on one origin.
+  # https here reuses the mkcert cert Vite already uses, so the origin
+  # matches YAHOO_REDIRECT_URI / APP_BASE_URL (https://localhost:8888) when
+  # testing the Yahoo OAuth broker locally.
+  targetPort = 8000
+  [dev.https]
+    certFile = "localhost.pem"
+    keyFile = "localhost-key.pem"
+
 # ============================================================================
 # Deploy Contexts - Different environments for different branches
 # ============================================================================
