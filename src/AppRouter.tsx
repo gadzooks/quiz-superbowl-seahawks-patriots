@@ -8,6 +8,7 @@ import { WeeklyView } from './components/WeeklyView';
 import { DEFAULT_GAME_ID, isGameReadOnly } from './config/games';
 import { useAppContext } from './context/AppContext';
 import { useUrlParams } from './hooks/useUrlParams';
+import { useYahooAuthCallback } from './hooks/useYahooAuthCallback';
 import { SoundManager } from './sound/manager';
 import { initTheme, applyHeaderTeamColors, applyTeamTheme } from './theme/apply';
 import { needsTeamSelection } from './ui/teamPicker';
@@ -15,6 +16,7 @@ import { getCurrentGameConfig } from './utils/game';
 import { getGuestTheme } from './utils/guestTheme';
 
 export function AppRouter() {
+  useYahooAuthCallback();
   const { eventType, gameId, leagueSlug, quizDate } = useUrlParams();
   const isWeekly = eventType === 'weekly';
   const { setCurrentTeamId } = useAppContext();

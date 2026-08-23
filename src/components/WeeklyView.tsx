@@ -1,6 +1,8 @@
 import { formatQuizDate, getUpcomingQuizDate } from '../config/games';
 import { buildWeeklyPath } from '../utils/game';
 
+import { YahooSignIn } from './YahooSignIn';
+
 interface WeeklyViewProps {
   leagueSlug: string | null;
   quizDate: string | null;
@@ -17,7 +19,10 @@ export function WeeklyView({ leagueSlug, quizDate }: WeeklyViewProps) {
   return (
     <div className="card bg-base-200">
       <div className="card-body">
-        <h2 className="card-title text-2xl text-primary">Weekly Quiz</h2>
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="card-title text-2xl text-primary">Weekly Quiz</h2>
+          <YahooSignIn />
+        </div>
 
         {leagueSlug ? (
           <>

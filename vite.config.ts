@@ -61,12 +61,17 @@ export default defineConfig({
   server: {
     port: 8000,
     open: true,
-    https: fs.existsSync('./localhost-key.pem')
-      ? {
-          key: fs.readFileSync('./localhost-key.pem'),
-          cert: fs.readFileSync('./localhost.pem'),
-        }
-      : undefined,
+    // `netlify dev` already terminates HTTPS on its own proxy (see
+    // [dev.https] in netlify.toml) and expects a plain-HTTP upstream target;
+    // enabling HTTPS here too breaks its proxying. Only self-serve HTTPS
+    // when running Vite standalone (`yarn dev`) for direct-to-Vite testing.
+    https:
+      !process.env.NETLIFY_DEV && fs.existsSync('./localhost-key.pem')
+        ? {
+            key: fs.readFileSync('./localhost-key.pem'),
+            cert: fs.readFileSync('./localhost.pem'),
+          }
+        : undefined,
   },
 
   // Copy static assets
