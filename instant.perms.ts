@@ -7,7 +7,12 @@
 // `predictions.userId` / `leagues.creatorId` remain as plain string fields
 // for backwards compat with pre-auth data (Super Bowl LX is frozen
 // read-only and never gets new writes, so it's unaffected either way).
-// `games`/`questions` stay admin-token-only — only ever written by scripts.
+//
+// Phase 4 (admin question authoring): weekly quizzes are authored in-app by
+// any signed-in user who admins at least one league (auth.ref('$user.adminLeagues.id')
+// — the reverse of leagueAdmins). Super Bowl `games`/`questions` rows stay
+// admin-token/script-only: the `data.eventType == 'weekly'` guard on `games`
+// keeps this rule from opening up writes to Super Bowl rows.
 
 import type { InstantRules } from '@instantdb/core';
 
@@ -15,19 +20,26 @@ import type { AppSchema } from './instant.schema';
 
 const rules = {
   games: {
+    bind: {
+      isWeeklyAdmin:
+        "auth.id != null && data.eventType == 'weekly' && size(auth.ref('$user.adminLeagues.id')) > 0",
+    },
     allow: {
       view: 'true',
-      create: 'false',
-      update: 'false',
+      create: 'isWeeklyAdmin',
+      update: 'isWeeklyAdmin',
       delete: 'false',
     },
   },
   questions: {
+    bind: {
+      isAnyLeagueAdmin: "auth.id != null && size(auth.ref('$user.adminLeagues.id')) > 0",
+    },
     allow: {
       view: 'true',
-      create: 'false',
-      update: 'false',
-      delete: 'false',
+      create: 'isAnyLeagueAdmin',
+      update: 'isAnyLeagueAdmin',
+      delete: 'isAnyLeagueAdmin',
     },
   },
   leagues: {

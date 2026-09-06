@@ -2,7 +2,13 @@
 // Handle league creation and management
 
 import { isGameCompleted } from '../config/games';
-import { createLeague, leagueExists, seedGame } from '../db/queries';
+import {
+  createLeague,
+  createWeeklyLeague,
+  leagueExists,
+  leagueExistsBySlug,
+  seedGame,
+} from '../db/queries';
 import { validateLeagueName, toLeagueSlug } from '../services/validation';
 import { getCurrentGameId, getCurrentGameConfig } from '../utils/game';
 import { getUserId } from '../utils/user';
@@ -78,6 +84,53 @@ export async function handleLeagueCreation(
     return { success: true, slug };
   } catch (error) {
     console.error('Error creating league:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to create league',
+    };
+  }
+}
+
+/**
+ * Handle weekly league creation. Unlike Super Bowl leagues, weekly leagues
+ * aren't linked to a single game — they host many quizzes over a season.
+ */
+export async function handleWeeklyLeagueCreation(
+  leagueName: string,
+  /** $users id of the signed-in creator; required (Yahoo login is required to create a league). */
+  adminUserId: string | undefined
+): Promise<{ success: boolean; slug?: string; error?: string }> {
+  if (!adminUserId) {
+    return { success: false, error: 'Please sign in with Yahoo to create a league.' };
+  }
+
+  const validation = validateLeagueName(leagueName);
+  if (!validation.valid) {
+    return { success: false, error: validation.error };
+  }
+
+  const slug = toLeagueSlug(leagueName);
+  const currentUserId = getUserId();
+
+  const exists = await leagueExistsBySlug(slug);
+  if (exists) {
+    return {
+      success: false,
+      error: 'A league with this name already exists. Please choose a different name.',
+    };
+  }
+
+  try {
+    await createWeeklyLeague({
+      name: leagueName.trim(),
+      slug,
+      creatorId: currentUserId,
+      adminUserId,
+    });
+
+    return { success: true, slug };
+  } catch (error) {
+    console.error('Error creating weekly league:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to create league',

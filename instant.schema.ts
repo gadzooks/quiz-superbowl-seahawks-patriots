@@ -16,6 +16,8 @@ const _schema = i.schema({
       team2: i.string().optional(), // absent for weekly quizzes
       eventType: i.string().optional().indexed(), // 'superbowl' (default when absent) or 'weekly'
       quizDate: i.string().optional().indexed(), // YYYY-MM-DD, weekly quizzes only
+      actualResults: i.json().optional(), // weekly quiz grading (Super Bowl uses leagues.actualResults)
+      isOpen: i.boolean().optional(), // weekly quizzes only: admin-controlled, not date-derived — some quizzes close same-day, others 2-3 days later
     }),
 
     questions: i.entity({

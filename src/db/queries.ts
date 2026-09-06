@@ -75,6 +75,41 @@ export async function leagueExists(gameId: string, slug: string, retries = 2): P
 }
 
 /**
+ * Check if a league with the given slug exists, regardless of game.
+ * Used for weekly leagues, which aren't scoped to a single game.
+ */
+export async function leagueExistsBySlug(slug: string, retries = 2): Promise<boolean> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const result = await db.queryOnce({ leagues: { $: { where: { slug } } } });
+      return result.data.leagues.length > 0;
+    } catch (error) {
+      const isLastAttempt = attempt === retries;
+      const isTimeoutError =
+        error instanceof Error &&
+        (error.message.includes('timeout') || error.message.includes('timed out'));
+
+      if (isTimeoutError && !isLastAttempt) {
+        const delay = 100 * Math.pow(2, attempt);
+        console.warn(
+          `leagueExistsBySlug query timed out, retrying in ${delay}ms (attempt ${attempt + 1}/${retries + 1})`
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        continue;
+      }
+
+      console.error('❌ leagueExistsBySlug query failed after retries:', {
+        slug,
+        error: error instanceof Error ? error.message : String(error),
+        errorDetails: error,
+      });
+      return false;
+    }
+  }
+  return false;
+}
+
+/**
  * Get a game by its gameId. Returns the game's InstantDB id or null.
  * Retries with exponential backoff on timeout errors.
  */
@@ -241,10 +276,123 @@ export async function createLeague(data: {
 }
 
 /**
+ * Create a new weekly league, not linked to any single game — a weekly
+ * league hosts many quizzes (games) over a season via predictionGame links
+ * on individual predictions instead.
+ */
+export async function createWeeklyLeague(data: {
+  name: string;
+  slug: string;
+  creatorId: string;
+  /** $users id of the signed-in creator; auto-assigned as the league's admin. */
+  adminUserId: string;
+}): Promise<string> {
+  const leagueId = id();
+  await db.transact([
+    db.tx.leagues[leagueId].update({
+      slug: data.slug,
+      name: data.name,
+      creatorId: data.creatorId,
+      isOpen: true,
+      createdAt: Date.now(),
+      actualResults: null,
+      showAllPredictions: false,
+    }),
+    db.tx.leagues[leagueId].link({ admins: data.adminUserId }),
+  ]);
+  return leagueId;
+}
+
+/**
+ * Create a weekly quiz: a games row (eventType 'weekly') plus its questions.
+ * Admin-gated by instant.perms.ts (isWeeklyAdmin / isAnyLeagueAdmin).
+ */
+export async function createWeeklyQuiz(data: {
+  gameId: string;
+  quizDate: string;
+  displayName: string;
+  year: number;
+  questions: Array<{
+    questionId: string;
+    label: string;
+    type: string;
+    options?: string[];
+    points: number;
+    isTiebreaker: boolean;
+  }>;
+}): Promise<string> {
+  const gameInstantId = id();
+  const txs: TransactionUpdate[] = [
+    db.tx.games[gameInstantId].update({
+      gameId: data.gameId,
+      displayName: data.displayName,
+      year: data.year,
+      eventType: 'weekly',
+      quizDate: data.quizDate,
+      actualResults: null,
+      isOpen: true,
+    }),
+  ];
+
+  data.questions.forEach((q, i) => {
+    const qId = id();
+    txs.push(
+      db.tx.questions[qId].update({
+        questionId: q.questionId,
+        label: q.label,
+        type: q.type,
+        options: q.options ?? null,
+        points: q.points,
+        sortOrder: i,
+        isTiebreaker: q.isTiebreaker,
+      })
+    );
+    txs.push(db.tx.questions[qId].link({ game: gameInstantId }));
+  });
+
+  await db.transact(txs);
+  return gameInstantId;
+}
+
+/**
+ * Save actual results for a weekly quiz and recalculate that quiz's
+ * predictions' scores. Mirrors saveResults, but for games.actualResults
+ * (weekly) instead of leagues.actualResults (Super Bowl).
+ */
+export async function saveQuizResults(
+  gameInstantId: string,
+  results: Record<string, string | number>,
+  predictions: Prediction[],
+  questions: Question[]
+): Promise<void> {
+  const updates: TransactionUpdate[] = [
+    db.tx.games[gameInstantId].update({ actualResults: results }),
+  ];
+
+  for (const pred of predictions) {
+    const score = calculateScore(pred.predictions, results, questions);
+    const diff = calculateTiebreakDiff(pred.predictions, results);
+    const tiebreakDiff = Number.isFinite(diff) ? diff : 0;
+    updates.push(db.tx.predictions[pred.id].update({ score, tiebreakDiff }));
+  }
+
+  await db.transact(updates);
+}
+
+/**
  * Update league open/closed status.
  */
 export async function updateLeagueStatus(leagueId: string, isOpen: boolean): Promise<void> {
   await db.transact([db.tx.leagues[leagueId].update({ isOpen })]);
+}
+
+/**
+ * Open or close a weekly quiz for new/edited answers. Admin-controlled
+ * (instant.perms.ts isWeeklyAdmin), not derived from quizDate — some
+ * quizzes close same-day, others 2-3 days later.
+ */
+export async function updateQuizStatus(gameInstantId: string, isOpen: boolean): Promise<void> {
+  await db.transact([db.tx.games[gameInstantId].update({ isOpen })]);
 }
 
 /**
@@ -290,6 +438,8 @@ export async function savePrediction(data: {
   questions?: Question[];
   /** $users id of the signed-in owner; required when creating (no `id`). */
   authUserId?: string;
+  /** Weekly quizzes only: InstantDB id of the games row this prediction answers. */
+  gameInstantId?: string;
 }): Promise<string> {
   const predictionId = data.id ?? id();
   const score =
@@ -323,6 +473,9 @@ export async function savePrediction(data: {
     txs.push(db.tx.predictions[predictionId].link({ league: data.leagueId }));
     if (data.authUserId) {
       txs.push(db.tx.predictions[predictionId].link({ user: data.authUserId }));
+    }
+    if (data.gameInstantId) {
+      txs.push(db.tx.predictions[predictionId].link({ game: data.gameInstantId }));
     }
   }
 

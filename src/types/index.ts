@@ -7,6 +7,11 @@ export interface Game {
   year: number;
   team1: string;
   team2: string;
+  eventType?: 'superbowl' | 'weekly';
+  quizDate?: string;
+  actualResults?: Record<string, string | number> | null;
+  /** Weekly quizzes only: whether the quiz is still accepting answers. */
+  isOpen?: boolean;
 }
 
 export interface Question {
